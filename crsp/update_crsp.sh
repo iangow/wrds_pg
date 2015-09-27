@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-psql -f code/eomonth.sql
+psql -f crsp/eomonth.sql
 perl crsp/update_crsp.pl
