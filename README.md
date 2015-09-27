@@ -15,19 +15,19 @@ I keep all Git repositories in `~/git`. So to get this repository, I could do:
 
 ```
 cd ~/git
-git clone https://github.com/iangow/acct_data.git
+git clone https://github.com/iangow/wrds_pg.git
 ```
 
-This will create a copy of the repository in `~/git/acct_data`.
+This will create a copy of the repository in `~/git/wrds_pg`.
 Note that one can get updates to the repository by going to the directory and "pulling" the latest code:
 
 ```
-cd ~/git/acct_data
+cd ~/git/wrds_pg
 git pull
 ```
 
 Alternatively, I think you could fork the repository on GitHub and then clone. 
-I think that cloning using the SSH URL (e.g., `git@github.com:iangow/acct_data.git`) is necessary for Git pulling and pushing to work well in RStudio.
+I think that cloning using the SSH URL (e.g., `git@github.com:iangow/wrds_pg.git`) is necessary for Git pulling and pushing to work well in RStudio.
 
 ### 2. Perl
 
@@ -42,13 +42,12 @@ On Ubuntu, `sudo apt-get install libdbi-perl libdbd-pg-perl` would work.
 A number of scripts rely on R.
 This can be obtained [here](https://cran.rstudio.com/).
 I recommend [RStudio](https://www.rstudio.com/products/RStudio/);
-in fact, this repository is set up as an RStudio project (open the file [acct_data.Rproj](blob/master/acct_data.Rproj) in RStudio).
+in fact, this repository is set up as an RStudio project (open the file [wrds_pg.Rproj](wrds_pg.Rproj) in RStudio).
 
 ### 4. PostgreSQL
 
 You should have a PostgreSQL database to store the data.
 There are also some data dependencies in that some scripts assume the existence of other data in the database.
-For example, scripts that download filings generally refer to the PostgreSQL table `filings.filings` created by the script [get_filings.R](blob/master/filings/get_filings.R).
 
 ### 5. Bash
 
