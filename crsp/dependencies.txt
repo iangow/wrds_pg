@@ -1,0 +1,34 @@
+
+DROP TABLE crsp.dsedist;
+DROP VIEW activist_director.director_bio_matched;
+DROP VIEW targeted.sharkwatch;
+DROP VIEW activist_director.sharkwatch;
+DROP VIEW activist_director.permnos;
+DROP VIEW activism.permnos;
+
+view activism.permnos depends on table stocknames
+
+  CREATE VIEW activism.permnos AS
+  SELECT DISTINCT permno, ncusip
+  FROM crsp.stocknames
+  WHERE ncusip IS NOT NULL
+  UNION 
+  SELECT DISTINCT permno, cusip AS ncusip
+  FROM activism.missing_permnos
+  WHERE permno IS NOT NULL
+
+
+view targeted.sharkwatch depends on view activism.permnos
+
+~/Dropbox/research/activism/targeted/code/create_targeted.sharkwatch.sql 
+
+view activist_director.sharkwatch depends on view activism.permnos
+
+~/Dropbox/research/activism/activist_director/code/create_sharkwatch_sample.R 
+
+view activist_director.director_bio_matched depends on view activist_director.sharkwatch
+
+~/Dropbox/research/activism/activist_director/code/create_director_bio_matched.sql 
+
+view activist_director.permnos depends on table stocknames
+
