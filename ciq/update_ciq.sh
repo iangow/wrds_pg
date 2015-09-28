@@ -10,5 +10,3 @@
 if [ $? -eq 1 ] ; then
     psql -f ciq/ciq_indexes.sql
 fi
-
-
