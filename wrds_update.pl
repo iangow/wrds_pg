@@ -24,6 +24,7 @@ my $dbname = $PGDATABASE;
 my $force = '';
 my $fix_missing = '';
 my $fix_cr = '';
+my $rename = '';
 
 GetOptions('force' => \$force,
             'fix-missing' => \$fix_missing,
@@ -31,7 +32,8 @@ GetOptions('force' => \$force,
             'dbname=s' => \$dbname,
             'fix-cr' => \$fix_cr,
             'drop=s' => \$drop,
-            'obs=s' => \$obs);
+            'obs=s' => \$obs,
+	    'rename=s' => \$rename);
 
 # Get schema and table name from command line. I have set my database
 # up so that these line up with the names of the WRDS library and data
@@ -119,6 +121,7 @@ if ($modified ne $comment || $force) {
     $cmd .= ($fix_cr eq '' ? '' : ' --fix-cr');
     $cmd .= ($obs eq '' ? '' : " --obs=$obs");
     $cmd .= ($drop eq '' ? '' : " --drop='$drop'");
+    $cmd .= ($rename eq '' ? '' : " --rename='$rename'");
     $cmd .= " --wrds-id=$wrds_id --dbname=$dbname";
     $cmd .= " --updated=\"$modified\"";
     if ($force) {

@@ -24,13 +24,15 @@ my $dbname = $PGDATABASE;
 my $fix_missing = '';
 my $updated = '';
 my $drop = '';
+my $rename = '';
 GetOptions('fix-missing' => \$fix_missing,
             'wrds-id=s' => \$wrds_id,
             'dbname=s' => \$dbname,
             'updated=s' => \$updated,
             'fix-cr' => \$fix_cr,
             'drop=s' => \$drop,
-            'obs=s' => \$obs);
+            'obs=s' => \$obs,
+	    'rename=s' => \$rename);
 
 
 # Get schema and table name from command line. I have set my database
@@ -41,6 +43,14 @@ GetOptions('fix-missing' => \$fix_missing,
 $db_schema = $table_args[0];
 $table_name = $table_args[1];
 $pg_table = $table_name;
+
+if ($rename ne '') {
+    $rename_str = "rename=($rename)"
+} else {
+    $rename_str = "";
+}
+
+
 
 if ($obs ne '') {
     $obs_str = "obs=$obs"
@@ -54,8 +64,8 @@ if ($drop ne '') {
     $drop_str = "";
 }
 
-if ($obs ne '' || $drop ne '') {
-    $table_name = "$table_name($drop_str $obs_str)";
+if ($obs ne '' || $drop ne '' || $rename_str) {
+    $table_name = "$table_name($drop_str $obs_str $rename_str)";
 }
 
 $db = "$db_schema.";
@@ -79,7 +89,7 @@ $sas_code = "
     %let table_name=$pg_table;
 
     data pwd.schema;
-        set $db$pg_table(drop=$drop obs=1);
+        set $db$pg_table(drop=$drop obs=1 $rename_str);
     run;
 
     * Use PROC CONTENTS to extract the information desired.;
@@ -227,7 +237,7 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
 
       * Fix missing values;
       data pwd.$wrds_id$pg_table;
-          set $db$pg_table($drop_str $obs_str);
+          set $db$pg_table($drop_str $obs_str $rename_str);
           $dsf_fix
 
           $fix_cr_code
