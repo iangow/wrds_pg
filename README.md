@@ -92,7 +92,7 @@ Note that I use public-key authentication to access WRDS. Following hints taken 
 
 ```
 ssh-keygen -t rsa
-cat ~/.ssh/id_rsa.pub | ssh iangow@wrds.wharton.upenn.edu "cat >> ~/.ssh/authorized_keys"
+cat ~/.ssh/id_rsa.pub | ssh iangow@wrds-cloud.wharton.upenn.edu "cat >> ~/.ssh/authorized_keys"
 ```
 
 I use an empty passphrase in setting up my key so that the scripts can run without user intervention.

@@ -32,7 +32,7 @@ GetOptions('fix-missing' => \$fix_missing,
             'fix-cr' => \$fix_cr,
             'drop=s' => \$drop,
             'obs=s' => \$obs,
-	    'rename=s' => \$rename);
+	        'rename=s' => \$rename);
 
 
 # Get schema and table name from command line. I have set my database
@@ -122,7 +122,7 @@ $sas_code = "
 
 # Run the SAS code on the WRDS server and save the result to @result
 $cmd = "echo \"$sas_code\" | ";
-$cmd .= "ssh -C $wrds_id\@wrds.wharton.upenn.edu 'sas  -stdio -noterminal ' 2>/dev/null";
+$cmd .= "ssh -C $wrds_id\@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal ' 2>/dev/null";
 @result = `$cmd`;
 
 # Now fill an array with the names and data type of each variable
@@ -164,7 +164,7 @@ $sas_code = "
 
 # Run the SAS command and get the first row of the table
 $cmd = "echo \"$sas_code\" | ";
-$cmd .= "ssh -C $wrds_id\@wrds.wharton.upenn.edu 'sas -stdio -noterminal ' 2>/dev/null";
+$cmd .= "ssh -C $wrds_id\@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal ' 2>/dev/null";
 $cmd .= "| head -n 1";
 print "Getting schema for $db_schema.$table_name\n";
 $row = `$cmd`;
@@ -264,7 +264,7 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
 
 # Use PostgreSQL's COPY function to get data into the database
 $cmd = "echo \"$sas_code\" | ";
-$cmd .= "ssh -C $wrds_id\@wrds.wharton.upenn.edu 'sas -stdio -noterminal' 2>/dev/null | ";
+$cmd .= "ssh -C $wrds_id\@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal' 2>/dev/null | ";
 $cmd .= "psql -d $dbname -c \"COPY $db_schema.$pg_table FROM STDIN CSV HEADER ENCODING 'latin1' \"";
 
 print "Importing data into $db_schema.$table_name.\n";

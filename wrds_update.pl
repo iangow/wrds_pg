@@ -83,8 +83,8 @@ $db =~ s/^crsp/crspq/;
 
 $sas_code = "proc contents data=".  $db . "." . $table_name .";";
 $cmd = "echo \"$sas_code\" | ";
-$cmd .= "ssh -C $wrds_id\@wrds.wharton.upenn.edu ";
-$cmd .= "'sas -stdio -noterminal' 2>/dev/null";
+$cmd .= "ssh -C $wrds_id\@wrds-cloud.wharton.upenn.edu ";
+$cmd .= "'qsas -stdio -noterminal' 2>/dev/null";
 
 @result = `$cmd`;
 
