@@ -233,7 +233,7 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
     $sas_code = "
       options nosource nonotes;
 
-      libname pwd '/sastemp6';
+      libname pwd '/sastemp';
 
       * Fix missing values;
       data pwd.$wrds_id$pg_table;
