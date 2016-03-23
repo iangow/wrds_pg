@@ -14,6 +14,7 @@
 ./wrds_update.pl comp.funda --fix-missing
 ./wrds_update.pl comp.fundq --fix-missing
 ./wrds_update.pl comp.g_sec_divid
+./wrds_update.pl comp.idxcst_his --rename=from=fromdt
 psql < comp/create_ciks.sql
 psql < comp/comp_indexes.sql
 psql < pg/permissions.sql

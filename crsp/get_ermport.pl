@@ -7,12 +7,12 @@ use Env qw($PGDATABASE $WRDS_ID);
 my $dbname = $PGDATABASE;
 my $wrds_id = $WRDS_ID;	# option variable with default value
 GetOptions( 'wrds-id=s' => \$wrds_id,
-            'dbname=s' => \$dbname); 
+            'dbname=s' => \$dbname);
 
 # SAS code to extract information about the datatypes of the SAS data.
 # Note that there are some date formates that don't work with this code.
 $sas_code = "
-	
+
 	libname pwd '.';
 
     PROC SQL;
@@ -28,7 +28,7 @@ $sas_code = "
 	run;";
 
 # Get table information from the "schema" file
-my $dbh = DBI->connect("dbi:Pg:dbname=$dbname")	
+my $dbh = DBI->connect("dbi:Pg:dbname=$dbname")
 	or die "Cannot connect: " . $DBI::errstr;
 
 $sql = "
@@ -47,7 +47,7 @@ $dbh->do($sql);
 $time = localtime;
 printf "Beginning file import at %d:%02d:%02d\n",@$time[2],@$time[1],@$time[0];
 $cmd  = "echo \"$sas_code\" | ";
-$cmd .= "ssh -C $wrds_id\@wrds.wharton.upenn.edu 'sas -stdio -noterminal' 2>/dev/null | ";
+$cmd .= "ssh -C $wrds_id\@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal' 2>/dev/null | ";
 $cmd .= "psql -d $dbname -c ";
 $cmd .= "\"COPY crsp.ermport FROM STDIN CSV HEADER ENCODING 'latin1' \"";
 

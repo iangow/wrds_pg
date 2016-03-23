@@ -26,8 +26,8 @@ get_data <- function(libname, datatable) {
     # the most efficient approach).
     # -stdio means that SAS will take input from STDIN and output to STDOUT
     wrds_id <- Sys.getenv("WRDS_ID")
-    sas_command <- paste0("ssh -C ", wrds_id, "@wrds.wharton.upenn.edu ",
-                         "'sas -stdio -noterminal; cat data.dta' > ",
+    sas_command <- paste0("ssh -C ", wrds_id, "@wrds-cloud.wharton.upenn.edu ",
+                         "'qsas -stdio -noterminal; cat data.dta' > ",
                          temp_file)
 
     # The following pipes the SAS code to the SAS command. The "intern=TRUE"

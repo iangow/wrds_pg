@@ -46,7 +46,7 @@ sas_code <- "
 
 # Use PostgreSQL's COPY function to get data into the database
 cmd = paste0("echo \"", sas_code, "\" | ",
-            "ssh -C $WRDS_ID@wrds.wharton.upenn.edu 'sas -stdio -noterminal' 2>/dev/null | ",
+            "ssh -C $WRDS_ID@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal' 2>/dev/null | ",
             "psql -d ", dbname,
             " -c \"COPY audit.feed09filing FROM STDIN CSV HEADER ENCODING 'latin1' \"")
 
@@ -78,7 +78,7 @@ sas_code <- "
 
 # Use PostgreSQL's COPY function to get data into the database
 cmd = paste0("echo \"", sas_code, "\" | ",
-            "ssh -C $WRDS_ID@wrds.wharton.upenn.edu 'sas -stdio -noterminal' 2>/dev/null | ",
+            "ssh -C $WRDS_ID@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal' 2>/dev/null | ",
             "psql -d ", dbname,
             " -c \"COPY audit.disclosure_text FROM STDIN CSV HEADER ENCODING 'latin1' \"")
 
