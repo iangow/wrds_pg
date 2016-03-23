@@ -25,14 +25,15 @@ my $fix_missing = '';
 my $updated = '';
 my $drop = '';
 my $rename = '';
-GetOptions('fix-missing' => \$fix_missing,
-            'wrds-id=s' => \$wrds_id,
-            'dbname=s' => \$dbname,
-            'updated=s' => \$updated,
-            'fix-cr' => \$fix_cr,
-            'drop=s' => \$drop,
-            'obs=s' => \$obs,
-	        'rename=s' => \$rename);
+GetOptions('fix-cr' => \$fix_cr,
+           'fix-missing' => \$fix_missing,
+           'wrds-id=s' => \$wrds_id,
+           'dbname=s' => \$dbname,
+           'updated=s' => \$updated,
+           'fix-cr' => \$fix_cr,
+           'drop=s' => \$drop,
+           'obs=s' => \$obs,
+           'rename=s' => \$rename);
 
 
 # Get schema and table name from command line. I have set my database
@@ -127,7 +128,7 @@ $cmd .= "ssh -C $wrds_id\@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal 
 
 # Now fill an array with the names and data type of each variable
 my %var_type;
-foreach $row (@result)	{
+foreach $row (@result)    {
     my @fields = split(",", $row);
     my $field = @fields[0];
 
@@ -233,7 +234,7 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
     $sas_code = "
       options nosource nonotes;
 
-      libname pwd '/sastemp6';
+      libname pwd '/sastemp';
 
       * Fix missing values;
       data pwd.$wrds_id$pg_table;
@@ -244,7 +245,7 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
 
           array allvars _numeric_ ;
 
-           do over allvars;
+          do over allvars;
               if missing(allvars) then allvars = . ;
           end;
       run;
