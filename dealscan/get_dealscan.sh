@@ -28,6 +28,3 @@
 ./wrds_update.pl dealscan.link_table
 ./wrds_update.pl dealscan.link_table
 ./wrds_update.pl dealscan.dbo_df_fac_dates_data
-
-pg_dump --format custom --no-tablespaces --verbose \
-    --file $PGBACKUP_DIR/dealscan.backup --schema "dealscan" "crsp"
