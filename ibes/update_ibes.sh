@@ -21,5 +21,3 @@ fi
 
 ./wrds_update.pl ibes.surpsum
 
-pg_dump  --format custom --no-tablespaces --verbose \
-    --file $PGBACKUP_DIR/ibes.backup --schema "ibes"
