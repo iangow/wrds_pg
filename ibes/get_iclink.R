@@ -15,7 +15,7 @@ get_iclink <- function() {
 
   sas_code <- "
 
-    %include \"/wrds/sample_programs/iclink.sas\";
+    %include \"/wrdslin/ibes/samples/iclink.sas\";
 
     proc export data=home.iclink
       outfile=\"data.dta\"

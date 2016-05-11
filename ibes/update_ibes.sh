@@ -21,3 +21,8 @@ fi
 
 ./wrds_update.pl ibes.surpsum
 
+# Update guidance
+./wrds_update.pl ibes.det_guidance
+./wrds_update.pl ibes.det_guidance_ext
+./wrds_update.pl ibes.id_guidance
+./wrds_update.pl ibes.split_guidance
