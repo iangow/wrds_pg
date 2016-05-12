@@ -2,7 +2,7 @@
 use DBI;
 use Getopt::Long;
 use Time::localtime;
-use Env qw($PGDATABASE $WRDS_ID);
+use Env qw($PGDATABASE);
 
 ################################################
 # 0. Get command-line arguments                #
@@ -19,7 +19,6 @@ use Env qw($PGDATABASE $WRDS_ID);
 # --dbname=your_database, otherwise environment variable
 # PGDATABASE will be used.
 # optional variable with default value
-my $wrds_id = $WRDS_ID;
 my $dbname = $PGDATABASE;
 my $fix_missing = '';
 my $updated = '';
@@ -27,7 +26,6 @@ my $drop = '';
 my $rename = '';
 GetOptions('fix-cr' => \$fix_cr,
            'fix-missing' => \$fix_missing,
-           'wrds-id=s' => \$wrds_id,
            'dbname=s' => \$dbname,
            'updated=s' => \$updated,
            'fix-cr' => \$fix_cr,
@@ -51,8 +49,6 @@ if ($rename ne '') {
     $rename_str = "";
 }
 
-
-
 if ($obs ne '') {
     $obs_str = "obs=$obs"
 } else {
@@ -69,13 +65,10 @@ if ($obs ne '' || $drop ne '' || $rename_str) {
     $table_name = "$table_name($drop_str $obs_str $rename_str)";
 }
 
-$db = "$db_schema.";
-
-# Use the quarterly update of CRSP
-$db =~ s/^crsp/crspq/;
+$db = "pwd.";
 
 ################################################
-# 1. Get format of variables on WRDS table     #
+# 1. Get format of variables on SAS table     #
 ################################################
 
 # SAS code to extract information about the datatypes of the SAS data.
@@ -90,7 +83,7 @@ $sas_code = "
     %let table_name=$pg_table;
 
     data pwd.schema;
-        set $db$pg_table(drop=$drop obs=1 $rename_str);
+        set pwd.$pg_table(drop=$drop obs=1 $rename_str);
     run;
 
     * Use PROC CONTENTS to extract the information desired.;
@@ -123,7 +116,7 @@ $sas_code = "
 
 # Run the SAS code on the WRDS server and save the result to @result
 $cmd = "echo \"$sas_code\" | ";
-$cmd .= "ssh -C $wrds_id\@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal ' 2>/dev/null";
+$cmd .= "sas -stdio -noterminal 2>/dev/null";
 @result = `$cmd`;
 
 # Now fill an array with the names and data type of each variable
@@ -147,11 +140,11 @@ foreach $row (@result)    {
 }
 
 ##################################################
-# 2. Get column order of variables on WRDS table #
+# 2. Get column order of variables on SAS table #
 ##################################################
 
 
-# Get the first row of the SAS data file from WRDS. This is important,
+# Get the first row of the SAS data file. This is important,
 # as we need to put the table together so as to align the fields with the data
 # (the "schema" code above doesn't do this for us).
 
@@ -165,9 +158,9 @@ $sas_code = "
 
 # Run the SAS command and get the first row of the table
 $cmd = "echo \"$sas_code\" | ";
-$cmd .= "ssh -C $wrds_id\@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal ' 2>/dev/null";
+$cmd .= "sas -stdio -noterminal 2>/dev/null";
 $cmd .= "| head -n 1";
-print "Getting schema for $db_schema.$table_name\n";
+print "Getting schema form $table_name\n";
 $row = `$cmd`;
 
 ##################################################
@@ -210,7 +203,7 @@ $dbh->do("
 $dbh->do($sql);
 
 ##################################################################
-# 4. Import the data using COPY from CSV file piped from WRDS    #
+# 4. Import the data using COPY from CSV file piped from SAS     #
 ##################################################################
 
 $tm = localtime;
@@ -234,10 +227,10 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
     $sas_code = "
       options nosource nonotes;
 
-      libname pwd '/sastemp';
+      libname pwd '.';
 
       * Fix missing values;
-      data pwd.$wrds_id$pg_table;
+      data pwd.$pg_table;
           set $db$pg_table($drop_str $obs_str $rename_str);
           $dsf_fix
 
@@ -250,7 +243,7 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
           end;
       run;
 
-      proc export data=pwd.$wrds_id$pg_table outfile=stdout dbms=csv;
+      proc export data=pwd.$pg_table outfile=stdout dbms=csv;
       run;";
 
 } else {
@@ -265,7 +258,7 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
 
 # Use PostgreSQL's COPY function to get data into the database
 $cmd = "echo \"$sas_code\" | ";
-$cmd .= "ssh -C $wrds_id\@wrds-cloud.wharton.upenn.edu 'qsas -stdio -noterminal' 2>/dev/null | ";
+$cmd .= "sas -stdio -noterminal 2>/dev/null | ";
 $cmd .= "psql -d $dbname -c \"COPY $db_schema.$pg_table FROM STDIN CSV HEADER ENCODING 'latin1' \"";
 
 print "Importing data into $db_schema.$table_name.\n";
@@ -288,12 +281,5 @@ foreach $field (split(',', $row)) {
     }
 }
 
-# Comment on table to reflect date it was updated
-my ($day,$month,$year)=($tm->mday(),$tm->mon(),$tm->year());
-if ($updated eq "") {
-    $updated = sprintf( "Table updated on %d-%02d-%02d.", 1900+$year, 1+$month, $day);
-}
-print "$updated\n";
-$dbh->do("COMMENT ON TABLE $pg_table IS '$updated'");
 $dbh->disconnect();
 
