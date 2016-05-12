@@ -9,8 +9,13 @@ use Env qw($PGDATABASE);
 ################################################
 
 # Extract options from the command line
-# Example ./wrds_fetch.pl comp.idx_index --fix-missing --wrds-id iangow
-# gets comp.idx_index from WRDS using WRDS ID iangow. It also converts
+# Example ./wrds_fetch.pl comp.idx_index --fix-missing
+# takes idx_index from teh current working directory.
+# Clearly it would be better to specify schema and path separately.
+# Note that you could run from the directory in which the file is located
+# by specifying the full path to wrds_fetch.pl.
+#
+# It also converts
 # special missing values (e.g., .Z) to regular missing values (i.e., .)
 #
 # In most cases, you will want to omit --fix-missing.
@@ -34,9 +39,7 @@ GetOptions('fix-cr' => \$fix_cr,
            'rename=s' => \$rename);
 
 
-# Get schema and table name from command line. I have set my database
-# up so that these line up with the names of the WRDS library and data
-# file, respectively.
+# Get schema and table name from command line.
 @table_args = split(/\./,  @ARGV[0]);
 
 $db_schema = $table_args[0];
@@ -114,7 +117,7 @@ $sas_code = "
     proc export data=schema outfile=stdout dbms=csv;
     run;";
 
-# Run the SAS code on the WRDS server and save the result to @result
+# Run the SAS code save the result to @result
 $cmd = "echo \"$sas_code\" | ";
 $cmd .= "sas -stdio -noterminal 2>/dev/null";
 @result = `$cmd`;
