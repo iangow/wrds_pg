@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-Rscript ibes/get_iclink.R
 
 ./wrds_update.pl ibes.statsum_epsus
 ./wrds_update.pl ibes.act_epsus
@@ -9,6 +8,7 @@ Rscript ibes/get_iclink.R
 if [ $? -eq 1 ] ; then
     psql -c "SET maintenance_work_mem='10GB'; CREATE INDEX ON ibes.detu_epsus (ticker, revdats)"
 fi
+Rscript ibes/get_iclink.R
 
 ./wrds_update.pl ibes.det_epsus
 ./wrds_update.pl ibes.id
