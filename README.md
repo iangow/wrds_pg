@@ -48,6 +48,7 @@ in fact, this repository is set up as an RStudio project (open the file [wrds_pg
 
 You should have a PostgreSQL database to store the data.
 There are also some data dependencies in that some scripts assume the existence of other data in the database.
+Also, I assume the existence of a role `wrds` (SQL `CREATE ROLE wrds` works to add this if it is absent).
 
 ### 5. Bash
 

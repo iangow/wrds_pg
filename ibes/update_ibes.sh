@@ -26,3 +26,6 @@ fi
 ./wrds_update.pl ibes.det_guidance_ext
 ./wrds_update.pl ibes.id_guidance
 ./wrds_update.pl ibes.split_guidance
+
+psql -c 'GRANT USAGE ON SCHEMA ibes TO wrds';
+psql -c 'GRANT SELECT ON ALL TABLES IN SCHEMA ibes TO wrds';

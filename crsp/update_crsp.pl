@@ -130,9 +130,6 @@ $any_updated = $dsf | $dseexchdates | $stocknames | $dsedist
                     | $msf | $msi | $msedelist
                     | $dsedelist | $dsi | $dport;
 
-$cmd = "pg_dump --format custom --no-tablespaces --file ";
-$cmd .= "$PGBACKUP_DIR/crsp.backup --schema 'crsp'";
-if ($any_updated) {
-    print("Backing up crsp schema");
-    system($cmd);
-}
+psql -c 'GRANT USAGE ON SCHEMA crsp TO wrds';
+psql -c 'GRANT SELECT ON ALL TABLES IN SCHEMA crsp TO wrds';
+

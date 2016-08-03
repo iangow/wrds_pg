@@ -17,5 +17,5 @@
 ./wrds_update.pl comp.idxcst_his --rename=from=fromdt
 psql < comp/create_ciks.sql
 psql < comp/comp_indexes.sql
-psql < pg/permissions.sql
-
+psql -c 'GRANT USAGE ON SCHEMA comp TO wrds';
+psql -c 'GRANT SELECT ON ALL TABLES IN SCHEMA comp TO wrds';
