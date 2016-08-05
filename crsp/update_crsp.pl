@@ -109,7 +109,6 @@ $stocknames = $stocknames >> 8;
 if ($stocknames) {
     system("psql -c 'ALTER TABLE crsp.stocknames ALTER permno TYPE integer'");
     system("psql -c 'ALTER TABLE crsp.stocknames ALTER permco TYPE integer'");
-    system("psql -f crsp/crsp_fix_permnos.sql;");
 }
 
 $dseexchdates = system("./wrds_update.pl crsp.stocknames");
@@ -123,13 +122,8 @@ if ($dseexchdates) {
 system("./wrds_update.pl crsp.msp500list;");
 system("./wrds_update.pl crsp.ccmxpf_lnkused --fix-missing;");
 system("./wrds_update.pl crsp.fund_names --fix-missing;");
-system("psql -f pg/permissions.sql");
 
-$any_updated = $dsf | $dseexchdates | $stocknames | $dsedist
-                    | $ccmxpf_lnkhist | $ccmxpf_linktable | $dsedist
-                    | $msf | $msi | $msedelist
-                    | $dsedelist | $dsi | $dport;
-
+# Fix permissions.
 psql -c 'GRANT USAGE ON SCHEMA crsp TO wrds';
 psql -c 'GRANT SELECT ON ALL TABLES IN SCHEMA crsp TO wrds';
 

@@ -1,6 +1,22 @@
 ﻿-- Create a table that integrates basic returns with delisting returns
 SET work_mem='6GB';
 
+CREATE OR REPLACE FUNCTION eomonth(date)
+ RETURNS date
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$
+    SELECT (date_trunc('MONTH', $1) + INTERVAL '1 month - 1 day')::date;
+$function$;
+
+CREATE OR REPLACE FUNCTION eomonth(timestamp without time zone)
+ RETURNS date
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$
+    SELECT (date_trunc('MONTH', $1) + INTERVAL '1 month - 1 day')::date;
+  $function$;
+
 DROP TABLE IF EXISTS crsp.mrets CASCADE;
 
 CREATE TABLE crsp.mrets AS
