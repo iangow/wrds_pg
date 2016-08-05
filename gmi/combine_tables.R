@@ -14,14 +14,14 @@ table_query <- function(table) {
     paste0("SELECT ", fields, "\nFROM gmi.", table)
 }
 
-sql <- paste0("DROP TABLE gmi.takeoverdefenses_all;\n",
-              "CREATE TABLE gmi.takeoverdefenses_all AS\n", 
+sql <- paste0("DROP TABLE IF EXISTS gmi.takeoverdefenses_all;\n",
+              "CREATE TABLE gmi.takeoverdefenses_all AS\n",
               paste0(lapply(tables, table_query), collapse="\nUNION\n"))
 
 rs <- dbGetQuery(pg, sql)
 
 sql <- paste("CREATE INDEX ON gmi.takeoverdefenses_all (ticker);",
-             "CREATE INDEX ON gmi.takeoverdefenses_all (ticker, year);", 
+             "CREATE INDEX ON gmi.takeoverdefenses_all (ticker, year);",
              sep="\n")
 rs <- dbGetQuery(pg, sql)
 # cat(sql)
