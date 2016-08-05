@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript 
 convertToInteger <- function(vec) {
     # This is a small function that converts numeric vectors to
     # integers if doing so does not lose information
@@ -78,6 +79,7 @@ url <- paste("https://docs.google.com/spreadsheet/pub?",
              "&single=true&gid=0&output=csv",sep="")
 csv_file <- getURL(url, verbose=FALSE)
 issue_codes <- read.csv(textConnection(csv_file), stringsAsFactors=FALSE)
+rs <- dbGetQuery(pg, "CREATE SCHEMA IF NOT EXISTS risk")
 rs <- dbWriteTable(pg, c("risk", "issue_codes"), issue_codes,
                    row.names=FALSE, overwrite=TRUE)
 rs <- dbDisconnect(pg)
