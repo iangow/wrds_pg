@@ -2,6 +2,8 @@ library("RPostgreSQL")
 pg <- dbConnect(PostgreSQL())
 
 dbGetQuery(pg, "
+    CREATE SCHEMA IF NOT EXISTS taq;
+
     DROP TABLE IF EXISTS taq.mast;
     CREATE TABLE taq.mast
     (
