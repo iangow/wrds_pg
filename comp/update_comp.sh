@@ -9,6 +9,7 @@
 ./wrds_update.pl comp.io_qbuysell
 ./wrds_update.pl comp.names
 ./wrds_update.pl comp.secm
+./wrds_update.pl comp.secd
 ./wrds_update.pl comp.wrds_segmerged
 ./wrds_update.pl comp.spind_mth
 ./wrds_update.pl comp.funda --fix-missing
@@ -19,3 +20,4 @@ psql < comp/create_ciks.sql
 psql < comp/comp_indexes.sql
 psql -c 'GRANT USAGE ON SCHEMA comp TO wrds';
 psql -c 'GRANT SELECT ON ALL TABLES IN SCHEMA comp TO wrds';
+
