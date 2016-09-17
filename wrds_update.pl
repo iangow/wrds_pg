@@ -112,6 +112,11 @@ foreach (@result) {
 
 $modfied =~ s/\s+$//;
 
+if ($modified eq "") {
+    print "WRDS flaked out!\n";
+    exit 0;
+}
+
 ################################################
 # 3. If updated table available, get from WRDS #
 ################################################
@@ -130,8 +135,10 @@ if ($modified ne $comment || $force) {
         print "Updated $db_schema.$table_name is available.";
         print " Getting from WRDS.\n";
     }
+     
     system($cmd);
     exit 1;
+    
 } else {
     print "$db_schema.$table_name already up to date\n";
     exit 0;
