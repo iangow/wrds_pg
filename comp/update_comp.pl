@@ -82,3 +82,29 @@ $funda = $funda >> 8;
 if ($funda) {
     system("psql -c 'CREATE INDEX ON comp.funda (gvkey, datadate)'");
 }
+
+$fundq = system("./wrds_update.pl comp.fundq --fix-missing");
+$fundq = $fundq >> 8;
+if ($fundq) {
+    system("psql -c 'CREATE INDEX ON comp.fundq (gvkey, datadate)'");
+}
+
+$g_sec_divid = system("./wrds_update.pl comp.g_sec_divid");
+$g_sec_divid = $g_sec_divid >> 8;
+if ($g_sec_divid) {
+    system("psql -c 'CREATE INDEX ON comp.g_sec_divid (gvkey, datadate)'");
+}
+
+$idxcst_his = system("./wrds_update.pl comp.idxcst_his --rename=from=fromdt");
+$idxcst_his = $idxcst_his >> 8;
+
+system("psql < comp/create_ciks.sql");
+
+if ($secm | $company) {
+    system("psql < comp/create_ciks.sql");
+}
+
+system("psql -c 'GRANT USAGE ON SCHEMA comp TO wrds'");
+system("psql -c 'GRANT SELECT ON ALL TABLES IN SCHEMA comp TO wrds'");
+
+
