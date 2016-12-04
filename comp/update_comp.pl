@@ -98,8 +98,6 @@ if ($g_sec_divid) {
 $idxcst_his = system("./wrds_update.pl comp.idxcst_his --rename=from=fromdt");
 $idxcst_his = $idxcst_his >> 8;
 
-system("psql < comp/create_ciks.sql");
-
 if ($secm | $company) {
     system("psql < comp/create_ciks.sql");
 }

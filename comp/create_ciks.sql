@@ -6,4 +6,3 @@ CREATE TABLE comp.ciks AS
     INNER JOIN (SELECT DISTINCT gvkey, cik FROM comp.company) AS b
     USING (gvkey);
 
-CREATE INDEX ON filings.filings (cik, date_filed);
