@@ -144,6 +144,7 @@ foreach $row (@result)    {
        $var_type{$field} = $type;
     }
     $true_var_type{$field} = $type;
+    print "$row: $type\n";
 }
 
 ##################################################
@@ -231,6 +232,8 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
     # If need to fix special missing values, then convert them to
     # regular missing values, then run PROC EXPORT
     $dsf_fix =  ($table_name eq "dsf" ? "format numtrd 8.;\n" : "");
+    $fund_names_fix =  ($table_name eq "fund_names" ? "proc sql;\n DELETE FROM pwd.$wrds_id$pg_table\n WHERE prxmatch('\\D', first_offer_dt) ge 1;\n quit;\n" : "");
+
     $sas_code = "
       options nosource nonotes;
 
@@ -240,15 +243,17 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
       data pwd.$wrds_id$pg_table;
           set $db$pg_table($drop_str $obs_str $rename_str);
           $dsf_fix
-
-          $fix_cr_code
+	      $fix_cr_code
 
           array allvars _numeric_ ;
 
           do over allvars;
               if missing(allvars) then allvars = . ;
           end;
+
       run;
+
+      $fund_names_fix
 
       proc export data=pwd.$wrds_id$pg_table outfile=stdout dbms=csv;
       run;";
@@ -262,6 +267,8 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
       run;";
 
 }
+
+print "$sas_code\n";
 
 # Use PostgreSQL's COPY function to get data into the database
 $cmd = "echo \"$sas_code\" | ";
