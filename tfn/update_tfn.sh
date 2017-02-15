@@ -10,7 +10,3 @@
 ./wrds_update.pl tfn.s34
 ./wrds_update.pl tfn.s34type1
 ./wrds_update.pl tfn.s34type2
-if [ $? -eq 1 ] ; then
-    pg_dump  --format custom --no-tablespaces --verbose \
-        --file $PGBACKUP_DIR/tfn.backup --schema "tfn"
-fi
