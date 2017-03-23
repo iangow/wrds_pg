@@ -144,7 +144,6 @@ foreach $row (@result)    {
        $var_type{$field} = $type;
     }
     $true_var_type{$field} = $type;
-    print "$row: $type\n";
 }
 
 ##################################################
@@ -267,8 +266,6 @@ if ($fix_missing | $drop ne '' | $obs ne '') {
       run;";
 
 }
-
-print "$sas_code\n";
 
 # Use PostgreSQL's COPY function to get data into the database
 $cmd = "echo \"$sas_code\" | ";
