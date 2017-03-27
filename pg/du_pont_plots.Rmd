@@ -1,0 +1,128 @@
+---
+title: "R Notebook"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r wrds_connect}
+suppressPackageStartupMessages(library(dplyr))
+
+pg_wrds <- src_postgres(host = "wrds-pgdata.wharton.upenn.edu",
+             port = 9737,
+             dbname = "wrds",
+             user = "iangow")
+```
+
+```{r table_setup}
+funda <- 
+    tbl(pg_wrds, sql("SELECT * FROM comp.funda")) %>%
+    filter(indfmt == 'INDL', datafmt == 'STD', popsrc =='D', consol == 'C') 
+```
+
+```{r data_step}
+base_data <-
+    funda %>%
+    filter(fyear >= 1978, fic == 'USA') %>%
+    mutate(mktcap = prcc_f*csho, 
+           fa = coalesce(che,0) + coalesce(ivao,0),
+           fo = coalesce(dlc,0) + coalesce(dltt,0) + coalesce(pstk,0) - 
+                coalesce(tstkp,0) + coalesce(dvpa,0)) %>%
+    mutate(nfo = fo - fa, noa = fo - fa + ceq + mib) %>%
+    group_by(gvkey) %>%
+    arrange(gvkey, datadate) %>%
+    mutate(lag_sale = lag(sale),
+           lag_ceq = lag(ceq),
+           lag_noa = lag(noa)) %>%
+    ungroup() %>%
+    select(gvkey, fyear, mktcap, sale, ceq, noa, oiadp, txt, ibadj,
+           lag_sale, lag_ceq, lag_noa, ni)
+```
+
+```{r plot_function}
+make_plot <- function (m_filter, m_calc, m_label) {
+
+    m_sql <- sql(paste0("CASE WHEN ", m_filter, " THEN ", m_calc, " END"))      
+    quintiles <-
+        base_data %>%
+        mutate(measure = dplyr::sql(m_sql)) %>%
+        mutate(fyear = as.integer(fyear)) %>%
+        filter(mktcap > 200, !is.na(measure)) %>%
+        select(gvkey, fyear, measure) %>%
+        group_by(fyear) %>%
+        mutate(quintile = ntile(measure, 5)) %>%
+        ungroup()
+    
+    raw_data <-
+        quintiles %>%
+        inner_join(quintiles, by="gvkey", suffix = c("_a", "_b")) %>%
+        filter(between(fyear_b, fyear_a, fyear_a + 9L)) %>%
+        mutate(year = fyear_b - fyear_a,
+               quintile = quintile_a,
+               measure = measure_b) %>%
+        select(gvkey, year, quintile, measure) 
+    
+    full_series <-
+        raw_data %>%
+        group_by(gvkey) %>%
+        summarize(num_years = n_distinct(year)) %>%
+        filter(num_years == 10L) %>%
+        ungroup()
+    
+    plot_data <-
+        raw_data %>%
+        semi_join(full_series) %>%
+        collect() %>%
+        mutate(quintile = as.factor(quintile),
+               year = as.factor(year)) %>%
+        group_by(year, quintile) %>%
+        summarize(measure = median(measure))
+
+  percent_formatter <- function(x) {
+    return(paste(round(x,2)*100, "%"))
+  }
+
+  library(ggplot2)
+  p <- 
+      plot_data %>%
+      ggplot(aes(x=year, y=measure, colour=quintile, group=quintile)) +
+      geom_line() +
+      scale_colour_discrete(labels=paste(c("Bottom", "Fourth", "Third", "Second", "Top"), "Fifth")) +
+      xlab("Year") + ylab(m_label) +
+      labs(colour=paste(m_label,"in Year 0")) +
+      scale_y_continuous(labels=percent_formatter)
+  return(p)
+}
+```
+
+### Sales growth
+
+```{r sales}
+p <- make_plot(m_filter = "lag_sale > 0", m_calc = "sale/lag_sale - 1", 
+               m_label = "Sales growth")
+p
+```
+
+### Return on equity
+
+```{r roe}
+p <- make_plot(m_filter = "lag_ceq > 0", m_calc = "ni/lag_ceq", 
+               m_label = "Return on equity")
+p
+```
+
+### Operating profit (NOPAT) to sales
+
+```{r nopat_margin}
+p <- make_plot(m_filter = "sale > 0 AND ibadj > 0 ", m_calc = "oiadp*(1-txt/ibadj)/sale", 
+               m_label = "Operating profit/sales")
+p
+```
+
+### Asset turnover
+
+```{r ato}
+p <- make_plot(m_filter = "lag_noa > 0", m_calc = "sale/lag_noa", 
+    m_label = "Sales/Net operating assets")
+p
+```
