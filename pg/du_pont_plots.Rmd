@@ -1,22 +1,19 @@
 ---
 title: "R Notebook"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r wrds_connect}
 suppressPackageStartupMessages(library(dplyr))
 
-pg_wrds <- src_postgres(host = "wrds-pgdata.wharton.upenn.edu",
-             port = 9737,
-             dbname = "wrds",
-             user = "iangow")
+pg_wrds <- src_postgres()
 ```
 
 ```{r table_setup}
 funda <- 
-    tbl(pg_wrds, sql("SELECT * FROM comp.funda")) %>%
+    tbl(pg_wrds, sql("SELECT * FROM comp_wrds.funda")) %>%
     filter(indfmt == 'INDL', datafmt == 'STD', popsrc =='D', consol == 'C') 
 ```
 
@@ -36,7 +33,8 @@ base_data <-
            lag_noa = lag(noa)) %>%
     ungroup() %>%
     select(gvkey, fyear, mktcap, sale, ceq, noa, oiadp, txt, ibadj,
-           lag_sale, lag_ceq, lag_noa, ni)
+           lag_sale, lag_ceq, lag_noa, ni) %>%
+    compute()
 ```
 
 ```{r plot_function}
@@ -73,10 +71,12 @@ make_plot <- function (m_filter, m_calc, m_label) {
         raw_data %>%
         semi_join(full_series) %>%
         collect() %>%
-        mutate(quintile = as.factor(quintile),
-               year = as.factor(year)) %>%
         group_by(year, quintile) %>%
-        summarize(measure = median(measure))
+        summarize(measure = median(measure)) %>%
+        ungroup() %>%
+        collect() %>%
+        mutate(quintile = as.factor(quintile),
+               year = as.factor(year)) 
 
   percent_formatter <- function(x) {
     return(paste(round(x,2)*100, "%"))
