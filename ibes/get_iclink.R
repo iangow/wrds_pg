@@ -31,7 +31,7 @@ get_iclink <- function() {
   # -stdio means that SAS will take input from STDIN and output to STDOUT
   sas_command <- paste("ssh -C $WRDS_ID@wrds-cloud.wharton.upenn.edu ",
                        "'qsas -stdio -noterminal; cat data.dta' > ",
-                       temp_file)
+                       temp_file, " 2>/dev/null")
 
   # The following pipes the SAS code to the SAS command. The "intern=TRUE"
   # means that we can capture the output in an R variable.
