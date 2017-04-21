@@ -124,6 +124,6 @@ system("./wrds_update.pl crsp.ccmxpf_lnkused --fix-missing;");
 system("./wrds_update.pl crsp.fund_names --fix-missing;");
 
 # Fix permissions.
-system("psql -c 'GRANT USAGE ON SCHEMA crsp TO wrds'");
-system("psql -c 'GRANT SELECT ON ALL TABLES IN SCHEMA crsp TO wrds'");
+system("psql -c 'GRANT USAGE ON SCHEMA crsp TO wrds_basic'");
+system("psql -c 'GRANT SELECT ON ALL TABLES IN SCHEMA crsp TO wrds_basic'");
 
