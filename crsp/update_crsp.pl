@@ -42,7 +42,7 @@ $dsf = $dsf >> 8;
 
 if ($dsf) {
     system("psql -c 'ALTER TABLE crsp.dsf ALTER permno TYPE integer;'");
-    system("psql -c 'SET maintenance_work_mem=\"10GB\"; CREATE INDEX ON crsp.dsf (permno, date)'");
+    system("psql -c 'SET maintenance_work_mem=\"1999MB\"; CREATE INDEX ON crsp.dsf (permno, date)'");
 }
 
 $dsi = system("./wrds_update.pl crsp.dsi");

@@ -1,5 +1,5 @@
 -- Create a table that integrates basic returns with delisting returns
-SET work_mem='2GB';
+SET work_mem='1999MB';
 
 DROP TABLE IF EXISTS crsp.rets;
 
@@ -33,6 +33,6 @@ ANALYZE crsp.rets;
 RESET work_mem;
 
 -- Create indexes on PERMNO and DATE
-SET maintenance_work_mem='5GB';
+SET maintenance_work_mem='1999MB';
 CREATE INDEX ON crsp.rets (permno);
 CREATE INDEX ON crsp.rets (date);
