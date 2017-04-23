@@ -1,4 +1,4 @@
-﻿-- Create a table that integrates basic returns with delisting returns
+-- Create a table that integrates basic returns with delisting returns
 SET work_mem='6GB';
 
 CREATE OR REPLACE FUNCTION eomonth(date)
