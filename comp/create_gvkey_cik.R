@@ -3,6 +3,7 @@ library(RPostgreSQL)
 
 pg <- src_postgres()
 
+library(RPostgreSQL)
 dbGetQuery(pg$con, "SET work_mem='8GB'")
 
 ciqfininstance <-
@@ -13,6 +14,15 @@ ciqfinperiod <-
 
 ciqgvkeyiid <-
     tbl(pg, sql("SELECT * FROM ciq.ciqgvkeyiid"))
+
+ciqfininstance <-
+    tbl(pg, sql("SELECT * FROM wrds_ciq.ciqfininstance"))
+
+ciqfinperiod <-
+     tbl(pg, sql("SELECT * FROM wrds_ciq.ciqfinperiod"))
+
+ciqgvkeyiid <-
+    tbl(pg, sql("SELECT * FROM wrds_ciq.ciqgvkeyiid"))
 
 accession_numbers <-
     tbl(pg, sql("SELECT * FROM filings.accession_numbers"))
@@ -26,7 +36,8 @@ gvkeys <-
 
 dbGetQuery(pg$con, "DROP TABLE IF EXISTS gvkey_cik")
 
-gvkey_ciks <-
+system.time({
+    gvkey_ciks <-
     ciqfininstance %>%
     inner_join(accession_numbers) %>%
     inner_join(ciqfinperiod) %>%
@@ -35,6 +46,7 @@ gvkey_ciks <-
     distinct() %>%
     compute(name = "gvkey_cik", temporary = FALSE,
             indexes = c("file_name", "gvkey"), overwrite=TRUE)
+})
 
 dbGetQuery(pg$con, "GRANT SELECT ON gvkey_cik TO wrds")
 dbGetQuery(pg$con, "DROP TABLE IF EXISTS comp.gvkey_cik")
