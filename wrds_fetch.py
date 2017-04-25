@@ -100,7 +100,8 @@ def get_table_sql(schema, table_name, wrds_id, drop="", rename="", return_sql=Tr
     # Run the SAS code on the WRDS server and get the result
     df = sas_to_pandas(sas_code, wrds_id)
     df['postgres_type'] = df.apply(code_row, axis=1)
-    make_table_sql = "CREATE TABLE " + schema + "." + table_name + " (" +                 df.apply(get_row_sql, axis=1).str.cat(sep=", ") + ")"
+    make_table_sql = "CREATE TABLE " + schema + "." + table_name + " (" + \
+                      df.apply(get_row_sql, axis=1).str.cat(sep=", ") + ")"
     if return_sql:
         return make_table_sql
     else:
