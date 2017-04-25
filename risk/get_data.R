@@ -1,4 +1,4 @@
-#!/usr/bin/env Rscript 
+#!/usr/bin/env Rscript
 convertToInteger <- function(vec) {
     # This is a small function that converts numeric vectors to
     # integers if doing so does not lose information
@@ -73,12 +73,12 @@ fix_data <- function(df) {
 library(RPostgreSQL)
 pg <- dbConnect(PostgreSQL())
 
-require(RCurl)
-url <- paste("https://docs.google.com/spreadsheet/pub?",
-             "key=0AvP4wvS7Nk-QdFAyX0Q1NXJ4a3ZZM3BKUUZnd0lxX3c",
-             "&single=true&gid=0&output=csv",sep="")
-csv_file <- getURL(url, verbose=FALSE)
-issue_codes <- read.csv(textConnection(csv_file), stringsAsFactors=FALSE)
+library(googlesheets)
+gs_auth()
+gs <- gs_key("1RrNACT_vKo7eT_HngWPhcRGOpJ09Ss4xipdmqsc5yuA")
+
+issue_codes <- gs_read(gs)
+
 rs <- dbGetQuery(pg, "CREATE SCHEMA IF NOT EXISTS risk")
 rs <- dbWriteTable(pg, c("risk", "issue_codes"), issue_codes,
                    row.names=FALSE, overwrite=TRUE)
