@@ -21,10 +21,7 @@
 ./wrds_update.pl dealscan.organizationtype
 ./wrds_update.pl dealscan.package
 ./wrds_update.pl dealscan.packageassignmentcomment
-./wrds_update.pl dealscan.packageprepaymentcomment
 ./wrds_update.pl dealscan.performancepricing
 ./wrds_update.pl dealscan.performancepricingcomments
 ./wrds_update.pl dealscan.sublimits
-./wrds_update.pl dealscan.link_table
-./wrds_update.pl dealscan.link_table
 ./wrds_update.pl dealscan.dbo_df_fac_dates_data
