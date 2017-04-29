@@ -130,7 +130,7 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
         fix_cr_code = ""
 
     if rename != '':
-        rename_str = "rename=(" + rename + ")"
+        rename_str = " rename=(" + rename + ")"
     else:
         rename_str = ""
 
@@ -141,6 +141,11 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
             dsf_fix = "format numtrd 8.;\n"
         else:
             dsf_fix = ""
+
+        if obs != "":
+            obs_str = " obs=" + str(obs)
+        else:
+            obs_str = ""
 
         drop_str = "drop=" + drop
 
@@ -192,10 +197,10 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
         sas_template = """
             options nosource nonotes;
 
-            proc export data=%s.%s outfile=stdout dbms=csv;
+            proc export data=%s.%s%s outfile=stdout dbms=csv;
             run;"""
 
-        sas_code = sas_template % (schema, table_name)
+        sas_code = sas_template % (schema, table_name, rename_str)
 
     p = get_process(sas_code, wrds_id)
     return(p)
@@ -294,8 +299,9 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
 
     return True
 
-def wrds_update(table_name, schema, engine, wrds_id, force=False):
-    
+def wrds_update(table_name, schema, engine, wrds_id, force=False,
+        fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
+
     # 1. Get comments from PostgreSQL database 
     comment = get_table_comment(table_name, schema, engine)
 
