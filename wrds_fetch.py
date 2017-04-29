@@ -223,6 +223,14 @@ def get_modified_str(schema, table_name, wrds_id):
 
     return modified
 
+def get_table_comment(table_name, schema, engine):
+    
+    sql = """
+        SELECT obj_description('"%s"."%s"'::regclass, 'pg_class'); """ % (schema, table_name)
+    print(sql)
+    res = engine.execute(sql).fetchone()[0]
+    return(res)
+
 def wrds_to_pg(schema, table_name, engine, wrds_id, drop="", rename="", obs="",
                fix_cr = False, fix_missing = False):
 
