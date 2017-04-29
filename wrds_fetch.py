@@ -1,11 +1,13 @@
 # Run the SAS code on the WRDS server and get the result
-import subprocess
 import pandas as pd
 from io import StringIO
+import re
+import paramiko
 
 def get_process(sas_code, wrds_id):
 
-    import paramiko
+    """Function runs SAS code on WRDS server and 
+    returns result as pipe on stdout."""
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.connect('wrds-cloud.wharton.upenn.edu',
@@ -19,11 +21,9 @@ def get_process(sas_code, wrds_id):
     channel.shutdown_write()
     return stdout
 
-import re
-
 def code_row(row):
 
-    """A function to code PostgreSQL data types using output from SAS's PROC CONTENTS"""
+    """A function to code PostgreSQL data types using output from SAS's PROC CONTENTS."""
 
     format_ = row['format']
     formatd = row['formatd']
@@ -56,6 +56,7 @@ def code_row(row):
 # SAS code to extract information about the datatypes of the SAS data.
 # Note that there are some date formates that don't work with this code.
 def get_row_sql(row):
+    """Function to get SQL to create column from row in PROC CONTENTS."""
     postgres_type = row['postgres_type']
     if postgres_type == 'timestamp':
         postgres_type = 'text'
@@ -64,6 +65,8 @@ def get_row_sql(row):
 
 def sas_to_pandas(sas_code, wrds_id):
 
+    """Function that runs SAS code on WRDS server 
+    and returns a Pandas data frame."""
     p = get_process(sas_code, wrds_id)
     df = pd.read_csv(StringIO(p.read().decode('latin1')))
     df.columns = map(str.lower, df.columns)
@@ -107,11 +110,12 @@ def get_table_sql(table_name, schema, wrds_id, drop="", rename="", return_sql=Tr
     make_table_sql = "CREATE TABLE " + schema + "." + table_name + " (" + \
                       df.apply(get_row_sql, axis=1).str.cat(sep=", ") + ")"
     
-    datetimes=[field.lower()
-                    for field in df.loc[df['postgres_type']=="timestamp", "name"]]
+    # Identify the datetime fields. These need special handling.
+    datatimes = df.loc[df['postgres_type']=="timestamp", "name"]
+    datetime_cols = [field.lower() for field in datatimes]
 
     if return_sql:
-        return {"sql":make_table_sql, "datetimes":datetimes}
+        return {"sql":make_table_sql, "datetimes":datetime_cols}
     else:
         return df
 
@@ -215,11 +219,10 @@ def wrds_to_pandas(table_name, schema, wrds_id):
     return(df)
 
 def get_modified_str(table_name, schema, wrds_id):
-    from wrds_fetch import get_process
     sas_code = "proc contents data=" + schema + "." + table_name + ";"
     contents = get_process(sas_code, wrds_id).readlines()
-
-    import re
+    modified = ""
+    
     next_row = False
     for line in contents:
         if next_row:
