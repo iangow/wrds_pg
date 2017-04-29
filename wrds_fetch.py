@@ -201,6 +201,28 @@ def wrds_to_pandas(schema, table_name, wrds_id):
 
     return(df)
 
+def get_modified_str(schema, table_name, wrds_id):
+    from wrds_fetch import get_process
+    sas_code = "proc contents data=" + schema + "." + table_name + ";"
+    contents = get_process(sas_code, wrds_id).readlines()
+
+    import re
+    next_row = False
+    for line in contents:
+        if next_row:
+            line = re.sub(r"^\s+(.*)\s+$", r"\1", line)
+            line = re.sub(r"\s+$", "", line)
+            if not re.findall(r"Protection", line):
+              modified += " " + line.rstrip()
+            next_row = False
+
+        if re.match(r"Last Modified", line):
+            modified = re.sub(r"^Last Modified\s+(.*?)\s{2,}.*$", r"Last modified: \1", line)
+            modified = modified.rstrip()
+            next_row = True
+
+    return modified
+
 def wrds_to_pg(schema, table_name, engine, wrds_id, drop="", rename="", obs="",
                fix_cr = False, fix_missing = False):
 
