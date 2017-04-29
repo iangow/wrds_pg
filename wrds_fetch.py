@@ -56,7 +56,11 @@ def code_row(row):
 # SAS code to extract information about the datatypes of the SAS data.
 # Note that there are some date formates that don't work with this code.
 def get_row_sql(row):
-    return row['name'].lower() + ' ' + row['postgres_type']
+    postgres_type = row['postgres_type']
+    if postgres_type == 'timestamp':
+        postgres_type = 'text'
+
+    return row['name'].lower() + ' ' + postgres_type
 
 def sas_to_pandas(sas_code, wrds_id):
 
@@ -102,8 +106,12 @@ def get_table_sql(table_name, schema, wrds_id, drop="", rename="", return_sql=Tr
     df['postgres_type'] = df.apply(code_row, axis=1)
     make_table_sql = "CREATE TABLE " + schema + "." + table_name + " (" + \
                       df.apply(get_row_sql, axis=1).str.cat(sep=", ") + ")"
+    
+    datetimes=[field.lower()
+                    for field in df.loc[df['postgres_type']=="timestamp", "name"]]
+
     if return_sql:
-        return make_table_sql
+        return {"sql":make_table_sql, "datetimes":datetimes}
     else:
         return df
 
@@ -254,7 +262,7 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
 
     res = engine.execute("CREATE SCHEMA IF NOT EXISTS " + schema)
     res = engine.execute("DROP TABLE IF EXISTS " + schema + "." + table_name + " CASCADE")
-    res = engine.execute(make_table_sql)
+    res = engine.execute(make_table_data["sql"])
 
     p = get_wrds_process(table_name=table_name, schema=schema, wrds_id=wrds_id,
             drop=drop, fix_cr=fix_cr, fix_missing = fix_missing, obs=obs, rename=rename)
@@ -275,6 +283,15 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
     finally:
         connection.close()
         p.close()
+
+    for var in make_table_data["datetimes"]:
+        
+        sql = r"""
+            ALTER TABLE "%s"."%s"
+            ALTER %s TYPE timestamp 
+            USING regexp_replace(%s, '(\d{2}[A-Z]{3}\d{4}):', '\1 ' )::timestamp""" % (schema, table_name, var, var)
+        engine.execute(sql)
+
     return True
 
 def wrds_update(table_name, schema, engine, wrds_id, force=False):
