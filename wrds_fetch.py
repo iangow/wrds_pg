@@ -275,3 +275,25 @@ def wrds_to_pg(schema, table_name, engine, wrds_id, drop="", rename="", obs="",
         connection.close()
         p.close()
     return True
+
+def wrds_update(table_name, schema, engine, wrds_id, force=False):
+    
+    # 1. Get comments from PostgreSQL database 
+    comment = get_table_comment(table_name, schema, engine)
+
+    # 2. Get modified date from WRDS
+    modified = get_modified_str(schema, table_name, wrds_id)
+
+    # 3. If updated table available, get from WRDS 
+    if modified == comment and not force:
+        print(schema + "." + table_name + " already up to date")
+    elif modified == "":
+        print("WRDS flaked out!")
+    else:
+        if force:
+            print("Forcing update based on user request.")
+        else:
+            print("Updated %s.%s is available." % (schema, table_name))
+            print("Getting from WRDS.\n")
+        wrds_to_pg(schema, table_name, engine, wrds_id)
+        set_table_comment(table_name, schema, modified, engine)
