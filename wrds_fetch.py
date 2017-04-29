@@ -67,7 +67,7 @@ def sas_to_pandas(sas_code, wrds_id):
 
     return(df)
 
-def get_table_sql(schema, table_name, wrds_id, drop="", rename="", return_sql=True):
+def get_table_sql(table_name, schema, wrds_id, drop="", rename="", return_sql=True):
     sas_template = """
         options nonotes nosource;
 
@@ -107,7 +107,7 @@ def get_table_sql(schema, table_name, wrds_id, drop="", rename="", return_sql=Tr
     else:
         return df
 
-def get_wrds_process(schema, table_name, wrds_id, drop="",
+def get_wrds_process(table_name, schema, wrds_id, drop="",
                      fix_cr = False, fix_missing = False, obs="",
                      rename=""):
 
@@ -192,16 +192,16 @@ def get_wrds_process(schema, table_name, wrds_id, drop="",
     p = get_process(sas_code, wrds_id)
     return(p)
 
-def wrds_to_pandas(schema, table_name, wrds_id):
+def wrds_to_pandas(table_name, schema, wrds_id):
 
-    p = get_wrds_process(schema, table_name, wrds_id)
+    p = get_wrds_process(table_name, schema, wrds_id)
     df = pd.read_csv(StringIO(p.read().decode('latin1')))
     df.columns = map(str.lower, df.columns)
     p.close()
 
     return(df)
 
-def get_modified_str(schema, table_name, wrds_id):
+def get_modified_str(table_name, schema, wrds_id):
     from wrds_fetch import get_process
     sas_code = "proc contents data=" + schema + "." + table_name + ";"
     contents = get_process(sas_code, wrds_id).readlines()
@@ -246,17 +246,18 @@ def set_table_comment(table_name, schema, comment, engine):
     
     return True
 
-def wrds_to_pg(schema, table_name, engine, wrds_id, drop="", rename="", obs="",
-               fix_cr = False, fix_missing = False):
+def wrds_to_pg(table_name, schema, engine, wrds_id,
+               fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
 
-    make_table_sql = get_table_sql(schema, table_name, wrds_id=wrds_id,
-                                   drop=drop, rename=rename)
+    make_table_data = get_table_sql(table_name=table_name, schema=schema, 
+            wrds_id=wrds_id, drop=drop, rename=rename)
+
     res = engine.execute("CREATE SCHEMA IF NOT EXISTS " + schema)
     res = engine.execute("DROP TABLE IF EXISTS " + schema + "." + table_name + " CASCADE")
     res = engine.execute(make_table_sql)
 
-    p = get_wrds_process(schema, table_name, wrds_id, drop=drop, fix_cr = fix_cr,
-                         fix_missing = fix_missing, obs=obs, rename=rename)
+    p = get_wrds_process(table_name=table_name, schema=schema, wrds_id=wrds_id,
+            drop=drop, fix_cr=fix_cr, fix_missing = fix_missing, obs=obs, rename=rename)
 
     # The first line has the variable names ...
     var_names = p.readline().rstrip().lower().split(sep=",")
@@ -282,7 +283,7 @@ def wrds_update(table_name, schema, engine, wrds_id, force=False):
     comment = get_table_comment(table_name, schema, engine)
 
     # 2. Get modified date from WRDS
-    modified = get_modified_str(schema, table_name, wrds_id)
+    modified = get_modified_str(table_name, schema, wrds_id)
 
     # 3. If updated table available, get from WRDS 
     if modified == comment and not force:
