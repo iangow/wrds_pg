@@ -302,6 +302,8 @@ $dbh->disconnect();
 
 my $dbh = DBI->connect("dbi:Pg:dbname=$dbname")
     or die "Cannot connect: " . $DBI::errstr;
+$dbh->do("SET search_path TO $db_schema");
+
 $dbh->do("COMMENT ON TABLE $pg_table IS '$updated'");
 $dbh->disconnect();
 
