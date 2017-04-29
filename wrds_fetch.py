@@ -238,10 +238,12 @@ def get_modified_str(table_name, schema, wrds_id):
 
 def get_table_comment(table_name, schema, engine):
     
-    sql = """
-        SELECT obj_description('"%s"."%s"'::regclass, 'pg_class'); """ % (schema, table_name)
-    res = engine.execute(sql).fetchone()[0]
-    return(res)
+    if engine.dialect.has_table(engine.connect(), table_name, schema=schema):
+        sql = """SELECT obj_description('"%s"."%s"'::regclass, 'pg_class')""" % (schema, table_name)
+        res = engine.execute(sql).fetchone()[0]
+        return(res)
+    else:
+        return ""
 
 def set_table_comment(table_name, schema, comment, engine):
     
@@ -311,13 +313,19 @@ def wrds_update(table_name, schema, engine, wrds_id, force=False,
     # 3. If updated table available, get from WRDS 
     if modified == comment and not force:
         print(schema + "." + table_name + " already up to date")
+        return False
     elif modified == "":
         print("WRDS flaked out!")
+        return False
     else:
         if force:
             print("Forcing update based on user request.")
         else:
             print("Updated %s.%s is available." % (schema, table_name))
             print("Getting from WRDS.\n")
-        wrds_to_pg(schema, table_name, engine, wrds_id)
+        wrds_to_pg(table_name=table_name, schema=schema, engine=engine, wrds_id=wrds_id, 
+                fix_missing=fix_missing, fix_cr=fix_cr, 
+                drop=drop, obs=obs, rename=rename)
         set_table_comment(table_name, schema, modified, engine)
+        return True
+
