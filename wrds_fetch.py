@@ -227,9 +227,24 @@ def get_table_comment(table_name, schema, engine):
     
     sql = """
         SELECT obj_description('"%s"."%s"'::regclass, 'pg_class'); """ % (schema, table_name)
-    print(sql)
     res = engine.execute(sql).fetchone()[0]
     return(res)
+
+def set_table_comment(table_name, schema, comment, engine):
+    
+    connection = engine.connect()
+    trans = connection.begin()
+    sql = """
+        COMMENT ON TABLE "%s"."%s" IS '%s'""" % (schema, table_name, comment)
+    
+    try:
+        res = connection.execute(sql)
+        trans.commit()
+    except:
+        trans.rollback()
+        raise
+    
+    return True
 
 def wrds_to_pg(schema, table_name, engine, wrds_id, drop="", rename="", obs="",
                fix_cr = False, fix_missing = False):
