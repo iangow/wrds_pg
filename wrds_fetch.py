@@ -119,6 +119,7 @@ def get_table_sql(table_name, schema, wrds_id, drop="", rename="", return_sql=Tr
     if return_sql:
         return {"sql":make_table_sql, "datetimes":datetime_cols}
     else:
+        df['name'] = df['name'].str.lower()
         return df
 
 def get_wrds_process(table_name, schema, wrds_id, drop="",
