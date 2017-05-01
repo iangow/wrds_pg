@@ -41,6 +41,8 @@ def code_row(row):
         elif re.search(r'(date|yymmdd)', format_, re.I):
             return "date"
 
+    if format_ == "BEST":
+        return 'float8'
     if formatd != 0:
         return 'float8'
     if formatd == 0 and formatl != 0:
