@@ -344,3 +344,9 @@ def wrds_update(table_name, schema, engine, wrds_id, force=False,
         set_table_comment(table_name, schema, modified, engine)
         return True
 
+def run_file_sql(file, engine):
+    f = open(file, 'r')
+    sql = f.read()
+    print("Running SQL in %s" % file)
+    res = engine.execute(sql)
+    res.close()
