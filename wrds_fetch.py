@@ -3,6 +3,7 @@ import pandas as pd
 from io import StringIO
 import re
 import paramiko
+from time import gmtime, strftime
 
 def get_process(sas_code, wrds_id):
 
@@ -277,10 +278,16 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
     res = engine.execute("DROP TABLE IF EXISTS " + schema + "." + table_name + " CASCADE")
     res = engine.execute(make_table_data["sql"])
 
+    now = strftime("%H:%M:%S", gmtime())
+    print("Beginning file import at %s." % now)
+    print("Importing data into %s.%s" % (schema, table_name))
     p = get_wrds_process(table_name=table_name, schema=schema, wrds_id=wrds_id,
             drop=drop, fix_cr=fix_cr, fix_missing = fix_missing, obs=obs, rename=rename)
 
     res = wrds_process_to_pg(table_name, schema, engine, p)
+    now = strftime("%H:%M:%S", gmtime())
+    print("Completed file import at %s." % now)
+
     for var in make_table_data["datetimes"]:
         sql = r"""
             ALTER TABLE "%s"."%s"
