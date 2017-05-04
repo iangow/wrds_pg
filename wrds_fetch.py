@@ -6,7 +6,7 @@ import paramiko
 
 def get_process(sas_code, wrds_id):
 
-    """Function runs SAS code on WRDS server and 
+    """Function runs SAS code on WRDS server and
     returns result as pipe on stdout."""
     client = paramiko.SSHClient()
     client.load_system_host_keys()
@@ -67,7 +67,7 @@ def get_row_sql(row):
 
 def sas_to_pandas(sas_code, wrds_id):
 
-    """Function that runs SAS code on WRDS server 
+    """Function that runs SAS code on WRDS server
     and returns a Pandas data frame."""
     p = get_process(sas_code, wrds_id)
     df = pd.read_csv(StringIO(p.read().decode('latin1')))
@@ -111,7 +111,7 @@ def get_table_sql(table_name, schema, wrds_id, drop="", rename="", return_sql=Tr
     df['postgres_type'] = df.apply(code_row, axis=1)
     make_table_sql = "CREATE TABLE " + schema + "." + table_name + " (" + \
                       df.apply(get_row_sql, axis=1).str.cat(sep=", ") + ")"
-    
+
     # Identify the datetime fields. These need special handling.
     datatimes = df.loc[df['postgres_type']=="timestamp", "name"]
     datetime_cols = [field.lower() for field in datatimes]
@@ -225,7 +225,7 @@ def get_modified_str(table_name, schema, wrds_id):
     sas_code = "proc contents data=" + schema + "." + table_name + ";"
     contents = get_process(sas_code, wrds_id).readlines()
     modified = ""
-    
+
     next_row = False
     for line in contents:
         if next_row:
@@ -243,7 +243,7 @@ def get_modified_str(table_name, schema, wrds_id):
     return modified
 
 def get_table_comment(table_name, schema, engine):
-    
+
     if engine.dialect.has_table(engine.connect(), table_name, schema=schema):
         sql = """SELECT obj_description('"%s"."%s"'::regclass, 'pg_class')""" % (schema, table_name)
         res = engine.execute(sql).fetchone()[0]
@@ -252,25 +252,25 @@ def get_table_comment(table_name, schema, engine):
         return ""
 
 def set_table_comment(table_name, schema, comment, engine):
-    
+
     connection = engine.connect()
     trans = connection.begin()
     sql = """
         COMMENT ON TABLE "%s"."%s" IS '%s'""" % (schema, table_name, comment)
-    
+
     try:
         res = connection.execute(sql)
         trans.commit()
     except:
         trans.rollback()
         raise
-    
+
     return True
 
 def wrds_to_pg(table_name, schema, engine, wrds_id,
                fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
 
-    make_table_data = get_table_sql(table_name=table_name, schema=schema, 
+    make_table_data = get_table_sql(table_name=table_name, schema=schema,
             wrds_id=wrds_id, drop=drop, rename=rename)
 
     res = engine.execute("CREATE SCHEMA IF NOT EXISTS " + schema)
@@ -310,13 +310,13 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
 def wrds_update(table_name, schema, engine, wrds_id, force=False,
         fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
 
-    # 1. Get comments from PostgreSQL database 
+    # 1. Get comments from PostgreSQL database
     comment = get_table_comment(table_name, schema, engine)
 
     # 2. Get modified date from WRDS
     modified = get_modified_str(table_name, schema, wrds_id)
 
-    # 3. If updated table available, get from WRDS 
+    # 3. If updated table available, get from WRDS
     if modified == comment and not force:
         print(schema + "." + table_name + " already up to date")
         return False
@@ -329,8 +329,8 @@ def wrds_update(table_name, schema, engine, wrds_id, force=False,
         else:
             print("Updated %s.%s is available." % (schema, table_name))
             print("Getting from WRDS.\n")
-        wrds_to_pg(table_name=table_name, schema=schema, engine=engine, wrds_id=wrds_id, 
-                fix_missing=fix_missing, fix_cr=fix_cr, 
+        wrds_to_pg(table_name=table_name, schema=schema, engine=engine, wrds_id=wrds_id,
+                fix_missing=fix_missing, fix_cr=fix_cr,
                 drop=drop, obs=obs, rename=rename)
         set_table_comment(table_name, schema, modified, engine)
         return True
