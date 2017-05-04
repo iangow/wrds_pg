@@ -280,6 +280,17 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
     p = get_wrds_process(table_name=table_name, schema=schema, wrds_id=wrds_id,
             drop=drop, fix_cr=fix_cr, fix_missing = fix_missing, obs=obs, rename=rename)
 
+    res = wrds_process_to_pg(table_name, schema, engine, p)
+    for var in make_table_data["datetimes"]:
+        sql = r"""
+            ALTER TABLE "%s"."%s"
+            ALTER %s TYPE timestamp
+            USING regexp_replace(%s, '(\d{2}[A-Z]{3}\d{4}):', '\1 ' )::timestamp""" % (schema, table_name, var, var)
+        engine.execute(sql)
+
+    return res
+
+def wrds_process_to_pg(table_name, schema, engine, p):
     # The first line has the variable names ...
     var_names = p.readline().rstrip().lower().split(sep=",")
 
@@ -296,15 +307,6 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
     finally:
         connection.close()
         p.close()
-
-    for var in make_table_data["datetimes"]:
-        
-        sql = r"""
-            ALTER TABLE "%s"."%s"
-            ALTER %s TYPE timestamp 
-            USING regexp_replace(%s, '(\d{2}[A-Z]{3}\d{4}):', '\1 ' )::timestamp""" % (schema, table_name, var, var)
-        engine.execute(sql)
-
     return True
 
 def wrds_update(table_name, schema, engine, wrds_id, force=False,
