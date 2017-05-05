@@ -1,4 +1,4 @@
-﻿DROP VIEW IF EXISTS crsp.erdport1;
+DROP VIEW IF EXISTS crsp.erdport1;
 
 CREATE VIEW crsp.erdport1 AS
 WITH c AS (
