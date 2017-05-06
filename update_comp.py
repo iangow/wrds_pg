@@ -61,7 +61,8 @@ updated = wrds_update("spind_mth", "comp", engine, wrds_id)
 if updated:
     engine.execute("CREATE INDEX ON comp.spind_mth (gvkey, datadate)")
 
-updated = wrds_update("funda", "comp", engine, wrds_id, fix_missing = True)
+updated = wrds_update("funda", "comp", engine, wrds_id,
+                      fix_missing = True, rename="do=do_")
 if updated:
     engine.execute("CREATE INDEX ON comp.funda (gvkey, datadate)")
 
