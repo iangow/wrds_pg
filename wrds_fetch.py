@@ -289,6 +289,7 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
     print("Completed file import at %s." % now)
 
     for var in make_table_data["datetimes"]:
+        print("Fixing %s" % var)
         sql = r"""
             ALTER TABLE "%s"."%s"
             ALTER %s TYPE timestamp
