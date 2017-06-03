@@ -46,7 +46,7 @@ updated = wrds_update("names", "comp", engine, wrds_id)
 if updated:
     engine.execute("CREATE INDEX ON comp.names (gvkey)")
 
-secm_updated = wrds_update("secm", "comp", engine, wrds_id, force=True)
+secm_updated = wrds_update("secm", "comp", engine, wrds_id)
 if secm_updated:
     engine.execute("CREATE INDEX ON comp.secm (gvkey, datadate)")
 
@@ -70,8 +70,9 @@ updated = wrds_update("fundq", "comp", engine, wrds_id, fix_missing = True)
 if updated:
     engine.execute("CREATE INDEX ON comp.fundq (gvkey, datadate)")
 
-updated = wrds_update("g_sec_divid", "comp", engine, wrds_id, fix_missing = True)
+updated = wrds_update("g_sec_divid", "comp", engine, wrds_id,
+                      fix_missing = True, rename="do=do_")
 if updated:
     engine.execute("CREATE INDEX ON comp.g_sec_divid (gvkey, datadate)")
 
-updated = wrds_update("idxcst_his", "comp", engine, wrds_id, rename="from=fromdt")
+# updated = wrds_update("idxcst_his", "comp", engine, wrds_id, rename="from=fromdt")

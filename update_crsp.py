@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
+print("Updating CRSP", end="")
 from sqlalchemy import create_engine
+print(".", end="")
 import os
 dbname = os.getenv("PGDATABASE")
+print(".", end="")
 host = os.getenv("PGHOST", "localhost")
+print(".", end="")
 wrds_id = os.getenv("WRDS_ID")
 engine = create_engine("postgresql://" + host + "/" + dbname)
 
+print(".", end="")
 from wrds_fetch import wrds_update, run_file_sql
 
+print(".")
 # Update monthly data
 msf = wrds_update("msf", "crsp", engine, wrds_id, fix_missing=True)
 if msf:
