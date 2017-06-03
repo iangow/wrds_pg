@@ -296,6 +296,12 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
             USING regexp_replace(%s, '(\d{2}[A-Z]{3}\d{4}):', '\1 ' )::timestamp""" % (schema, table_name, var, var)
         engine.execute(sql)
 
+    sql = "ALTER TABLE %s.%s OWNER TO wrds" % (schema, table_name)
+    engine.execute(sql)
+
+    sql = "GRANT SELECT ON %s.%s TO wrds_access" % (schema, table_name)
+    engine.execute(sql)
+
     return res
 
 def wrds_process_to_pg(table_name, schema, engine, p):
