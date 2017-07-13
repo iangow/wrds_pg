@@ -74,6 +74,10 @@ export WRDS_ID="iangow"
 export PGUSER="igow"
 ```
 
+```
+source ~/.profile
+```
+
 I also set them in `~/.Rprofile`, as RStudio doesn't seem to pick up the settings in `~/.profile` in recent versions of OS X:
 
 ```
