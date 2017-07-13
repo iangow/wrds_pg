@@ -5,6 +5,8 @@ This repository contains code to pull together data from [WRDS](https://wrds-web
 
 The code will only work if you have access to WRDS and to the data in question.
 
+PGUSER should be superuser.
+
 ## Requirements
 
 ### 1. Git
