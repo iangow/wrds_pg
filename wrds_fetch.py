@@ -71,26 +71,24 @@ def sas_to_pandas(sas_code, wrds_id):
     """Function that runs SAS code on WRDS server
     and returns a Pandas data frame."""
     p = get_process(sas_code, wrds_id)
-
-    # jingyu: only run if has new infor for updating
-    try:
-        df = pd.read_csv(StringIO(p.read().decode('latin1')))
-        df.columns = map(str.lower, df.columns)
-    except pd.errors.EmptyDataError:
-        df = pd.DataFrame()
-        print('No new data found.')
+    df = pd.read_csv(StringIO(p.read().decode('latin1')))
+    df.columns = map(str.lower, df.columns)
     p.close()
+
     return(df)
 
 def get_table_sql(table_name, schema, wrds_id, drop="", rename="", return_sql=True):
     sas_template = """
         options nonotes nosource;
+
         * Use PROC CONTENTS to extract the information desired.;
         proc contents data=%s.%s(drop=%s obs=1 %s) out=schema noprint;
         run;
+
         proc sort data=schema;
             by varnum;
         run;
+
         * Now dump it out to a CSV file;
         proc export data=schema(keep=name format formatl formatd length type)
             outfile=stdout dbms=csv;
@@ -111,11 +109,6 @@ def get_table_sql(table_name, schema, wrds_id, drop="", rename="", return_sql=Tr
 
     # Run the SAS code on the WRDS server and get the result
     df = sas_to_pandas(sas_code, wrds_id)
-
-    # jingyu: if df is empty, return
-    if df.empty:
-        return df
-
     df['postgres_type'] = df.apply(code_row, axis=1)
     make_table_sql = "CREATE TABLE " + schema + "." + table_name + " (" + \
                       df.apply(get_row_sql, axis=1).str.cat(sep=", ") + ")"
@@ -180,21 +173,29 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
 
         sas_template = """
             options nosource nonotes;
+
             libname pwd '/sastemp';
+
             * Fix missing values;
             data pwd.%s%s;
                 set %s.%s;
+
                 * dsf_fix;
                 %s
+
                 * fix_cr_code;
                 %s
+
                 array allvars _numeric_ ;
+
                 do over allvars;
                   if missing(allvars) then allvars = . ;
                 end;
             run;
+
             * fund_names_fix;
             %s
+
             proc export data=pwd.%s%s outfile=stdout dbms=csv;
             run;"""
         sas_code = sas_template % (schema, table_name, schema, sas_table, dsf_fix,
@@ -203,6 +204,7 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
 
         sas_template = """
             options nosource nonotes;
+
             proc export data=%s.%s%s outfile=stdout dbms=csv;
             run;"""
 
@@ -272,10 +274,6 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
     make_table_data = get_table_sql(table_name=table_name, schema=schema,
             wrds_id=wrds_id, drop=drop, rename=rename)
 
-    # jingyu: if df is empty, return false
-    if make_table_data.empty:
-        return False
-
     #res = engine.execute("CREATE SCHEMA IF NOT EXISTS " + schema)
     res = engine.execute("DROP TABLE IF EXISTS " + schema + "." + table_name + " CASCADE")
     res = engine.execute(make_table_data["sql"])
@@ -298,12 +296,12 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
             USING regexp_replace(%s, '(\d{2}[A-Z]{3}\d{4}):', '\1 ' )::timestamp""" % (schema, table_name, var, var)
         engine.execute(sql)
 
-    # jingyu: permission required. Must be owner of the relation
-    sql = "ALTER TABLE %s.%s OWNER TO wrds" % (schema, table_name)
+    sql = "ALTER TABLE %s.%s OWNER TO %s" % (schema, table_name, schema) 
     engine.execute(sql)
 
     sql = "GRANT SELECT ON %s.%s TO wrds_access" % (schema, table_name)
     engine.execute(sql)
+
     return res
 
 def wrds_process_to_pg(table_name, schema, engine, p):
@@ -347,14 +345,11 @@ def wrds_update(table_name, schema, engine, wrds_id, force=False,
         else:
             print("Updated %s.%s is available." % (schema, table_name))
             print("Getting from WRDS.\n")
-        # jingyu: only add table comment after updates
-        tmp = wrds_to_pg(table_name=table_name, schema=schema, engine=engine, wrds_id=wrds_id,
+        wrds_to_pg(table_name=table_name, schema=schema, engine=engine, wrds_id=wrds_id,
                 fix_missing=fix_missing, fix_cr=fix_cr,
                 drop=drop, obs=obs, rename=rename)
-        if tmp:
-            set_table_comment(table_name, schema, modified, engine)
-            return True
-        return False
+        set_table_comment(table_name, schema, modified, engine)
+        return True
 
 def run_file_sql(file, engine):
     f = open(file, 'r')
