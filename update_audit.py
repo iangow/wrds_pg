@@ -8,7 +8,6 @@ engine = create_engine("postgresql://" + host + "/" + dbname)
 
 from wrds_fetch import wrds_update, run_file_sql
 
-<<<<<<< master
 def is_col_to_bool(engine, schema, table):
     """
     This function change cols is_ type to boolean
@@ -30,8 +29,6 @@ def is_col_to_bool(engine, schema, table):
     if len(modify_lst) != 0:
         print("Changed column type to boolean", modify_lst)
         
-=======
->>>>>>> master
 updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="match: prior: ")
 
 updated = wrds_update("bankrupt", "audit", engine, wrds_id, drop="match: closest: prior:")
@@ -48,18 +45,9 @@ updated = wrds_update("diroffichange", "audit", engine, wrds_id, drop="match: pr
 if updated:
     engine.execute("""
         ALTER TABLE audit.diroffichange
-<<<<<<< master
         ALTER COLUMN do_pers_co_key TYPE integer""")
     is_col_to_bool(engine, "audit", "diroffichange")
-=======
-        ALTER COLUMN is_bdmem_pers TYPE boolean USING (is_bdmem_pers=1)""")
-    engine.execute("""
-        ALTER TABLE audit.diroffichange
-        ALTER COLUMN is_ceo TYPE boolean USING (is_ceo=1)""")
-    engine.execute("""
-        ALTER TABLE audit.diroffichange
-        ALTER COLUMN do_pers_co_key TYPE integer""")
->>>>>>> master
+
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON audit.diroffichange (do_pers_co_key)")
 
@@ -146,7 +134,6 @@ if updated:
 
 updated = wrds_update("feed17change", "audit", engine, wrds_id)
 updated = wrds_update("feed17del", "audit", engine, wrds_id)
-<<<<<<< master
 
 updated = wrds_update("auditchange", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
 if updated:
@@ -171,5 +158,3 @@ if updated:
 
 # Not working
 # updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
-=======
->>>>>>> master
