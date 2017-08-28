@@ -8,6 +8,30 @@ engine = create_engine("postgresql://" + host + "/" + dbname)
 
 from wrds_fetch import wrds_update, run_file_sql
 
+<<<<<<< master
+def is_col_to_bool(engine, schema, table):
+    """
+    This function change cols is_ type to boolean
+    The table is from pg, originallly from wrds
+    """
+    get_col = "select column_name from information_schema.columns where table_schema = '" + \
+                schema + "' and table_name = '" + table + "'"
+
+    col_lst = engine.execute(get_col).fetchall()
+    
+    modify_lst = []
+    for i in col_lst:
+        if i[0].startswith("is_"):
+            command = "ALTER TABLE " + schema + "." + table + \
+                    "\nALTER COLUMN " + i[0] + " TYPE boolean USING (" + i[0] + "=1)"
+            engine.execute(command)
+            modify_lst.append(i[0])
+
+    if len(modify_lst) != 0:
+        print("Changed column type to boolean", modify_lst)
+        
+=======
+>>>>>>> master
 updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="match: prior: ")
 
 updated = wrds_update("bankrupt", "audit", engine, wrds_id, drop="match: closest: prior:")
@@ -24,6 +48,10 @@ updated = wrds_update("diroffichange", "audit", engine, wrds_id, drop="match: pr
 if updated:
     engine.execute("""
         ALTER TABLE audit.diroffichange
+<<<<<<< master
+        ALTER COLUMN do_pers_co_key TYPE integer""")
+    is_col_to_bool(engine, "audit", "diroffichange")
+=======
         ALTER COLUMN is_bdmem_pers TYPE boolean USING (is_bdmem_pers=1)""")
     engine.execute("""
         ALTER TABLE audit.diroffichange
@@ -31,6 +59,7 @@ if updated:
     engine.execute("""
         ALTER TABLE audit.diroffichange
         ALTER COLUMN do_pers_co_key TYPE integer""")
+>>>>>>> master
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON audit.diroffichange (do_pers_co_key)")
 
@@ -117,3 +146,30 @@ if updated:
 
 updated = wrds_update("feed17change", "audit", engine, wrds_id)
 updated = wrds_update("feed17del", "audit", engine, wrds_id)
+<<<<<<< master
+
+updated = wrds_update("auditchange", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
+if updated:
+    is_col_to_bool(engine, "audit", "auditchange")
+
+updated = wrds_update("auditsox404", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
+if updated:
+    is_col_to_bool(engine, "audit", "auditsox404")
+
+updated = wrds_update("auditsox302", "audit", engine, wrds_id, drop="match: prior: ")
+if updated:
+    engine.execute("""
+        ALTER TABLE audit.auditsox302
+        ALTER COLUMN is_effective TYPE integer USING is_effective::integer;""")
+    is_col_to_bool(engine, "audit", "auditsox302")
+
+
+updated = wrds_update("auditlegal", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
+if updated:
+     # Takes a lot of time
+    is_col_to_bool(engine, "audit", "auditlegal")
+
+# Not working
+# updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
+=======
+>>>>>>> master

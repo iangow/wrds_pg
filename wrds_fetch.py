@@ -274,7 +274,7 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
     make_table_data = get_table_sql(table_name=table_name, schema=schema,
             wrds_id=wrds_id, drop=drop, rename=rename)
 
-    res = engine.execute("CREATE SCHEMA IF NOT EXISTS " + schema)
+    #res = engine.execute("CREATE SCHEMA IF NOT EXISTS " + schema)
     res = engine.execute("DROP TABLE IF EXISTS " + schema + "." + table_name + " CASCADE")
     res = engine.execute(make_table_data["sql"])
 
@@ -296,7 +296,7 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
             USING regexp_replace(%s, '(\d{2}[A-Z]{3}\d{4}):', '\1 ' )::timestamp""" % (schema, table_name, var, var)
         engine.execute(sql)
 
-    sql = "ALTER TABLE %s.%s OWNER TO wrds" % (schema, table_name)
+    sql = "ALTER TABLE %s.%s OWNER TO %s" % (schema, table_name, schema) 
     engine.execute(sql)
 
     sql = "GRANT SELECT ON %s.%s TO wrds_access" % (schema, table_name)
