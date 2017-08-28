@@ -8,26 +8,31 @@ engine = create_engine("postgresql://" + host + "/" + dbname)
 
 from wrds_fetch import wrds_update, run_file_sql
 
+from sqlalchemy import Boolean, MetaData, Table
+
+def mod_col(column, schema, table, engine):
+    command = "ALTER TABLE " + schema + "." + table + \
+              " ALTER COLUMN " + column + " TYPE boolean USING (" + column + "=1)"
+    engine.execute(command)
+    return column
+
 def is_col_to_bool(engine, schema, table):
     """
-    This function change cols is_ type to boolean
-    The table is from pg, originallly from wrds
+    This function changes type of columns named "is_" to boolean
+    The table is from PostgreSQL, originally from wrds_id
     """
-    get_col = "select column_name from information_schema.columns where table_schema = '" + \
-                schema + "' and table_name = '" + table + "'"
-
-    col_lst = engine.execute(get_col).fetchall()
+    the_table = Table(table, MetaData(), schema=schema, autoload=True,
+                      autoload_with=engine)
+    columns = the_table.c
     
-    modify_lst = []
-    for i in col_lst:
-        if i[0].startswith("is_"):
-            command = "ALTER TABLE " + schema + "." + table + \
-                    "\nALTER COLUMN " + i[0] + " TYPE boolean USING (" + i[0] + "=1)"
-            engine.execute(command)
-            modify_lst.append(i[0])
-
-    if len(modify_lst) != 0:
-        print("Changed column type to boolean", modify_lst)
+    col_lst = [col.name for col in columns 
+                  if col.name.startswith("is_") and not isinstance(col.type, Boolean)]
+    
+    modify_lst = [mod_col(col, schema, table, engine) for col in col_lst]
+    if modify_lst:
+    	print("Columns changed to boolean", modify_lst)
+    
+    return modify_lst
         
 updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="match: prior: ")
 
