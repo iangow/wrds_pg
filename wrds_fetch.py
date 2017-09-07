@@ -174,10 +174,8 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
         sas_template = """
             options nosource nonotes;
 
-            libname pwd '/sastemp';
-
             * Fix missing values;
-            data pwd.%s%s;
+            data %s%s;
                 set %s.%s;
 
                 * dsf_fix;
@@ -196,7 +194,7 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
             * fund_names_fix;
             %s
 
-            proc export data=pwd.%s%s outfile=stdout dbms=csv;
+            proc export data=%s%s outfile=stdout dbms=csv;
             run;"""
         sas_code = sas_template % (schema, table_name, schema, sas_table, dsf_fix,
                                    fix_cr_code, fund_names_fix, schema, table_name)
@@ -296,7 +294,7 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
             USING regexp_replace(%s, '(\d{2}[A-Z]{3}\d{4}):', '\1 ' )::timestamp""" % (schema, table_name, var, var)
         engine.execute(sql)
 
-    sql = "ALTER TABLE %s.%s OWNER TO %s" % (schema, table_name, schema) 
+    sql = "ALTER TABLE %s.%s OWNER TO %s" % (schema, table_name, schema)
     engine.execute(sql)
 
     sql = "GRANT SELECT ON %s.%s TO wrds_access" % (schema, table_name)
