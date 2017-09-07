@@ -165,7 +165,7 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
         if table_name == "fund_names":
             fund_names_fix = """
                 proc sql;
-                    DELETE FROM pwd.%s%s
+                    DELETE FROM %s%s
                     WHERE prxmatch('\\D', first_offer_dt) ge 1;
                 quit;""" % (wrds_id, table_name)
         else:
