@@ -34,7 +34,8 @@ def is_col_to_bool(engine, schema, table):
     
     return modify_lst
         
-updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="match: prior: ")
+
+updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="prior:match:")
 
 updated = wrds_update("bankrupt", "audit", engine, wrds_id, drop="match: closest: prior:")
 if updated:
@@ -46,7 +47,7 @@ if updated:
             ALTER COLUMN court_type_code TYPE integer USING court_type_code::integer;
         ALTER TABLE audit.bankrupt ALTER COLUMN eventdate_aud_fkey TYPE integer;""")
 
-updated = wrds_update("diroffichange", "audit", engine, wrds_id, drop="match: prior: ")
+updated = wrds_update("diroffichange", "audit", engine, wrds_id, drop="match:prior:")
 if updated:
     engine.execute("""
         ALTER TABLE audit.diroffichange
@@ -140,26 +141,25 @@ if updated:
 updated = wrds_update("feed17change", "audit", engine, wrds_id)
 updated = wrds_update("feed17del", "audit", engine, wrds_id)
 
-updated = wrds_update("auditchange", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
+updated = wrds_update("auditchange", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu:")
 if updated:
     is_col_to_bool(engine, "audit", "auditchange")
 
-updated = wrds_update("auditsox404", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
+updated = wrds_update("auditsox404", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu:")
 if updated:
     is_col_to_bool(engine, "audit", "auditsox404")
 
-updated = wrds_update("auditsox302", "audit", engine, wrds_id, drop="match: prior: ")
+updated = wrds_update("auditsox302", "audit", engine, wrds_id, drop="match: prior:")
 if updated:
     engine.execute("""
         ALTER TABLE audit.auditsox302
         ALTER COLUMN is_effective TYPE integer USING is_effective::integer;""")
     is_col_to_bool(engine, "audit", "auditsox302")
 
-
-updated = wrds_update("auditlegal", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
+updated = wrds_update("auditlegal", "audit", engine, wrds_id, drop="matchfy:matchqu:priorfy:priorqu:")
 if updated:
      # Takes a lot of time
     is_col_to_bool(engine, "audit", "auditlegal")
 
-# Not working
-# updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: ")
+# Partially working, has to add cols http_X, nt_X, ac_X back
+updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu:http:nt:ac:")
