@@ -35,6 +35,9 @@ def is_col_to_bool(engine, schema, table):
     return modify_lst
 
 
+# Partially working, has to add cols http_X, nt_X, ac_X back
+updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: http: ac: nt:")
+
 updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="prior:match:")
 
 updated = wrds_update("bankrupt", "audit", engine, wrds_id, drop="match: closest: prior:")
@@ -161,5 +164,4 @@ if updated:
      # Takes a lot of time
     is_col_to_bool(engine, "audit", "auditlegal")
 
-# Partially working, has to add cols http_X, nt_X, ac_X back
-updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu:http:nt:ac:")
+
