@@ -71,7 +71,7 @@ def sas_to_pandas(sas_code, wrds_id):
     """Function that runs SAS code on WRDS server
     and returns a Pandas data frame."""
     p = get_process(sas_code, wrds_id)
-    df = pd.read_csv(StringIO(p.read().decode('utf-8')))
+    df = pd.read_csv(StringIO(p.read().decode('latin1')))
     df.columns = map(str.lower, df.columns)
     p.close()
 
@@ -90,9 +90,8 @@ def get_table_sql(table_name, schema, wrds_id, drop="", rename="", return_sql=Tr
         run;
 
         * Now dump it out to a CSV file;
-        filename exprt stdout encoding="utf-8";
         proc export data=schema(keep=name format formatl formatd length type)
-            outfile=exprt dbms=csv;
+            outfile=stdout dbms=csv;
         run;
     """
 
@@ -195,7 +194,6 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
             * fund_names_fix;
             %s
 
-            filename exprt stdout encoding="utf-8";
             proc export data=%s%s outfile=stdout dbms=csv;
             run;"""
         sas_code = sas_template % (schema, table_name, schema, sas_table, dsf_fix,
@@ -205,9 +203,7 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
         sas_template = """
             options nosource nonotes;
 
-            filename exprt stdout encoding="utf-8";
-
-            proc export data=%s.%s%s outfile=exprt dbms=csv;
+            proc export data=%s.%s%s outfile=stdout dbms=csv;
             run;"""
 
         sas_code = sas_template % (schema, table_name, rename_str)
@@ -218,7 +214,7 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
 def wrds_to_pandas(table_name, schema, wrds_id):
 
     p = get_wrds_process(table_name, schema, wrds_id)
-    df = pd.read_csv(StringIO(p.read().decode('utf-8')))
+    df = pd.read_csv(StringIO(p.read().decode('latin1')))
     df.columns = map(str.lower, df.columns)
     p.close()
 
@@ -312,7 +308,7 @@ def wrds_process_to_pg(table_name, schema, engine, p):
 
     # ... the rest is the data
     copy_cmd =  "COPY " + schema + "." + table_name + " (" + ", ".join(var_names) + ")"
-    copy_cmd += " FROM STDIN CSV ENCODING 'UTF-8'"
+    copy_cmd += " FROM STDIN CSV ENCODING 'latin1'"
 
     connection = engine.raw_connection()
     try:
