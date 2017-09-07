@@ -24,16 +24,16 @@ def is_col_to_bool(engine, schema, table):
     the_table = Table(table, MetaData(), schema=schema, autoload=True,
                       autoload_with=engine)
     columns = the_table.c
-    
-    col_lst = [col.name for col in columns 
+
+    col_lst = [col.name for col in columns
                   if col.name.startswith("is_") and not isinstance(col.type, Boolean)]
-    
+
     modify_lst = [mod_col(col, schema, table, engine) for col in col_lst]
     if modify_lst:
     	print("Columns changed to boolean", modify_lst)
-    
+
     return modify_lst
-        
+
 
 updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="prior:match:")
 
@@ -47,7 +47,7 @@ if updated:
             ALTER COLUMN court_type_code TYPE integer USING court_type_code::integer;
         ALTER TABLE audit.bankrupt ALTER COLUMN eventdate_aud_fkey TYPE integer;""")
 
-updated = wrds_update("diroffichange", "audit", engine, wrds_id, drop="match:prior:")
+updated = wrds_update("diroffichange", "audit", engine, wrds_id, drop="match: prior:")
 if updated:
     engine.execute("""
         ALTER TABLE audit.diroffichange
