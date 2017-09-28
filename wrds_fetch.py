@@ -203,7 +203,7 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
         sas_template = """
             options nosource nonotes;
 
-            proc export data=%s.%s%s outfile=stdout dbms=csv;
+            proc export data=%s.%s(%s) outfile=stdout dbms=csv;
             run;"""
 
         sas_code = sas_template % (schema, table_name, rename_str)
@@ -211,9 +211,9 @@ def get_wrds_process(table_name, schema, wrds_id, drop="",
     p = get_process(sas_code, wrds_id)
     return(p)
 
-def wrds_to_pandas(table_name, schema, wrds_id):
+def wrds_to_pandas(table_name, schema, wrds_id, rename=""):
 
-    p = get_wrds_process(table_name, schema, wrds_id)
+    p = get_wrds_process(table_name, schema, wrds_id, rename=rename)
     df = pd.read_csv(StringIO(p.read().decode('latin1')))
     df.columns = map(str.lower, df.columns)
     p.close()
