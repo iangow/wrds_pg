@@ -79,4 +79,7 @@ updated = wrds_update("g_sec_divid", "comp", engine, wrds_id,
 if updated:
     engine.execute("CREATE INDEX ON comp.g_sec_divid (gvkey, datadate)")
 
-# updated = wrds_update("idxcst_his", "comp", engine, wrds_id, rename="from=fromdt")
+updated = wrds_update("idxcst_his", "comp", engine, wrds_id, rename="from=fromdt")
+updated = wrds_update("g_idxcst_his", "comp", engine, wrds_id, rename="from=fromdt")
+updated = wrds_update("names_ix", "comp", engine, wrds_id)
+updated = wrds_update("g_names_ix", "comp", engine, wrds_id)
