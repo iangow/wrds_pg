@@ -12,6 +12,8 @@ updated = wrds_update("g_secd", "comp", engine, wrds_id)
 if updated:
     engine.execute("CREATE INDEX ON comp.g_secd (gvkey)")
 
+updated = wrds_update("sec_history", "comp", engine, wrds_id)
+
 updated = wrds_update("anncomp", "comp", engine, wrds_id)
 if updated:
     engine.execute("CREATE INDEX ON comp.anncomp (gvkey)")
