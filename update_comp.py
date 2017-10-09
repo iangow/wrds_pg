@@ -71,7 +71,7 @@ if updated:
     engine.execute("CREATE INDEX ON comp.fundq (gvkey, datadate)")
 
 updated = wrds_update("g_sec_divid", "comp", engine, wrds_id,
-                      fix_missing = True, rename="do=do_")
+                      fix_missing = True)
 if updated:
     engine.execute("CREATE INDEX ON comp.g_sec_divid (gvkey, datadate)")
 
