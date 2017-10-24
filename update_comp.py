@@ -96,5 +96,3 @@ if updated:
     engine.execute("CREATE INDEX ON comp.g_sec_divid (gvkey, datadate)")
 
 updated = wrds_update("r_datacode", "comp", engine, wrds_id)
-if updated:
-    engine.execute("CREATE INDEX ON comp.g_sec_divid (gvkey, datadate)")
