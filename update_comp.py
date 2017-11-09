@@ -86,3 +86,6 @@ if updated:
     engine.execute("CREATE INDEX ON comp.fundq_fncd (gvkey, datadate)")
 
 updated = wrds_update("r_datacode", "comp", engine, wrds_id)
+updated = wrds_update("aco_pnfnda", "comp", engine, wrds_id)
+if updated:
+    engine.execute("CREATE INDEX ON comp.aco_pnfnda (gvkey, datadate)")
