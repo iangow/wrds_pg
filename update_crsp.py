@@ -14,7 +14,7 @@ print(".", end="")
 from wrds_fetch import wrds_update, run_file_sql
 
 print(".")
-# Update monthly data
+
 msf = wrds_update("msf", "crsp", engine, wrds_id, fix_missing=True)
 if msf:
     engine.execute("CREATE INDEX ON crsp.msf (permno, date)")
@@ -158,6 +158,8 @@ if dseexchdates:
 wrds_update("msp500list", "crsp", engine, wrds_id)
 wrds_update("ccmxpf_lnkused", "crsp", engine, wrds_id, fix_missing=True)
 # wrds_update("fund_names", "crsp", engine, wrds_id, fix_missing=True)
+wrds_update("dsf", "crsp", engine, wrds_id, fix_missing=True)
+wrds_update("msp500", "crsp", engine, wrds_id, fix_missing=True)
 
 # Fix permissions.
 engine.execute("GRANT USAGE ON SCHEMA crsp TO wrds_access")
