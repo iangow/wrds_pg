@@ -5,11 +5,12 @@ import re
 import paramiko
 from time import gmtime, strftime
 
+client = paramiko.SSHClient()
+
 def get_process(sas_code, wrds_id):
 
     """Function runs SAS code on WRDS server and
     returns result as pipe on stdout."""
-    client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.connect('wrds-cloud.wharton.upenn.edu',
                    username=wrds_id, compress=True)
