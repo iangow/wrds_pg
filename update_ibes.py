@@ -12,7 +12,7 @@ wrds_update("act_epsus", "ibes", engine, wrds_id)
 wrds_update("actpsumu_epsus", "ibes", engine, wrds_id)
 wrds_update("actu_epsus", "ibes", engine, wrds_id)
 updated = wrds_update("detu_epsus", "ibes", engine, wrds_id)
-if True: # updated:
+if updated:
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON ibes.detu_epsus (ticker, revdats)")
 
