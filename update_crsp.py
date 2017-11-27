@@ -158,7 +158,6 @@ if dseexchdates:
 wrds_update("msp500list", "crsp", engine, wrds_id)
 wrds_update("ccmxpf_lnkused", "crsp", engine, wrds_id, fix_missing=True)
 # wrds_update("fund_names", "crsp", engine, wrds_id, fix_missing=True)
-wrds_update("dsf", "crsp", engine, wrds_id, fix_missing=True)
 wrds_update("msp500", "crsp", engine, wrds_id, fix_missing=True)
 
 # Fix permissions.
