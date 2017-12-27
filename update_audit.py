@@ -36,7 +36,7 @@ def is_col_to_bool(engine, schema, table):
 
 
 # Partially working, has to add cols http_X, nt_X, ac_X back
-updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: priorqu: http: ac: nt:")
+updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: closestfy: priorqu: http: ac: nt:")
 
 updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="prior:match:")
 
