@@ -10,6 +10,11 @@ from wrds_fetch import wrds_update, run_file_sql
 
 updated = wrds_update("g_exrt_dly", "comp", engine, wrds_id)
 
+updated = wrds_update("g_funda", "comp", engine, wrds_id,
+                      fix_missing = True, rename="do=do_")
+if updated:
+    engine.execute("CREATE INDEX ON comp.g_funda (gvkey)")
+
 updated = wrds_update("g_secd", "comp", engine, wrds_id)
 if updated:
     engine.execute("CREATE INDEX ON comp.g_secd (gvkey)")
