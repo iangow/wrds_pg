@@ -348,6 +348,14 @@ def wrds_update(table_name, schema, engine, wrds_id, force=False,
                 fix_missing=fix_missing, fix_cr=fix_cr,
                 drop=drop, obs=obs, rename=rename)
         set_table_comment(table_name, schema, modified, engine)
+        sql = r"""
+            ALTER TABLE "%s"."%s" OWNER TO %s""" % (schema, table_name, schema)
+        engine.execute(sql)
+
+        sql = r"""
+            GRANT SELECT ON "%s"."%s"  TO %s_access""" % (schema, table_name, schema)
+        engine.execute(sql)
+
         return True
 
 def run_file_sql(file, engine):
