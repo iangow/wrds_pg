@@ -1,12 +1,13 @@
- CREATE OR REPLACE FUNCTION issvoting.extract_name(text)
+ CREATE OR REPLACE FUNCTION risk.extract_name(text)
   RETURNS parsed_name AS
 $BODY$
-    my $first_name="";
-    my $last_name="";
-    my $name = "";
-    my $prefix = "";
-    my $last_name_suffix = "";
-    my $suffix = "";
+    my $first_name;
+    my $last_name;
+    my $name;
+    my $prefix;
+    my $last_name_suffix;
+    my $suffix;
+    my $middle_initial;
 
     if (defined($_[0])) {
 
@@ -96,6 +97,11 @@ $BODY$
         $last_name_prefix = $2;
         $last_name_prefix =~ s/^\s+//;
         $last_name = $last_name_prefix . ' ' . $last_name;
+    }
+
+    if ($first_name =~ /(.*?)\s+(.*)$/) {
+        $first_name = $1;
+        $middle_initial = $2;
     }
 
     return {first_name => $first_name, middle_initial => $middle_initial,
