@@ -309,7 +309,7 @@ def wrds_process_to_pg(table_name, schema, engine, p):
 
     # ... the rest is the data
     copy_cmd =  "COPY " + schema + "." + table_name + " (" + ", ".join(var_names) + ")"
-    copy_cmd += " FROM STDIN CSV ENCODING 'latin1' NULL '\\100x00'"
+    copy_cmd += " FROM STDIN CSV ENCODING 'latin1'"
 
     connection = engine.raw_connection()
     try:
