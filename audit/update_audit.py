@@ -38,9 +38,9 @@ def is_col_to_bool(engine, schema, table):
 
 
 # Partially working, has to add cols http_X, nt_X, ac_X back
-updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: closestfy: priorqu: http: ac: nt:")
+# updated = wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: closestfy: priorqu: http: ac: nt: closestqu: best_edgar:", fix_missing=True)
 
-updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="prior:match:")
+updated = wrds_update("auditnonreli", "audit", engine, wrds_id, drop="prior: match: closest: eventdate:")
 
 updated = wrds_update("bankrupt", "audit", engine, wrds_id, drop="match: closest: prior:")
 if updated:
@@ -52,15 +52,16 @@ if updated:
             ALTER COLUMN court_type_code TYPE integer USING court_type_code::integer;
         ALTER TABLE audit.bankrupt ALTER COLUMN eventdate_aud_fkey TYPE integer;""")
 
-updated = wrds_update("diroffichange", "audit", engine, wrds_id, drop="match: prior:")
+updated = wrds_update("diroffichange", "audit", engine, wrds_id,
+                        drop="match: prior: closest: eventdate:")
 if updated:
     engine.execute("""
         ALTER TABLE audit.diroffichange
-        ALTER COLUMN do_pers_co_key TYPE integer""")
+        ALTER COLUMN do_off_pers_key TYPE integer""")
     is_col_to_bool(engine, "audit", "diroffichange")
 
     engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON audit.diroffichange (do_pers_co_key)")
+    engine.execute("CREATE INDEX ON audit.diroffichange (do_off_pers_key)")
 
 updated = wrds_update("sholderact", "audit", engine, wrds_id)
 
