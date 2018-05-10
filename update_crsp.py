@@ -14,6 +14,9 @@ print(".", end="")
 from wrds_fetch import wrds_update, run_file_sql
 
 print(".")
+
+mse = wrds_update("mse", "crsp", engine, wrds_id, fix_missing=True)
+
 # Update monthly data
 msf = wrds_update("msf", "crsp", engine, wrds_id, fix_missing=True)
 if msf:
