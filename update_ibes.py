@@ -38,6 +38,7 @@ wrds_update("split_guidance", "ibes", engine, wrds_id)
 
 wrds_update("stop_epsus", "ibes", engine, wrds_id)
 wrds_update("exc_epsus", "ibes", engine, wrds_id)
+wrds_update("actpsum_epsus", "ibes", engine, wrds_id)
 
 # Rscript ibes/get_iclink.R
 engine.execute("GRANT USAGE ON SCHEMA ibes TO wrds")
