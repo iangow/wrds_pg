@@ -60,6 +60,8 @@ if mport:
     p = get_process(sas_code, wrds_id)
     res = wrds_process_to_pg("ermport", "crsp", engine, p)
     run_file_sql("crsp/crsp_make_ermport1.sql", engine)
+    engine.execute("ALTER TABLE crsp.ermport OWNER TO crsp")
+
 
 if msi:
     engine.execute("CREATE INDEX ON crsp.msi (date)")
@@ -124,6 +126,8 @@ if dport:
 
     run_file_sql("crsp/crsp_make_erdport1.sql", engine)
     engine.execute("CREATE INDEX ON crsp.dport1 (permno, date)")
+    engine.execute("ALTER TABLE crsp.erdport OWNER TO crsp")
+
 
 if dport or dsf or dsi or dsedelist:
     run_file_sql("crsp/crsp_make_rets_alt.sql", engine)
