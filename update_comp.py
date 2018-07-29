@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from sqlalchemy import create_engine
-import os
+import os, sys
 dbname = os.getenv("PGDATABASE")
 host = os.getenv("PGHOST", "localhost")
 wrds_id = os.getenv("WRDS_ID")
@@ -18,6 +18,9 @@ if updated:
 updated = wrds_update("g_secd", "comp", engine, wrds_id)
 if updated:
     engine.execute("CREATE INDEX ON comp.g_secd (gvkey)")
+
+updated = wrds_update("g_security", "comp", engine, wrds_id)
+updated = wrds_update("g_company", "comp", engine, wrds_id)
 
 updated = wrds_update("sec_history", "comp", engine, wrds_id)
 updated = wrds_update("idxcst_his", "comp", engine, wrds_id, rename="from=fromdt")
@@ -106,3 +109,4 @@ if updated:
 updated = wrds_update("r_giccd", "comp", engine, wrds_id)
 
 updated = wrds_update("r_datacode", "comp", engine, wrds_id)
+sys.exit()
