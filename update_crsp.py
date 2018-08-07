@@ -15,6 +15,29 @@ from wrds_fetch import wrds_update, run_file_sql
 
 print(".")
 
+# Update treasury yield table crsp.tfz_ft
+tfz_idx = wrds_update("tfz_idx", "crsp", engine, wrds_id, fix_missing=True)
+tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", engine, wrds_id, fix_missing=True)
+if tfz_idx or tfz_dly_ft:
+    sql = """
+        DROP TABLE IF EXISTS crsp.tfz_ft;
+        CREATE TABLE crsp.tfz_ft 
+        AS
+        (SELECT a.kytreasnox, tidxfam, ttermtype, ttermlbl, caldt, rdtreasno, rdcrspid, 
+                       tdyearstm, tdduratn, tdretadj, tdytm, tdbid, tdask, tdnomprc, tdnomprc_flg, tdaccint
+        FROM crsp.tfz_idx a
+        INNER JOIN crsp.tfz_dly_ft b
+        ON a.kytreasnox = b.kytreasnox)
+        """
+    engine.execute(sql)
+    engine.execute("ALTER TABLE crsp.tfz_ft ALTER kytreasnox TYPE integer")
+    engine.execute("ALTER TABLE crsp.tfz_ft ALTER ttermtype TYPE integer")
+    engine.execute("ALTER TABLE crsp.tfz_ft ALTER rdtreasno TYPE integer")
+    engine.execute("ALTER TABLE crsp.tfz_ft ALTER rdcrspid TYPE double precision USING rdcrspid::double precision")
+    engine.execute("ALTER TABLE crsp.tfz_ft OWNER TO crsp")
+    engine.execute("GRANT SELECT ON crsp.tfz_ft TO crsp_access")
+   
+
 mse = wrds_update("mse", "crsp", engine, wrds_id, fix_missing=True)
 
 # Update monthly data
@@ -61,6 +84,7 @@ if mport:
     res = wrds_process_to_pg("ermport", "crsp", engine, p)
     run_file_sql("crsp/crsp_make_ermport1.sql", engine)
     engine.execute("ALTER TABLE crsp.ermport OWNER TO crsp")
+    engine.execute("GRANT SELECT ON crsp.ermport TO crsp_access")
 
 
 if msi:
@@ -127,6 +151,7 @@ if dport:
     run_file_sql("crsp/crsp_make_erdport1.sql", engine)
     engine.execute("CREATE INDEX ON crsp.dport1 (permno, date)")
     engine.execute("ALTER TABLE crsp.erdport OWNER TO crsp")
+    engine.execute("GRANT SELECT ON TABLE crsp.erdport TO crsp_access")
 
 
 if dport or dsf or dsi or dsedelist:

@@ -72,6 +72,7 @@ def sas_to_pandas(sas_code, wrds_id):
     """Function that runs SAS code on WRDS server
     and returns a Pandas data frame."""
     p = get_process(sas_code, wrds_id)
+
     df = pd.read_csv(StringIO(p.read().decode('latin1')))
     df.columns = map(str.lower, df.columns)
     p.close()
@@ -275,7 +276,12 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
 
     #res = engine.execute("CREATE SCHEMA IF NOT EXISTS " + schema)
     res = engine.execute("DROP TABLE IF EXISTS " + schema + "." + table_name + " CASCADE")
-    res = engine.execute(make_table_data["sql"])
+
+    if table_name != "tfz_dly_ft":
+        res = engine.execute(make_table_data["sql"])
+    else:
+        mod_sql = make_table_data["sql"].replace("caldt int8", "caldt date")
+        res = engine.execute(mod_sql)
 
     now = strftime("%H:%M:%S", gmtime())
     print("Beginning file import at %s." % now)
