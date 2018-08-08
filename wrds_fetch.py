@@ -40,7 +40,7 @@ def code_row(row):
             return 'timestamp'
         elif format_ =='TIME8.' or re.search(r'time', format_, re.I):
             return "time"
-        elif re.search(r'(date|yymmdd)', format_, re.I):
+        elif re.search(r'(date|yymmdd|mmddyy)', format_, re.I):
             return "date"
 
     if format_ == "BEST":
@@ -273,21 +273,10 @@ def wrds_to_pg(table_name, schema, engine, wrds_id,
 
     make_table_data = get_table_sql(table_name=table_name, schema=schema,
             wrds_id=wrds_id, drop=drop, rename=rename)
-    tmp = get_table_sql(table_name=table_name, schema=schema,
-            wrds_id=wrds_id, return_sql=False)
 
     #res = engine.execute("CREATE SCHEMA IF NOT EXISTS " + schema)
     res = engine.execute("DROP TABLE IF EXISTS " + schema + "." + table_name + " CASCADE")
-
-    if tmp.loc[tmp['format'] == 'MMDDYY'].empty:
-        res = engine.execute(make_table_data["sql"])
-    else:
-        # Fix data type error for dates
-        col_name = tmp.loc[tmp['format'] == 'MMDDYY'].iloc[0,0]
-        col_type = tmp.loc[tmp['format'] == 'MMDDYY'].iloc[0,6]
-
-        mod_sql = make_table_data["sql"].replace(col_name + ' ' + col_type, col_name + ' date')
-        res = engine.execute(mod_sql)
+    res = engine.execute(make_table_data["sql"])
 
     now = strftime("%H:%M:%S", gmtime())
     print("Beginning file import at %s." % now)
