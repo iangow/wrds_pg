@@ -23,17 +23,17 @@ if tfz_idx or tfz_dly_ft:
         DROP TABLE IF EXISTS crsp.tfz_ft;
         CREATE TABLE crsp.tfz_ft 
         AS
-        (SELECT a.kytreasnox, tidxfam, ttermtype, ttermlbl, caldt, rdtreasno, rdcrspid, 
-                       tdyearstm, tdduratn, tdretadj, tdytm, tdbid, tdask, tdnomprc, tdnomprc_flg, tdaccint
-        FROM crsp.tfz_idx a
-        INNER JOIN crsp.tfz_dly_ft b
-        ON a.kytreasnox = b.kytreasnox)
+        (SELECT kytreasnox, tidxfam, ttermtype, ttermlbl, caldt, rdtreasno, 
+                to_timestamp(rdcrspid, 'YYYYMMDD.HH24MISS') as rdcrspid, 
+                tdyearstm, tdduratn, tdretadj, tdytm, tdbid, tdask, tdnomprc, tdnomprc_flg, tdaccint
+        FROM crsp.tfz_idx
+        INNER JOIN crsp.tfz_dly_ft
+        USING (kytreasnox))
         """
     engine.execute(sql)
     engine.execute("ALTER TABLE crsp.tfz_ft ALTER kytreasnox TYPE integer")
     engine.execute("ALTER TABLE crsp.tfz_ft ALTER ttermtype TYPE integer")
     engine.execute("ALTER TABLE crsp.tfz_ft ALTER rdtreasno TYPE integer")
-    engine.execute("ALTER TABLE crsp.tfz_ft ALTER rdcrspid TYPE double precision USING rdcrspid::double precision")
     engine.execute("ALTER TABLE crsp.tfz_ft OWNER TO crsp")
     engine.execute("GRANT SELECT ON crsp.tfz_ft TO crsp_access")
    
