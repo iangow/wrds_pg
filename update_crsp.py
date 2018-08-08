@@ -18,6 +18,7 @@ print(".")
 # Update treasury yield table crsp.tfz_ft
 tfz_idx = wrds_update("tfz_idx", "crsp", engine, wrds_id, fix_missing=True)
 tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", engine, wrds_id, fix_missing=True)
+
 if tfz_idx or tfz_dly_ft:
     sql = """
         DROP TABLE IF EXISTS crsp.tfz_ft;
@@ -36,7 +37,6 @@ if tfz_idx or tfz_dly_ft:
     engine.execute("ALTER TABLE crsp.tfz_ft ALTER rdtreasno TYPE integer")
     engine.execute("ALTER TABLE crsp.tfz_ft OWNER TO crsp")
     engine.execute("GRANT SELECT ON crsp.tfz_ft TO crsp_access")
-   
 
 mse = wrds_update("mse", "crsp", engine, wrds_id, fix_missing=True)
 
@@ -190,6 +190,9 @@ if dseexchdates:
 wrds_update("msp500list", "crsp", engine, wrds_id)
 wrds_update("ccmxpf_lnkused", "crsp", engine, wrds_id, fix_missing=True)
 # wrds_update("fund_names", "crsp", engine, wrds_id, fix_missing=True)
+wrds_update("msp500", "crsp", engine, wrds_id)
+wrds_update("msp500p", "crsp", engine, wrds_id)
+wrds_update("mcti", "crsp", engine, wrds_id)
 
 # Fix permissions.
 engine.execute("GRANT USAGE ON SCHEMA crsp TO wrds_access")
