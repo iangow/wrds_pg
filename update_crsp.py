@@ -16,9 +16,18 @@ from wrds_fetch import wrds_update, run_file_sql
 print(".")
 
 # Update treasury yield table crsp.tfz_ft
+# From wrds:
+# The error is correct, the table "tfz_ft," does not exist. Behind the scenes this web 
+# query form is joining two tables on the fly. The tables this query is joining are 
+# "crsp.tfz_idx" and either "crsp.tfz_dly_ft" or "crsp.tfz_mth_ft" (depending on if 
+# you want daily or monthly data) by the variable "kytreasnox."
+
+# Here are some links to the information about these tables: 
+# https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77140
+# https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77137
+# https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77147
 tfz_idx = wrds_update("tfz_idx", "crsp", engine, wrds_id, fix_missing=True)
 tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", engine, wrds_id, fix_missing=True)
-
 if tfz_idx or tfz_dly_ft:
     sql = """
         DROP TABLE IF EXISTS crsp.tfz_ft;
