@@ -38,7 +38,7 @@ def code_row(row):
     if not pd.isnull(format_):
         if re.search(r'datetime', format_, re.I):
             return 'timestamp'
-        elif format_ =='TIME8.' or re.search(r'time', format_, re.I):
+        elif format_ =='TIME8.' or re.search(r'time', format_, re.I) or format_=='TOD':
             return "time"
         elif re.search(r'(date|yymmdd|mmddyy)', format_, re.I):
             return "date"
