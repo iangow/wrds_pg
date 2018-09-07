@@ -15,7 +15,7 @@ from wrds_fetch import wrds_update, run_file_sql
 
 print(".")
 
-# Update treasury yield table crsp.tfz_ft
+# Update Treasury yield table crsp.tfz_ft
 # From wrds:
 # The error is correct, the table "tfz_ft," does not exist. Behind the scenes this web 
 # query form is joining two tables on the fly. The tables this query is joining are 
@@ -35,7 +35,8 @@ if tfz_idx or tfz_dly_ft:
         AS
         (SELECT kytreasnox, tidxfam, ttermtype, ttermlbl, caldt, rdtreasno, 
                 to_timestamp(rdcrspid, 'YYYYMMDD.HH24MISS') as rdcrspid, 
-                tdyearstm, tdduratn, tdretadj, tdytm, tdbid, tdask, tdnomprc, tdnomprc_flg, tdaccint
+                tdyearstm, tdduratn, tdretadj, tdytm, tdbid, tdask, tdnomprc, 
+                tdnomprc_flg, tdaccint
         FROM crsp.tfz_idx
         INNER JOIN crsp.tfz_dly_ft
         USING (kytreasnox))
@@ -199,6 +200,7 @@ if dseexchdates:
 wrds_update("msp500list", "crsp", engine, wrds_id)
 wrds_update("ccmxpf_lnkused", "crsp", engine, wrds_id, fix_missing=True)
 # wrds_update("fund_names", "crsp", engine, wrds_id, fix_missing=True)
+
 wrds_update("msp500", "crsp", engine, wrds_id)
 wrds_update("msp500p", "crsp", engine, wrds_id)
 wrds_update("mcti", "crsp", engine, wrds_id)
