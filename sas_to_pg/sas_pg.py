@@ -1,24 +1,20 @@
 #!/usr/bin/env python3
 from sqlalchemy import create_engine
 import os, sys
+from wrds_fetch_local import wrds_update
+
 dbname = os.getenv("PGDATABASE")
 host = os.getenv("PGHOST", "localhost")
-wrds_id = os.getenv("WRDS_ID")
 engine = create_engine("postgresql://" + host + "/" + dbname)
 
-# Step 1: read sas file and create table
+# Import sas file to pg
 fpath = '/home/jingyuz'
+# Table_name should be the same as sas file, eg. for admit.sas7bdat, table_name = "admit"
 table_name = 'admit'
-schema = 'public'
-from wrds_fetch import *
-make_table_data=get_table_sql(table_name, fpath, schema)
-print(make_table_data)
+schema = 'executive'
 
+#wrds_update(table_name, fpath, schema, engine, wrds_id="", fix_missing=True, fix_cr=True,
+# drop="id name", obs="10", rename="fee=fee_old")
 
-# Step 2: get table create sql
-# Now wrds_to_pg line 284
-# get_wrds_process needs further fix
-res = engine.execute("DROP TABLE IF EXISTS " + schema + "." + table_name + " CASCADE")
-res = engine.execute(make_table_data["sql"])
-p=get_wrds_process(table_name, fpath, schema, wrds_id)
-wrds_process_to_pg(table_name, schema, engine, p)
+wrds_update(table_name, fpath, schema, engine, wrds_id="jingyuz", fix_missing=False, 
+	fix_cr=False, drop="", obs="", rename="")
