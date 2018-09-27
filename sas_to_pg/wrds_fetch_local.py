@@ -1,59 +1,23 @@
 import pandas as pd
 from io import StringIO
-import re, os, subprocess
+import re, os, subprocess, sys
 from time import gmtime, strftime
+sys.path.insert(0, '..')
+from wrds_fetch import get_row_sql, code_row, set_table_comment
 
 def get_local_process(sas_code):
-    f = open(os.getcwd() + '/tmp.sas', 'w+')
+    f = open('tmp.sas', 'w+')
     f.write(sas_code)
     f.close()
 
-    p=subprocess.Popen(['sas', '-sysin', os.getcwd() + '/tmp.sas', '-nolog'],
+    p=subprocess.Popen(['sas', '-sysin', 'tmp.sas', '-nolog'],
 		stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    
     ret = p.communicate()[0].decode('latin1')
-    os.remove(os.getcwd() + '/tmp.sas')
+    os.remove('tmp.sas')
     return ret
 
-def code_row(row):
-    """A function to code PostgreSQL data types using output from SAS's PROC CONTENTS."""
-    format_ = row['format']
-    formatd = row['formatd']
-    formatl = row['formatl']
-    col_type = row['type']
-
-    if col_type==2:
-        return 'text'
-
-    if not pd.isnull(format_):
-        if re.search(r'datetime', format_, re.I):
-            return 'timestamp'
-        elif format_ =='TIME8.' or re.search(r'time', format_, re.I) or format_=='TOD':
-            return "time"
-        elif re.search(r'(date|yymmdd|mmddyy)', format_, re.I):
-            return "date"
-
-    if format_ == "BEST":
-        return 'float8'
-    if formatd != 0:
-        return 'float8'
-    if formatd == 0 and formatl != 0:
-        return 'int8'
-    if formatd == 0 and formatl == 0:
-        return 'float8'
-    else:
-        return 'text'
-
-# SAS code to extract information about the datatypes of the SAS data.
-# Note that there are some date formates that don't work with this code.
-def get_row_sql(row):
-    """Function to get SQL to create column from row in PROC CONTENTS."""
-    postgres_type = row['postgres_type']
-    if postgres_type == 'timestamp':
-        postgres_type = 'text'
-
-    return row['name'].lower() + ' ' + postgres_type
-
-def sas_to_pandas(sas_code):
+def sas_to_pandas_local(sas_code):
     """Function that runs SAS code on WRDS server
     and returns a Pandas data frame."""
     p = get_local_process(sas_code)
@@ -63,7 +27,7 @@ def sas_to_pandas(sas_code):
 
     return(df)
 
-def get_table_sql(table_name, fpath, schema, drop="", rename="", return_sql=True):
+def get_table_sql_local(table_name, fpath, schema, drop="", rename="", return_sql=True):
     sas_template = """
         options nonotes nosource;
 		libname tmp '%s';
@@ -94,7 +58,7 @@ def get_table_sql(table_name, fpath, schema, drop="", rename="", return_sql=True
     sas_code = sas_template % (fpath, table_name, drop_str, rename_str)
 
     # Run the SAS code on the WRDS server and get the result
-    df = sas_to_pandas(sas_code)
+    df = sas_to_pandas_local(sas_code)
     df['postgres_type'] = df.apply(code_row, axis=1)
 
     make_table_sql = "CREATE TABLE " + schema + "." + table_name + " (" + \
@@ -110,7 +74,7 @@ def get_table_sql(table_name, fpath, schema, drop="", rename="", return_sql=True
         df['name'] = df['name'].str.lower()
         return df
 
-def get_wrds_process(table_name, fpath, schema, wrds_id, drop="", fix_cr = False,
+def get_wrds_process_local(table_name, fpath, schema, wrds_id, drop="", fix_cr = False,
  fix_missing = False, obs="", rename=""):
     if fix_cr:
         fix_missing = True;
@@ -196,59 +160,10 @@ def get_wrds_process(table_name, fpath, schema, wrds_id, drop="", fix_cr = False
     p = get_local_process(sas_code)
     return(p)
 
-def wrds_to_pandas(table_name, schema, wrds_id, rename=""):
-    p = get_wrds_process(table_name, schema, wrds_id, rename=rename)
-    df = pd.read_csv(StringIO(p.read().decode('latin1')))
-    df.columns = map(str.lower, df.columns)
-    p.close()
-    return(df)
-
-def get_modified_str(table_name, schema, wrds_id):
-    sas_code = "proc contents data=" + schema + "." + table_name + ";"
-    contents = get_local_process(sas_code, wrds_id).readlines()
-    modified = ""
-
-    next_row = False
-    for line in contents:
-        if next_row:
-            line = re.sub(r"^\s+(.*)\s+$", r"\1", line)
-            line = re.sub(r"\s+$", "", line)
-            if not re.findall(r"Protection", line):
-              modified += " " + line.rstrip()
-            next_row = False
-
-        if re.match(r"Last Modified", line):
-            modified = re.sub(r"^Last Modified\s+(.*?)\s{2,}.*$", r"Last modified: \1", line)
-            modified = modified.rstrip()
-            next_row = True
-    return modified
-
-def get_table_comment(table_name, schema, engine):
-    if engine.dialect.has_table(engine.connect(), table_name, schema=schema):
-        sql = """SELECT obj_description('"%s"."%s"'::regclass, 'pg_class')""" % (schema, table_name)
-        res = engine.execute(sql).fetchone()[0]
-        return(res)
-    else:
-        return ""
-
-def set_table_comment(table_name, schema, comment, engine):
-    connection = engine.connect()
-    trans = connection.begin()
-    sql = """
-        COMMENT ON TABLE "%s"."%s" IS '%s'""" % (schema, table_name, comment)
-    
-    try:
-        res = connection.execute(sql)
-        trans.commit()
-    except:
-        trans.rollback()
-        raise
-    return True
-
-def wrds_to_pg(table_name, fpath, schema, engine, wrds_id,
+def wrds_to_pg_local(table_name, fpath, schema, engine, wrds_id,
                fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
 
-    make_table_data = get_table_sql(table_name=table_name, fpath=fpath, schema=schema, drop=drop, rename=rename)
+    make_table_data = get_table_sql_local(table_name=table_name, fpath=fpath, schema=schema, drop=drop, rename=rename)
 
     #res = engine.execute("CREATE SCHEMA IF NOT EXISTS " + schema)
     res = engine.execute("DROP TABLE IF EXISTS " + schema + "." + table_name + " CASCADE")
@@ -257,10 +172,10 @@ def wrds_to_pg(table_name, fpath, schema, engine, wrds_id,
     now = strftime("%H:%M:%S", gmtime())
     print("Beginning file import at %s." % now)
     print("Importing data into %s.%s" % (schema, table_name))
-    p = get_wrds_process(table_name=table_name, fpath=fpath, schema=schema, wrds_id=wrds_id, 
+    p = get_wrds_process_local(table_name=table_name, fpath=fpath, schema=schema, wrds_id=wrds_id, 
 				drop=drop, fix_cr=fix_cr, fix_missing = fix_missing, obs=obs, rename=rename)
 
-    res = wrds_process_to_pg(table_name, schema, engine, p)
+    res = wrds_process_to_pg_local(table_name, schema, engine, p)
     now = strftime("%H:%M:%S", gmtime())
     print("Completed file import at %s." % now)
 
@@ -274,7 +189,7 @@ def wrds_to_pg(table_name, fpath, schema, engine, wrds_id,
 
     return res
 
-def wrds_process_to_pg(table_name, schema, engine, p):
+def wrds_process_to_pg_local(table_name, schema, engine, p):
     # The first line has the variable names ...
     var_names = p[:p.find('\n')].rstrip().lower().split(sep=",")
 
@@ -293,9 +208,9 @@ def wrds_process_to_pg(table_name, schema, engine, p):
 
     return True
 
-def wrds_update(table_name, fpath, schema, engine, wrds_id, fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
+def wrds_update_local(table_name, fpath, schema, engine, wrds_id, fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
     
-    wrds_to_pg(table_name=table_name, fpath=fpath, schema=schema, engine=engine, 
+    wrds_to_pg_local(table_name=table_name, fpath=fpath, schema=schema, engine=engine, 
 		wrds_id=wrds_id, fix_missing=fix_missing, fix_cr=fix_cr, drop=drop, obs=obs, rename=rename)
 
     comment = 'Updated on ' + strftime("%Y-%m-%d %H:%M:%S", gmtime())
@@ -311,10 +226,3 @@ def wrds_update(table_name, fpath, schema, engine, wrds_id, fix_missing=False, f
     engine.execute(sql)
 
     return True
-
-def run_file_sql(file, engine):
-    f = open(file, 'r')
-    sql = f.read()
-    print("Running SQL in %s" % file)
-    res = engine.execute(sql)
-    res.close()
