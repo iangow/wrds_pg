@@ -11,6 +11,9 @@ from wrds_fetch import wrds_update
 updated = wrds_update("wrds_gvkey", "ciq", engine, wrds_id, fix_missing=True)
 if updated:
     engine.execute("CREATE INDEX ON ciq.wrds_gvkey (companyid)")
+updated = wrds_update("wciklink_gvkey", "wrdssec", engine, wrds_id)
+updated = wrds_update("wciklink_names", "wrdssec", engine, wrds_id)
+updated = wrds_update("wciklink_cusip", "wrdssec", engine, wrds_id)
 
 updated = wrds_update("wrds_cusip", "ciq", engine, wrds_id, fix_missing=True)
 if updated:
