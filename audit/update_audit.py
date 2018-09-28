@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
-from sqlalchemy import create_engine
-import os, sys
+import sys
 sys.path.insert(0, '..')
 
-dbname = os.getenv("PGDATABASE")
-host = os.getenv("PGHOST", "localhost")
-wrds_id = os.getenv("WRDS_ID")
-engine = create_engine("postgresql://" + host + "/" + dbname)
-
 from wrds_fetch import wrds_update, run_file_sql
-
+from make_engine import engine, wrds_id
 from sqlalchemy import Boolean, MetaData, Table
 
 def mod_col(column, schema, table, engine):
@@ -167,4 +161,4 @@ if updated:
      # Takes a lot of time
     is_col_to_bool(engine, "audit", "auditlegal")
 
-
+engine.dispose()

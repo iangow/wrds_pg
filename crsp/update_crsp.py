@@ -2,28 +2,22 @@
 print("Updating CRSP", end="")
 from sqlalchemy import create_engine
 print(".", end="")
-import os, sys
-dbname = os.getenv("PGDATABASE")
-print(".", end="")
-host = os.getenv("PGHOST", "localhost")
-print(".", end="")
-wrds_id = os.getenv("WRDS_ID")
-engine = create_engine("postgresql://" + host + "/" + dbname)
+import sys
 
 print(".", end="")
 sys.path.insert(0, '..')
 from wrds_fetch import wrds_update, run_file_sql
-
+from make_engine import engine, wrds_id
 print(".")
 
 # Update Treasury yield table crsp.tfz_ft
 # From wrds:
-# The error is correct, the table "tfz_ft," does not exist. Behind the scenes this web 
-# query form is joining two tables on the fly. The tables this query is joining are 
-# "crsp.tfz_idx" and either "crsp.tfz_dly_ft" or "crsp.tfz_mth_ft" (depending on if 
+# The error is correct, the table "tfz_ft," does not exist. Behind the scenes this web
+# query form is joining two tables on the fly. The tables this query is joining are
+# "crsp.tfz_idx" and either "crsp.tfz_dly_ft" or "crsp.tfz_mth_ft" (depending on if
 # you want daily or monthly data) by the variable "kytreasnox."
 
-# Here are some links to the information about these tables: 
+# Here are some links to the information about these tables:
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77140
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77137
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77147
@@ -32,11 +26,11 @@ tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", engine, wrds_id, fix_missing=True
 if tfz_idx or tfz_dly_ft:
     sql = """
         DROP TABLE IF EXISTS crsp.tfz_ft;
-        CREATE TABLE crsp.tfz_ft 
+        CREATE TABLE crsp.tfz_ft
         AS
-        (SELECT kytreasnox, tidxfam, ttermtype, ttermlbl, caldt, rdtreasno, 
-                to_timestamp(rdcrspid, 'YYYYMMDD.HH24MISS') as rdcrspid, 
-                tdyearstm, tdduratn, tdretadj, tdytm, tdbid, tdask, tdnomprc, 
+        (SELECT kytreasnox, tidxfam, ttermtype, ttermlbl, caldt, rdtreasno,
+                to_timestamp(rdcrspid, 'YYYYMMDD.HH24MISS') as rdcrspid,
+                tdyearstm, tdduratn, tdretadj, tdytm, tdbid, tdask, tdnomprc,
                 tdnomprc_flg, tdaccint
         FROM crsp.tfz_idx
         INNER JOIN crsp.tfz_dly_ft
@@ -211,3 +205,5 @@ wrds_update("mseshares", "crsp", engine, wrds_id)
 # Fix permissions.
 engine.execute("GRANT USAGE ON SCHEMA crsp TO wrds_access")
 engine.execute("GRANT SELECT ON ALL TABLES IN SCHEMA crsp TO wrds_access")
+
+engine.dispose()
