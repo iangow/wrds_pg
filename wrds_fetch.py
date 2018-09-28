@@ -1,7 +1,7 @@
 # Run the SAS code on the WRDS server and get the result
 import pandas as pd
 from io import StringIO
-import re, os, subprocess, sys
+import re, subprocess
 import paramiko
 from time import gmtime, strftime
 
@@ -90,8 +90,7 @@ def sas_to_pandas(sas_code, wrds_id, fpath):
     else:
         df = pd.read_csv(StringIO(p.read()))
     df.columns = map(str.lower, df.columns)
-    if wrds_id:
-        p.close()
+    p.close()
 
     return(df)
 
@@ -134,7 +133,6 @@ def get_table_sql(table_name, schema, wrds_id=None, fpath=None, drop="", rename=
     # Run the SAS code on the WRDS server and get the result
     df = sas_to_pandas(sas_code, wrds_id, fpath)
     df['postgres_type'] = df.apply(code_row, axis=1)
-
     make_table_sql = "CREATE TABLE " + schema + "." + table_name + " (" + \
                       df.apply(get_row_sql, axis=1).str.cat(sep=", ") + ")"
 
@@ -147,7 +145,6 @@ def get_table_sql(table_name, schema, wrds_id=None, fpath=None, drop="", rename=
     else:
         df['name'] = df['name'].str.lower()
         return df
-
 
 def get_wrds_process(table_name, schema, wrds_id=None, fpath=None,
                      drop="", fix_cr = False, fix_missing = False, obs="", rename=""):
@@ -241,7 +238,6 @@ def get_wrds_process(table_name, schema, wrds_id=None, fpath=None,
         sas_code = sas_template % (libname_stmt, schema, table_name, rename_str)
 
     p = get_process(sas_code, wrds_id=wrds_id, fpath=fpath)
-
     return(p)
 
 def wrds_to_pandas(table_name, schema, wrds_id, rename=""):
@@ -345,7 +341,7 @@ def wrds_process_to_pg(table_name, schema, engine, p):
         connection.commit()
     finally:
         connection.close()
-
+        p.close()
     return True
 
 def wrds_update(table_name, schema, engine, wrds_id=None, fpath=None, force=False,
