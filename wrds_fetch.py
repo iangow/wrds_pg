@@ -224,7 +224,7 @@ def get_wrds_process(table_name, schema, wrds_id=None, fpath=None,
 
             proc export data=%s%s outfile=stdout dbms=csv;
             run;"""
-        sas_code = sas_template % (libname_stmt, schema, table_name, sas_table, dsf_fix,
+        sas_code = sas_template % (libname_stmt, schema, table_name, schema, sas_table, dsf_fix,
                                    fix_cr_code, fund_names_fix, schema, table_name)
     else:
 
