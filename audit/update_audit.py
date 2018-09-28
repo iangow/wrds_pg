@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from sqlalchemy import create_engine
-import os
+import os, sys
+sys.path.insert(0, '..')
+
 dbname = os.getenv("PGDATABASE")
 host = os.getenv("PGHOST", "localhost")
 wrds_id = os.getenv("WRDS_ID")

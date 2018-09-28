@@ -6,6 +6,7 @@ host = os.getenv("PGHOST", "localhost")
 wrds_id = os.getenv("WRDS_ID")
 engine = create_engine("postgresql://" + host + "/" + dbname)
 
+sys.path.insert(0, '..')
 from wrds_fetch import wrds_update, run_file_sql
 
 updated = wrds_update("g_exrt_dly", "comp", engine, wrds_id)

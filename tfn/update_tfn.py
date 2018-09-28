@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from sqlalchemy import create_engine
-import os
+import os, sys
 dbname = os.getenv("PGDATABASE")
 host = os.getenv("PGHOST", "localhost")
 wrds_id = os.getenv("WRDS_ID")
 engine = create_engine("postgresql://" + host + "/" + dbname)
 
+sys.path.insert(0, '..')
 from wrds_fetch import wrds_update, run_file_sql
 
 from sqlalchemy import Boolean, MetaData, Table

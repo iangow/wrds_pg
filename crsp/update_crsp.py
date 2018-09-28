@@ -2,7 +2,7 @@
 print("Updating CRSP", end="")
 from sqlalchemy import create_engine
 print(".", end="")
-import os
+import os, sys
 dbname = os.getenv("PGDATABASE")
 print(".", end="")
 host = os.getenv("PGHOST", "localhost")
@@ -11,6 +11,7 @@ wrds_id = os.getenv("WRDS_ID")
 engine = create_engine("postgresql://" + host + "/" + dbname)
 
 print(".", end="")
+sys.path.insert(0, '..')
 from wrds_fetch import wrds_update, run_file_sql
 
 print(".")
