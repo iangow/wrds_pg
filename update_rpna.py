@@ -10,6 +10,8 @@ from wrds_fetch import wrds_update
 
 avail_years = range(2000, 2019)
 
+updated = wrds_update("rp_entity_mapping", "rpna", engine, wrds_id)
+
 def update_equities(year):
     updated = wrds_update("pr_equities_" + str(year), "rpna", engine, wrds_id, rename="group=group_")
     if updated:
