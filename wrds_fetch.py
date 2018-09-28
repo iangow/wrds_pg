@@ -85,7 +85,10 @@ def sas_to_pandas(sas_code, wrds_id, fpath):
     and returns a Pandas data frame."""
     p = get_process(sas_code, wrds_id, fpath)
 
-    df = pd.read_csv(StringIO(p.read()))
+    if wrds_id:
+        df = pd.read_csv(StringIO(p.read().decode('latin1')))
+    else:
+        df = pd.read_csv(StringIO(p.read()))
     df.columns = map(str.lower, df.columns)
     if wrds_id:
         p.close()
