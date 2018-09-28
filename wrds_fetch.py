@@ -328,7 +328,7 @@ def wrds_to_pg(table_name, schema, engine, wrds_id=None,
 
 def wrds_process_to_pg(table_name, schema, engine, p):
     # The first line has the variable names ...
-    var_names = p[:p.find('\n')].rstrip().lower().split(sep=",")
+    var_names = p.readline().rstrip().lower().split(sep=",")
 
     # ... the rest is the data
     copy_cmd =  "COPY " + schema + "." + table_name + " (" + ", ".join(var_names) + ")"
@@ -337,7 +337,7 @@ def wrds_process_to_pg(table_name, schema, engine, p):
     connection = engine.raw_connection()
     try:
         cursor = connection.cursor()
-        cursor.copy_expert(copy_cmd, StringIO(p[p.find('\n') + 1:]))
+        cursor.copy_expert(copy_cmd, p)
         cursor.close()
         connection.commit()
     finally:
