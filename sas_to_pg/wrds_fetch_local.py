@@ -6,15 +6,10 @@ sys.path.insert(0, '..')
 from wrds_fetch import get_row_sql, code_row, set_table_comment
 
 def get_local_process(sas_code):
-    f = open('tmp.sas', 'w+')
-    f.write(sas_code)
-    f.close()
+    p=subprocess.Popen(['sas', '-stdio', '-noterminal', sas_code],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    p=subprocess.Popen(['sas', '-sysin', 'tmp.sas', '-nolog'],
-		stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    
-    ret = p.communicate()[0].decode('latin1')
-    os.remove('tmp.sas')
+    ret = p.communicate(sas_code)[0].decode('latin1')
     return ret
 
 def sas_to_pandas_local(sas_code):
@@ -172,7 +167,7 @@ def wrds_to_pg_local(table_name, fpath, schema, engine, wrds_id,
     now = strftime("%H:%M:%S", gmtime())
     print("Beginning file import at %s." % now)
     print("Importing data into %s.%s" % (schema, table_name))
-    p = get_wrds_process_local(table_name=table_name, fpath=fpath, schema=schema, wrds_id=wrds_id, 
+    p = get_wrds_process_local(table_name=table_name, fpath=fpath, schema=schema, wrds_id=wrds_id,
 				drop=drop, fix_cr=fix_cr, fix_missing = fix_missing, obs=obs, rename=rename)
 
     res = wrds_process_to_pg_local(table_name, schema, engine, p)
@@ -209,8 +204,8 @@ def wrds_process_to_pg_local(table_name, schema, engine, p):
     return True
 
 def wrds_update_local(table_name, fpath, schema, engine, wrds_id, fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
-    
-    wrds_to_pg_local(table_name=table_name, fpath=fpath, schema=schema, engine=engine, 
+
+    wrds_to_pg_local(table_name=table_name, fpath=fpath, schema=schema, engine=engine,
 		wrds_id=wrds_id, fix_missing=fix_missing, fix_cr=fix_cr, drop=drop, obs=obs, rename=rename)
 
     comment = 'Updated on ' + strftime("%Y-%m-%d %H:%M:%S", gmtime())
