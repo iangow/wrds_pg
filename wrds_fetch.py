@@ -24,13 +24,16 @@ def get_process(sas_code, wrds_id=None, fpath=None):
         channel.shutdown_write()
         return stdout
 
-    else if fpath:
+    elif fpath:
 
-        p=subprocess.Popen(['sas', '-stdio', '-noterminal', sas_code],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p=subprocess.Popen(['sas', '-stdio', '-noterminal'],
+                           stdin=subprocess.PIPE,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                           universal_newlines=True)
+        p.stdin.write(sas_code)
+        p.stdin.close()
 
-        ret = p.communicate()[0].decode('latin1')
-        return ret.read().decode('latin1')
+        return p.stdout
 
 def code_row(row):
 
@@ -76,13 +79,13 @@ def get_row_sql(row):
 
     return row['name'].lower() + ' ' + postgres_type
 
-def sas_to_pandas(sas_code, wrds_id):
+def sas_to_pandas(sas_code, wrds_id, fpath):
 
     """Function that runs SAS code on WRDS or local server
     and returns a Pandas data frame."""
-    p = get_process(sas_code, wrds_id)
+    p = get_process(sas_code, wrds_id, fpath)
 
-    df = pd.read_csv(StringIO(p))
+    df = pd.read_csv(StringIO(p.read()))
     df.columns = map(str.lower, df.columns)
     if wrds_id:
         p.close()
@@ -92,7 +95,7 @@ def sas_to_pandas(sas_code, wrds_id):
 def get_table_sql(table_name, schema, wrds_id=None, fpath=None, drop="", rename="", return_sql=True):
     if fpath:
         libname_stmt = "libname %s '%s';" % (schema, fpath)
-    else
+    else:
         libname_stmt = ""
 
     sas_template = """
@@ -126,7 +129,7 @@ def get_table_sql(table_name, schema, wrds_id=None, fpath=None, drop="", rename=
     sas_code = sas_template % (libname_stmt, schema, table_name, drop_str, rename_str)
 
     # Run the SAS code on the WRDS server and get the result
-    df = sas_to_pandas(sas_code, wrds_id)
+    df = sas_to_pandas(sas_code, wrds_id, fpath)
     df['postgres_type'] = df.apply(code_row, axis=1)
 
     make_table_sql = "CREATE TABLE " + schema + "." + table_name + " (" + \
@@ -157,7 +160,7 @@ def get_wrds_process(table_name, schema, wrds_id=None, fpath=None,
 
     if fpath:
         libname_stmt = "libname %s '%s';" % (schema, fpath)
-    else
+    else:
         libname_stmt = ""
 
     if rename != '':
@@ -293,7 +296,7 @@ def set_table_comment(table_name, schema, comment, engine):
 
     return True
 
-def wrds_to_pg(table_name, schema, engine, wrds_id,
+def wrds_to_pg(table_name, schema, engine, wrds_id=None,
                fpath=None, fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
 
     make_table_data = get_table_sql(table_name=table_name, wrds_id=wrds_id,

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from sqlalchemy import create_engine
 import os, sys
-from wrds_fetch_local import wrds_update_local
+sys.path.insert(0, '..')
+from wrds_fetch import wrds_update
 
 dbname = os.getenv("PGDATABASE")
 host = os.getenv("PGHOST", "localhost")
@@ -18,5 +19,5 @@ schema = 'audit'
 #wrds_update(table_name, fpath, schema, engine, wrds_id="", fix_missing=True, fix_cr=True,
 # drop="id name", obs="10", rename="fee=fee_old")
 
-wrds_update_local(table_name, fpath, schema, engine, wrds_id="", fix_missing=False,
+wrds_update(table_name=table_name, schema=schema, engine=engine, fpath=fpath, fix_missing=False,
 	fix_cr=False, drop="", obs="", rename="")
