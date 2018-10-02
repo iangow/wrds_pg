@@ -205,6 +205,8 @@ wrds_update("ccmxpf_lnkused", "crsp", engine, wrds_id, fix_missing=True)
 wrds_update("msp500", "crsp", engine, wrds_id)
 wrds_update("msp500p", "crsp", engine, wrds_id)
 wrds_update("mcti", "crsp", engine, wrds_id)
+wrds_update("msedist", "crsp", engine, wrds_id)
+wrds_update("mseshares", "crsp", engine, wrds_id)
 
 # Fix permissions.
 engine.execute("GRANT USAGE ON SCHEMA crsp TO wrds_access")
