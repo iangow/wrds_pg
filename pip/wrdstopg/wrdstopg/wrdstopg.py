@@ -1,9 +1,9 @@
 # Run the SAS code on the WRDS server and get the result
 import pandas as pd
 from io import StringIO
-import re, subprocess
-import paramiko
+import re, subprocess, os, paramiko
 from time import gmtime, strftime
+from sqlalchemy import create_engine
 
 client = paramiko.SSHClient()
 
@@ -344,9 +344,15 @@ def wrds_process_to_pg(table_name, schema, engine, p):
         p.close()
     return True
 
-def wrds_update(table_name, schema, engine, wrds_id=None, fpath=None, force=False,
-        fix_missing=False, fix_cr=False, drop="", obs="", rename=""):
-
+def wrds_update(table_name, schema, host=os.getenv("PGHOST"), dbname=os.getenv("PGDATABASE"), engine=None, 
+        wrds_id=os.getenv("WRDS_ID"), fpath=None, force=False, fix_missing=False, fix_cr=False, drop="", 
+        obs="", rename=""):
+    if not engine:
+        if not (host and dbname):
+            print("Error: Missing connection variables. Please specify engine or (host, dbname).")
+            quit()
+        else:
+            engine = create_engine("postgresql://" + host + "/" + dbname) 
     if wrds_id:
         # 1. Get comments from PostgreSQL database
         comment = get_table_comment(table_name, schema, engine)
@@ -391,3 +397,4 @@ def run_file_sql(file, engine):
     print("Running SQL in %s" % file)
     res = engine.execute(sql)
     res.close()
+
