@@ -4,17 +4,17 @@ Function:
 - Upload existing table in SAS format to PG.
 
 #### 1. PG Settings
-Users are expected to specify `PGHOST (-H`), `PGPORT (-P`), `PGDATABASE (-D`), `schema (-S`), `table (-T`), `PGUSER (-U`).
+Users are expected to specify `PGHOST (-h`), `PGPORT (-p`), `PGDATABASE (-d`), `schema (-s`), `table (-t`), `PGUSER (-u`).
 
 `PGHOST`, `PGDATABASE`, `PGUSER` will be grepped from OS environment variables if not specified by user. Default `PGPORT` is`5432`.
 
 #### 2. WRDS Settings
-`WRDS_ID` can be read from command line via `-W`, otherwise the software will grep from OS environment variables.
+`WRDS_ID` can be read from command line via `-w`, otherwise the software will grep from OS environment variables.
 
 #### 3. Table specific settings
 For table specific settings, 
 
-`--fix_missing`: set to `True` to fix missing values.Default value is `False`. eg. `--fox_missing True`.
+`--fix_missing`: set to `True` to fix missing values. Default value is `False`. eg. `--fox_missing True`.
 
 `--fix_cr`: set to `True` to fix characters. Default value is `False`.
 
@@ -34,34 +34,41 @@ Use `-P` to specify file path.
 #### 5. Use this program
 Here is an example.
 
-`./wrds_update -H host -D pgdatabase -U pguser --fix_missing True --drop "id name"`
+`./wrds_update -h host -d pgdatabase -u pguser --fix_missing True --drop "id name"`
 
 #### 6. Help
 To get help, use `./wrds_update --help`.
 ```bash
-usage: wrds_update [-h] [-H [HOST]] [-P [PORT]] [-D [DBNAME]] [-F [FPATH]]
-                   [-T [TABLE]] [-S [SCHEMA]] [-W [WRDS_ID]] [-U [PGUSER]]
-                   [--fix_missing [FIX_MISSING]] [--fix_cr [FIX_CR]]
-                   [--drop [DROP]] [--obs [OBS]] [--rename [RENAME]]
-                   [--force [FORCE]]
+usage: ./wrds_update [--help] [-h [HOST]] [-p [PORT]] [-d [DBNAME]]
+                     [-f [FPATH]] -t [TABLE] -s [SCHEMA] [-w [WRDS_ID]]
+                     [-u [PGUSER]] [--fix_missing] [--fix_cr] [--drop] [--obs]
+                     [--rename] [--force]
 
-Download tables from WRDS and upload to PostgreSQL.
+Functions
+--------------------------------
+1. Download tables from WRDS and upload to PostgreSQL.
+2. Upload sas file to PostgreSQL.
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -H [HOST]             pghost address
-  -P [PORT]             pgport
-  -D [DBNAME]           pgdatabase
-  -F [FPATH]            file path
-  -T [TABLE]            table name
-  -S [SCHEMA]           schema name
-  -W [WRDS_ID]          wrds id
-  -U [PGUSER]           pguser
-  --fix_missing [FIX_MISSING]
-                        fix missing value
-  --fix_cr [FIX_CR]     fix character
-  --drop [DROP]         columns to drop
-  --obs [OBS]           number of observations to return
-  --rename [RENAME]     rename columns
-  --force [FORCE]       force update
+Optional arguments:
+  --help          Show this help message and exit
+
+Connection arguments:
+  -h [HOST]       PostgreSQL host
+  -p [PORT]       PostgreSQL port
+  -d [DBNAME]     PostgreSQL database
+  -f [FPATH]      File path
+  -t [TABLE]      Table name
+  -s [SCHEMA]     WRDS library name
+  -w [WRDS_ID]    WRDS ID
+  -u [PGUSER]     PostgreSQL user
+
+Table arguments:
+  --fix_missing   Fix special missing values
+  --fix_cr        Fix character
+  --drop          Columns to drop
+  --obs           Number of observations to return
+  --rename        Rename columns
+  --force         Force update
+
+Report bugs to <ian.gow@unimelb.edu.au>.
 ```
