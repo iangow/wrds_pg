@@ -3,13 +3,18 @@ import argparse, os, sys
 from sqlalchemy import create_engine
 sys.path.insert(0, '..')
 from wrds_fetch import wrds_update
-
+import textwrap
 def get_env_input():
 	"""Get pg variables from command line, otherwise grep from OS."""
 	parser = argparse.ArgumentParser(prog='./wrds_update', 
-		description='Download tables from WRDS and upload to PostgreSQL.', 
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+		description=textwrap.dedent('''\
+	        Functions
+	        --------------------------------
+	        1. Download tables from WRDS and upload to PostgreSQL.
+	        2. Upload sas file to PostgreSQL.
+	        '''),
 		epilog='Report bugs to <ian.gow@unimelb.edu.au>.', 
-		formatter_class=argparse.ArgumentDefaultsHelpFormatter, 
 		conflict_handler='resolve')
 	parser._optionals.title = 'Optional arguments'
 	parser.add_argument('--help', action='help', default=argparse.SUPPRESS,
@@ -33,64 +38,30 @@ def get_env_input():
 		help='PostgreSQL user')
 
 	program = parser.add_argument_group('Table arguments')
-	program.add_argument('--fix_missing', type=bool, metavar='', help='Fix special missing values')
-	program.add_argument('--fix_cr', type=bool,  metavar='', help='Fix character')
-	program.add_argument('--drop', type=str,  metavar='', help='Columns to drop')
-	program.add_argument('--obs', type=str,  metavar='', help='Number of observations to return')
-	program.add_argument('--rename', type=str,  metavar='', help='Rename columns')
-	program.add_argument('--force', type=str,  metavar='', help='Force update')
+	program.add_argument('--fix_missing', type=bool, metavar='', default=False, help='Fix special missing values')
+	program.add_argument('--fix_cr', type=bool,  metavar='', default=False, help='Fix character')
+	program.add_argument('--drop', type=str,  metavar='', default="", help='Columns to drop')
+	program.add_argument('--obs', type=str,  metavar='', default="", help='Number of observations to return')
+	program.add_argument('--rename', type=str,  metavar='', default="", help='Rename columns')
+	program.add_argument('--force', type=str,  metavar='', default=False, help='Force update')
 
 	args = parser.parse_args()
 
 	# Check for connection variables
 	if not args.host:
-		args.host = os.getenv("PGHOST")
-		if args.host:
-			print("Using default pghost: ", args.host)
-		else:
-			print("Error: missing pghost. Specify database with -H.")
-			quit()
-	if not args.dbname:
-		args.dbname = os.getenv("PGDATABASE")
-		if args.dbname:
-			print("Using default pgdatabase: ", args.host)
-		else:
-			print("Error: missing pgdatabase. Specify database with -D.")
-			quit()
-	if not args.fpath:
-		print("No SAS file path detected. Specify file path with -P.")
-	if not args.table:
-		print("Error: missing table name. Specify file path with -T.")
-		quit()		
-	if not args.schema:
-		print("Error: missing wrds libarry name. Specify library with -S.")
+		print("Error: missing pghost. Specify database with -h.")
 		quit()
+	if not args.dbname:
+		print("Error: missing pgdatabase. Specify database with -d.")
+		quit()
+	if not args.fpath:
+		print("No SAS file path detected. Specify file path with -f.")
 	if not args.wrds_id:
-		args.wrds_id = os.getenv("WRDS_ID")
-		if args.wrds_id:
-			print("Using default wrds_id: ", args.wrds_id)
-		else:
-			print("Error: missing wrds_id. Specify database with -W.")
-			quit()
+		print("Error: missing wrds_id. Specify database with -w.")
+		quit()
 	if not args.pguser:
-		args.pguser = os.getenv("PGUSER")
-		if args.pguser:
-				print("Using default pguser: ", args.pguser)
-		else:
-			print("Error: missing pguser. Specify database with -U.")
-			quit()
-	if not args.fix_missing:
-		args.fix_missing = False
-	if not args.fix_cr:
-		args.fix_cr = False
-	if not args.drop:
-		args.drop = ""
-	if not args.obs:
-		args.obs = ""
-	if not args.rename:
-		args.rename = ""
-	if not args.force:
-		args.force = False
+		print("Error: missing pguser. Specify database with -u.")
+		quit()
 
 	print("\n**********************")
 	print("Basic settings: ")
@@ -104,11 +75,11 @@ def get_env_input():
 	print('pguser=', args.pguser)
 	print("**********************")
 	return args
+
 if __name__ == "__main__":
 	args = get_env_input()
 	engine = create_engine("postgresql://" + args.host + "/" + args.dbname)
-	print(args)
-	quit()
+
 	wrds_update(args.table, args.schema, engine, args.wrds_id, args.fpath, args.force,
 		fix_missing=args.fix_missing, fix_cr=args.fix_cr, drop=args.drop, obs=args.obs, 
 		rename=args.rename)
