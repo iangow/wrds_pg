@@ -11,7 +11,7 @@ setuptools.setup(
     description="Download wrds tables and upload to PostgreSQL, upload SAS file to PG",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/iangow-public/wrds_pg/wrdstopg",
+    url="https://github.com/iangow-public/wrds_pg/",
     packages=setuptools.find_packages(),
     python_requires=">=3",
     classifiers=[
