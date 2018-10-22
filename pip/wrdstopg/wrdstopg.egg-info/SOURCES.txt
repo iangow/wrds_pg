@@ -1,0 +1,9 @@
+README.md
+setup.py
+wrdstopg/__init__.py
+wrdstopg/wrdstopg.py
+wrdstopg.egg-info/PKG-INFO
+wrdstopg.egg-info/SOURCES.txt
+wrdstopg.egg-info/dependency_links.txt
+wrdstopg.egg-info/requires.txt
+wrdstopg.egg-info/top_level.txt

@@ -50,17 +50,17 @@ Use `fpath` to specify file path.
 Here are some examples.
 
 ```py
-from wrdstopg import wrdstopg
+from wrdstopg.wrdstopg import wrds_update
 
 # 1. Download crsp.mcti from wrds and upload to pg as crps.mcti
 # Simplest version
-wrdstopg.wrds_update(table="mcti", schema="crsp")
+wrds_update(table="mcti", schema="crsp")
 # Tailor table to your needs
-wrdstopg.wrds_update(table="mcti", schema="crsp", host=your_pghost, dbname=your_pg_database, fix_missing=True, 
+wrds_update(table="mcti", schema="crsp", host=your_pghost, dbname=your_pg_database, fix_missing=True, 
 	fix_cr=True, drop="b30ret b30ind", obs=10, rename="caldt=calendar_date", force=True)
 
 # 2. Upload test.sas7dbat to pg as crsp.mcti
-wrdstopg.wrds_update(table="mcti", schema="crsp", fpath="your_path/test.sas7dbat")
+wrds_update(table="mcti", schema="crsp", fpath="your_path/test.sas7dbat")
 ```
 
 #### 7. Report Bugs
