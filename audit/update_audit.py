@@ -161,6 +161,4 @@ if updated:
      # Takes a lot of time
     is_col_to_bool(engine, "audit", "auditlegal")
 
-updated = wrds_update("dirroffichange", "audit", engine=engine, wrds_id=wrds_id, drop="matchfy:matchqu:priorfy:priorqu:")
-
 engine.dispose()
