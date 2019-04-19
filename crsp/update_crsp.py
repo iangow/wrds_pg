@@ -1,16 +1,10 @@
 #!/usr/bin/env python3
-print("Updating CRSP", end="")
 from sqlalchemy import create_engine
 from wrds2pg import wrds_update, run_file_sql
-
-print(".", end="")
-
-print(".", end="")
 import sys
 sys.path.insert(0, '..')
 
 from make_engine import engine, wrds_id
-print(".")
 
 # Update Treasury yield table crsp.tfz_ft
 # From wrds:
