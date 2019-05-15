@@ -6,3 +6,6 @@ CREATE TABLE comp.ciks AS
     INNER JOIN (SELECT DISTINCT gvkey, cik FROM comp.company) AS b
     USING (gvkey);
 
+ALTER TABLE comp.ciks OWNER TO comp;
+GRANT ALL ON TABLE comp.ciks TO comp;
+GRANT SELECT ON TABLE comp.ciks TO comp_access;
