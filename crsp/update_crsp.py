@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 from sqlalchemy import create_engine
-from wrds2pg import wrds_update, run_file_sql
-import sys
-sys.path.insert(0, '..')
+import os, sys
+dbname = os.getenv("PGDATABASE")
+host = os.getenv("PGHOST", "localhost")
+wrds_id = os.getenv("WRDS_ID")
+engine = create_engine("postgresql://" + host + "/" + dbname)
 
-from make_engine import engine, wrds_id
+from wrds2pg import wrds2pg
+from time import gmtime, strftime
 
 # Update Treasury yield table crsp.tfz_ft
 # From wrds:
@@ -17,8 +20,10 @@ from make_engine import engine, wrds_id
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77140
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77137
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77147
-tfz_idx = wrds_update("tfz_idx", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
-tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+'''
+tfz_idx = wrds2pg.wrds_update("tfz_idx", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+tfz_dly_ft = wrds2pg.wrds_update("tfz_dly_ft", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+tfz_idx=True
 if tfz_idx or tfz_dly_ft:
     sql = """
         DROP TABLE IF EXISTS crsp.tfz_ft;
@@ -38,22 +43,34 @@ if tfz_idx or tfz_dly_ft:
     engine.execute("ALTER TABLE crsp.tfz_ft ALTER rdtreasno TYPE integer")
     engine.execute("ALTER TABLE crsp.tfz_ft OWNER TO crsp")
     engine.execute("GRANT SELECT ON crsp.tfz_ft TO crsp_access")
+    # Add comments here
+    sql = "COMMENT ON TABLE crsp.tfz_ft IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
+    connection = engine.connect()
+    trans = connection.begin()
 
-mse = wrds_update("mse", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+    try:
+        res = connection.execute(sql)
+        trans.commit()
+    except:
+        trans.rollback()
+        raise
+
+mse = wrds2pg.wrds_update("mse", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
 
 # Update monthly data
-msf = wrds_update("msf", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+msf = wrds2pg.wrds_update("msf", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
 if msf:
     engine.execute("CREATE INDEX ON crsp.msf (permno, date)")
 
-msi = wrds_update("msi", "crsp", engine=engine, wrds_id=wrds_id)
+msi = wrds2pg.wrds_update("msi", "crsp", engine=engine, wrds_id=wrds_id)
 
-msedelist = wrds_update("msedelist", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+msedelist = wrds2pg.wrds_update("msedelist", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
 
-mport = wrds_update("mport1", "crsp", engine=engine, wrds_id=wrds_id)
+mport = wrds2pg.wrds_update("mport1", "crsp", engine=engine, wrds_id=wrds_id)
+mport=True
 if mport:
     print("Getting ermport1")
-    from wrds_fetch import get_process, wrds_process_to_pg
+    # from wrds_fetch import get_process, wrds_process_to_pg
 
     sas_code = """
         proc sql;
@@ -81,44 +98,82 @@ if mport:
     res = engine.execute("DROP TABLE IF EXISTS crsp.ermport CASCADE")
     res = engine.execute(sql_ermport)
 
-    p = get_process(sas_code, wrds_id)
-    res = wrds_process_to_pg("ermport", "crsp", engine, p)
-    run_file_sql("crsp_make_ermport1.sql", engine)
+    p = wrds2pg.get_process(sas_code, wrds_id)
+    res = wrds2pg.wrds_process_to_pg("ermport", "crsp", engine, p)
+    wrds2pg.run_file_sql("crsp_make_ermport1.sql", engine)
     engine.execute("ALTER TABLE crsp.ermport OWNER TO crsp")
     engine.execute("GRANT SELECT ON crsp.ermport TO crsp_access")
+    ### Add comments here
+    sql = "COMMENT ON TABLE crsp.ermport IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
+    connection = engine.connect()
+    trans = connection.begin()
 
+    try:
+        res = connection.execute(sql)
+        trans.commit()
+    except:
+        trans.rollback()
+        raise
 
 if msi:
-    engine.execute("CREATE INDEX ON crsp.msi (date)")
-
+    engine.execute("CREATE INDEX ON crsp.msi (  date)")
+mport=True
 if mport or msf or msi or msedelist:
-    run_file_sql("crsp_make_mrets.sql", engine)
+    wrds2pg.run_file_sql("crsp_make_mrets.sql", engine)
+    # Add comments here
+    sql = "COMMENT ON TABLE crsp.mrets IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
+    connection = engine.connect()
+    trans = connection.begin()
+
+    try:
+        res = connection.execute(sql)
+        trans.commit()
+    except:
+        trans.rollback()
+        raise
 
 # Update daily data
-dsf = wrds_update("dsf", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+dsf = wrds2pg.wrds_update("dsf", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
 if dsf:
     engine.execute("ALTER TABLE crsp.dsf ALTER permno TYPE integer")
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON crsp.dsf (permno, date)")
 
-dsi = wrds_update("dsi", "crsp", engine=engine, wrds_id=wrds_id)
+dsi = wrds2pg.wrds_update("dsi", "crsp", engine=engine, wrds_id=wrds_id)
+'''
+dsi=True
 if dsi:
-    engine.execute("CREATE INDEX ON crsp.dsi (date)")
-    run_file_sql("make_trading_dates.sql", engine)
+    # engine.execute("CREATE INDEX ON crsp.dsi (date)")
+    # wrds2pg.run_file_sql("make_trading_dates.sql", engine)
+    # Add comments here
+    sql1 = "COMMENT ON TABLE crsp.trading_dates IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
+    sql2 = "COMMENT ON TABLE crsp.anncdates IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
+    connection = engine.connect()
+    trans = connection.begin()
 
-dsedelist = wrds_update("dsedelist", "crsp", engine=engine, wrds_id=wrds_id,
+    try:
+        res = connection.execute(sql1)
+        res = connection.execute(sql2)
+        trans.commit()
+    except:
+        trans.rollback()
+        raise
+
+'''
+dsedelist = wrds2pg.wrds_update("dsedelist", "crsp", engine=engine, wrds_id=wrds_id,
                             fix_missing=True)
 if dsedelist:
     engine.execute("ALTER TABLE crsp.dsedist ALTER permno TYPE integer;")
     engine.execute("CREATE INDEX ON crsp.dsedelist (permno)")
 
-dport = wrds_update("dport1", "crsp", engine=engine, wrds_id=wrds_id)
+dport = wrds2pg.wrds_update("dport1", "crsp", engine=engine, wrds_id=wrds_id)
+
 if dport:
     engine.execute("ALTER TABLE crsp.dport1 ALTER permno TYPE integer")
 
 if dport:
     print("Getting ermport1")
-    from wrds_fetch import get_process, wrds_process_to_pg
+    # from wrds_fetch import get_process, wrds_process_to_pg
 
     sas_code = """
         proc sql;
@@ -146,18 +201,41 @@ if dport:
     res = engine.execute("DROP TABLE IF EXISTS crsp.erdport CASCADE")
     res = engine.execute(sql_erdport)
 
-    p = get_process(sas_code, wrds_id)
-    res = wrds_process_to_pg("erdport", "crsp", engine, p)
+    p = wrds2pg.get_process(sas_code, wrds_id)
+    res = wrds2pg.wrds_process_to_pg("erdport", "crsp", engine, p)
 
-    run_file_sql("crsp_make_erdport1.sql", engine)
+    wrds2pg.run_file_sql("crsp_make_erdport1.sql", engine)
     engine.execute("CREATE INDEX ON crsp.dport1 (permno, date)")
     engine.execute("ALTER TABLE crsp.erdport OWNER TO crsp")
     engine.execute("GRANT SELECT ON TABLE crsp.erdport TO crsp_access")
+    #### Add comments here
+    sql = "COMMENT ON TABLE crsp.erdport IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
+    connection = engine.connect()
+    trans = connection.begin()
+
+    try:
+        res = connection.execute(sql)
+        trans.commit()
+    except:
+        trans.rollback()
+        raise
+```
 
 if dport or dsf or dsi or dsedelist:
-    run_file_sql("crsp_make_rets_alt.sql", engine)
+    wrds2pg.run_file_sql("crsp_make_rets_alt.sql", engine)
+    #### Add comments here
+    sql = "COMMENT ON TABLE crsp.rets IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
+    connection = engine.connect()
+    trans = connection.begin()
 
-ccmxpf_linktable = wrds_update("ccmxpf_linktable", "crsp", engine=engine, wrds_id=wrds_id,
+    try:
+        res = connection.execute(sql)
+        trans.commit()
+    except:
+        trans.rollback()
+        raise
+
+ccmxpf_linktable = wrds2pg.wrds_update("ccmxpf_linktable", "crsp", engine=engine, wrds_id=wrds_id,
                                 fix_missing=True)
 if ccmxpf_linktable:
     engine.execute("CREATE INDEX ON crsp.ccmxpf_linktable (lpermno)")
@@ -167,38 +245,39 @@ if ccmxpf_linktable:
     engine.execute("ALTER TABLE crsp.ccmxpf_linktable ALTER lpermco TYPE integer")
     engine.execute("ALTER TABLE crsp.ccmxpf_linktable ALTER usedflag TYPE integer")
 
-ccmxpf_lnkhist = wrds_update("ccmxpf_lnkhist", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+ccmxpf_lnkhist = wrds2pg.wrds_update("ccmxpf_lnkhist", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
 if ccmxpf_lnkhist:
     engine.execute("CREATE INDEX ON crsp.ccmxpf_lnkhist (gvkey)")
 
-dsedist = wrds_update("dsedist", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+dsedist = wrds2pg.wrds_update("dsedist", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
 if dsedist:
     engine.execute("CREATE INDEX ON crsp.dsedist (permno)")
     engine.execute("ALTER TABLE crsp.dsedist ALTER permno TYPE integer")
 
-stocknames = wrds_update("stocknames", "crsp", engine=engine, wrds_id=wrds_id)
+stocknames = wrds2pg.wrds_update("stocknames", "crsp", engine=engine, wrds_id=wrds_id)
 if stocknames:
     engine.execute("ALTER TABLE crsp.stocknames ALTER permno TYPE integer")
     engine.execute("ALTER TABLE crsp.stocknames ALTER permco TYPE integer")
 
-dseexchdates = wrds_update("dseexchdates", "crsp", engine=engine, wrds_id=wrds_id)
+dseexchdates = wrds2pg.wrds_update("dseexchdates", "crsp", engine=engine, wrds_id=wrds_id)
 if dseexchdates:
     engine.execute("ALTER TABLE crsp.dseexchdates ALTER permno TYPE integer;")
     engine.execute("CREATE INDEX ON crsp.dseexchdates (permno)")
 
 # Update other data sets
-wrds_update("msp500list", "crsp", engine=engine, wrds_id=wrds_id)
-wrds_update("ccmxpf_lnkused", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
-# wrds_update("fund_names", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+wrds2pg.wrds_update("msp500list", "crsp", engine=engine, wrds_id=wrds_id)
+wrds2pg.wrds_update("ccmxpf_lnkused", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
+# wrds2pg.wrds_update("fund_names", "crsp", engine=engine, wrds_id=wrds_id, fix_missing=True)
 
-wrds_update("msp500", "crsp", engine=engine, wrds_id=wrds_id)
-wrds_update("msp500p", "crsp", engine=engine, wrds_id=wrds_id)
-wrds_update("mcti", "crsp", engine=engine, wrds_id=wrds_id)
-wrds_update("msedist", "crsp", engine=engine, wrds_id=wrds_id)
-wrds_update("mseshares", "crsp", engine=engine, wrds_id=wrds_id)
+wrds2pg.wrds_update("msp500", "crsp", engine=engine, wrds_id=wrds_id)
+wrds2pg.wrds_update("msp500p", "crsp", engine=engine, wrds_id=wrds_id)
+wrds2pg.wrds_update("mcti", "crsp", engine=engine, wrds_id=wrds_id)
+wrds2pg.wrds_update("mcti_corr", "crsp", engine=engine, wrds_id=wrds_id)
+wrds2pg.wrds_update("msedist", "crsp", engine=engine, wrds_id=wrds_id)
+wrds2pg.wrds_update("mseshares", "crsp", engine=engine, wrds_id=wrds_id)
 
 # Fix permissions.
 engine.execute("GRANT USAGE ON SCHEMA crsp TO wrds_access")
 engine.execute("GRANT SELECT ON ALL TABLES IN SCHEMA crsp TO wrds_access")
-
+'''
 engine.dispose()
