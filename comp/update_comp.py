@@ -69,17 +69,9 @@ if secm_updated:
 
 if secm_updated or company_updated:
     wrds2pg.run_file_sql("create_ciks.sql", engine)
-    sql = "COMMENT ON TABLE comp.ciks IS 'Created using update_comp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
-
-    connection = engine.connect()
-    trans = connection.begin()
-
-    try:
-        res = connection.execute(sql)
-        trans.commit()
-    except:
-        trans.rollback()
-        raise
+    sql = "Created using update_comp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    wrds2pg.set_table_comment("ciks", "comp", sql, engine)
+    
 
 updated = wrds2pg.wrds_update("secd", "comp")
 if updated:
