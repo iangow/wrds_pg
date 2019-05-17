@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 from sqlalchemy import create_engine
-from wrds2pg import wrds_update, run_file_sql
-import sys
-sys.path.insert(0, '..')
+import os, sys
 
-from make_engine import engine, wrds_id
+from wrds2pg import wrds2pg
+from time import gmtime, strftime
 
-updated = wrds_update("wciklink_gvkey", "wrdssec", engine=engine, wrds_id=wrds_id)
-updated = wrds_update("wciklink_names", "wrdssec", engine=engine, wrds_id=wrds_id)
-updated = wrds_update("wciklink_cusip", "wrdssec", engine=engine, wrds_id=wrds_id, drop="tmatch")
+updated = wrds2pg.wrds_update("wciklink_gvkey", "wrdssec")
+updated = wrds2pg.wrds_update("wciklink_names", "wrdssec")
+updated = wrds2pg.wrds_update("wciklink_cusip", "wrdssec", drop="tmatch")
 

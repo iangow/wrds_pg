@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 from sqlalchemy import create_engine, Boolean, MetaData, Table
-from wrds2pg import wrds_update, run_file_sql
-import sys
-sys.path.insert(0, '..')
+import os, sys
+dbname = os.getenv("PGDATABASE")
+host = os.getenv("PGHOST", "localhost")
+wrds_id = os.getenv("WRDS_ID")
+engine = create_engine("postgresql://" + host + "/" + dbname)
 
-from make_engine import engine, wrds_id
+from wrds2pg import wrds2pg
+from time import gmtime, strftime
+
 
 def mod_col(column, schema, table, engine):
     command = "ALTER TABLE " + schema + "." + table + \
@@ -30,15 +34,15 @@ def is_col_to_bool(engine, schema, table):
 
     return modify_lst
 
-updated = wrds_update("amend", "tfn", engine=engine, wrds_id=wrds_id)
-updated = wrds_update("avgreturns", "tfn", engine=engine, wrds_id=wrds_id)
-updated = wrds_update("company", "tfn", engine=engine, wrds_id=wrds_id, fix_cr=True)
-updated = wrds_update("form144", "tfn", engine=engine, wrds_id=wrds_id)
-updated = wrds_update("header", "tfn", engine=engine, wrds_id=wrds_id)
-# updated = wrds_update("idfhist", "tfn", engine=engine, wrds_id=wrds_id)
-updated = wrds_update("idfnames", "tfn", engine=engine, wrds_id=wrds_id)
-updated = wrds_update("rule10b5", "tfn", engine=engine, wrds_id=wrds_id)
-updated = wrds_update("table1", "tfn", engine=engine, wrds_id=wrds_id)
-updated = wrds_update("table2", "tfn", engine=engine, wrds_id=wrds_id)
+updated = wrds2pg.wrds_update("amend", "tfn")
+updated = wrds2pg.wrds_update("avgreturns", "tfn")
+updated = wrds2pg.wrds_update("company", "tfn", fix_cr=True)
+updated = wrds2pg.wrds_update("form144", "tfn")
+updated = wrds2pg.wrds_update("header", "tfn")
+# updated = wrds2pg.wrds_update("idfhist", "tfn")
+updated = wrds2pg.wrds_update("idfnames", "tfn")
+updated = wrds2pg.wrds_update("rule10b5", "tfn")
+updated = wrds2pg.wrds_update("table1", "tfn")
+updated = wrds2pg.wrds_update("table2", "tfn")
 
 

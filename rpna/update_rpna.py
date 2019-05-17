@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-from sqlalchemy import create_engine
-from wrds2pg import wrds_update, run_file_sql
-import sys
-sys.path.insert(0, '..')
+from sqlalchemy import create_engine, MetaData
+import os, sys
+dbname = os.getenv("PGDATABASE")
+host = os.getenv("PGHOST", "localhost")
+wrds_id = os.getenv("WRDS_ID")
+engine = create_engine("postgresql://" + host + "/" + dbname)
 
-from make_engine import engine, wrds_id
+from wrds2pg import wrds2pg
 
 avail_years = range(2000, 2019)
 
-updated = wrds_update("rp_entity_mapping", "rpna", engine=engine, wrds_id=wrds_id)
+updated = wrds2pg.wrds_update("rp_entity_mapping", "rpna")
 
 def update_equities(year):
-    updated = wrds_update("pr_equities_" + str(year), "rpna", engine, wrds_id, rename="group=group_")
+    updated = wrds2pg.wrds_update("pr_equities_" + str(year), "rpna", rename="group=group_")
     if updated:
         engine.execute("CREATE INDEX ON rpna.pr_equities_" + str(year) + " (rp_entity_id, rpna_date_utc)")
     return updated
