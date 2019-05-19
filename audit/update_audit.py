@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
-from sqlalchemy import create_engine, Boolean, MetaData, Table
-import os, sys
-dbname = os.getenv("PGDATABASE")
-host = os.getenv("PGHOST", "localhost")
-wrds_id = os.getenv("WRDS_ID")
-engine = create_engine("postgresql://" + host + "/" + dbname)
+from wrds2pg.wrds2pg import wrds_update, run_file_sql
+from wrds2pg.wrds2pg import make_engine, wrds_id
+from sqlalchemy import Table, MetaData, Boolean
 
-from wrds2pg import wrds2pg
-from time import gmtime, strftime
+engine = make_engine()
 
 def mod_col(column, schema, table, engine):
     command = "ALTER TABLE " + schema + "." + table + \
@@ -34,12 +30,15 @@ def is_col_to_bool(engine, schema, table):
     return modify_lst
 
 
-# Partially working, has to add cols http_X, nt_X, ac_X back
-# updated = wrds2pg.wrds_update("nt", "audit", engine, wrds_id, drop="matchfy: matchqu: priorfy: closestfy: priorqu: http: ac: nt: closestqu: best_edgar:", fix_missing=True)
+updated = wrds_update("feed25person", "audit")
+updated = wrds_update("namesauditorsinfo", "audit")
 
-updated = wrds2pg.wrds_update("auditnonreli", "audit", drop="prior: match: closest: eventdate:")
+# Partially working; need to add part4_3_text* columns
+updated = wrds_update("nt", "audit", drop="match: closest: prior: part4_3_text: ", force=True)
+# updated = wrds_update("nt", "audit", keep="nt_notify_key", force=True, alt_table_name="nt_other")
+updated = wrds_update("auditnonreli", "audit", drop="prior: match: closest: eventdate:")
 
-updated = wrds2pg.wrds_update("bankrupt", "audit", drop="match: closest: prior:")
+updated = wrds_update("bankrupt", "audit", drop="match: closest: prior:")
 if updated:
     engine.execute("""
         ALTER TABLE audit.bankrupt ALTER COLUMN bank_key TYPE integer;
@@ -49,7 +48,8 @@ if updated:
             ALTER COLUMN court_type_code TYPE integer USING court_type_code::integer;
         ALTER TABLE audit.bankrupt ALTER COLUMN eventdate_aud_fkey TYPE integer;""")
 
-updated = wrds2pg.wrds_update("diroffichange", "audit", drop="match: prior: closest: eventdate:")
+updated = wrds_update("diroffichange", "audit",
+                        drop="match: prior: closest: eventdate:")
 if updated:
     engine.execute("""
         ALTER TABLE audit.diroffichange
@@ -59,24 +59,24 @@ if updated:
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON audit.diroffichange (do_off_pers_key)")
 
-updated = wrds2pg.wrds_update("sholderact", "audit")
+updated = wrds_update("sholderact", "audit")
 
-updated = wrds2pg.wrds_update("feed09tocat", "audit")
+updated = wrds_update("feed09tocat", "audit")
 if updated:
     engine.execute("ALTER TABLE audit.feed09tocat ALTER res_notify_key TYPE integer")
     engine.execute("ALTER TABLE audit.feed09tocat ALTER res_category_fkey TYPE integer")
 
-updated = wrds2pg.wrds_update("feed09period", "audit")
+updated = wrds_update("feed09period", "audit")
 if updated:
     engine.execute("ALTER TABLE audit.feed09period ALTER res_notify_key TYPE integer")
     engine.execute("ALTER TABLE audit.feed09period ALTER res_period_aud_fkey TYPE integer USING res_period_aud_fkey::double precision")
 
-updated = wrds2pg.wrds_update("feed09filing", "audit", drop="file_date_num")
-updated = wrds2pg.wrds_update("feed09cat", "audit")
+updated = wrds_update("feed09filing", "audit", drop="file_date_num")
+updated = wrds_update("feed09cat", "audit")
 
-updated = wrds2pg.wrds_update("feed13cat", "audit")
+updated = wrds_update("feed13cat", "audit")
 
-updated = wrds2pg.wrds_update("feed14case", "audit")
+updated = wrds_update("feed14case", "audit")
 if updated:
     engine.execute("""
         ALTER TABLE audit.feed14case ALTER COLUMN legal_case_key TYPE integer;
@@ -114,7 +114,7 @@ if updated:
         ALTER TABLE audit.feed14case DROP COLUMN exp_start_date_s;
         ALTER TABLE audit.feed14case DROP COLUMN exp_end_date_s;""")
 
-updated = wrds2pg.wrds_update("feed14party", "audit")
+updated = wrds_update("feed14party", "audit")
 if updated:
     engine.execute("""
         ALTER TABLE audit.feed14party ADD COLUMN company_fkey_temp  integer;
@@ -140,25 +140,26 @@ if updated:
         ALTER TABLE audit.feed14party ALTER COLUMN been_terminated TYPE boolean USING been_terminated=1;
     """)
 
-updated = wrds2pg.wrds_update("feed17change", "audit")
-updated = wrds2pg.wrds_update("feed17del", "audit")
+updated = wrds_update("feed17change", "audit")
+updated = wrds_update("feed17del", "audit")
 
-updated = wrds2pg.wrds_update("auditchange", "audit", drop="matchfy: matchqu: priorfy: priorqu:")
+updated = wrds_update("auditchange", "audit", drop="matchfy: matchqu: priorfy: priorqu:")
 if updated:
     is_col_to_bool(engine, "audit", "auditchange")
 
-updated = wrds2pg.wrds_update("auditsox404", "audit", drop="matchfy: matchqu: priorfy: priorqu:")
+updated = wrds_update("auditsox404", "audit", drop="matchfy: matchqu: priorfy: priorqu:")
 if updated:
     is_col_to_bool(engine, "audit", "auditsox404")
 
-updated = wrds2pg.wrds_update("auditsox302", "audit", drop="match: prior:")
+update = False
+# updated = wrds_update("auditsox302", "audit", drop="match: prior: closest:")
 if updated:
     engine.execute("""
         ALTER TABLE audit.auditsox302
         ALTER COLUMN is_effective TYPE integer USING is_effective::integer;""")
     is_col_to_bool(engine, "audit", "auditsox302")
 
-updated = wrds2pg.wrds_update("auditlegal", "audit", drop="matchfy:matchqu:priorfy:priorqu:")
+updated = wrds_update("auditlegal", "audit", drop="matchfy: matchqu: priorfy: priorqu:")
 if updated:
      # Takes a lot of time
     is_col_to_bool(engine, "audit", "auditlegal")
