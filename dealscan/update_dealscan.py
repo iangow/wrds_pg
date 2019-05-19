@@ -1,31 +1,13 @@
 #!/usr/bin/env python3
-from sqlalchemy import create_engine
-import os, sys
-from wrds2pg import wrds2pg
+from wrds2pg.wrds2pg import wrds_update
 
-wrds2pg.wrds_update("borrowerbase", "dealscan")
-wrds2pg.wrds_update("company", "dealscan")
-wrds2pg.wrds_update("currfacpricing", "dealscan")
-wrds2pg.wrds_update("dealamendment", "dealscan")
-wrds2pg.wrds_update("dealpurposecomment", "dealscan")
-wrds2pg.wrds_update("facility", "dealscan")
-wrds2pg.wrds_update("facilityamendment", "dealscan")
-wrds2pg.wrds_update("facilitydates", "dealscan")
-wrds2pg.wrds_update("facilityguarantor", "dealscan")
-wrds2pg.wrds_update("facilitypaymentschedule", "dealscan")
-wrds2pg.wrds_update("facilitysecurity", "dealscan")
-wrds2pg.wrds_update("facilitysponsor", "dealscan")
-wrds2pg.wrds_update("financialcovenant", "dealscan")
-wrds2pg.wrds_update("financialratios", "dealscan")
-wrds2pg.wrds_update("lendershares", "dealscan")
-wrds2pg.wrds_update("link_table", "dealscan")
-wrds2pg.wrds_update("lins", "dealscan")
-wrds2pg.wrds_update("marketsegment", "dealscan")
-wrds2pg.wrds_update("networthcovenant", "dealscan")
-wrds2pg.wrds_update("organizationtype", "dealscan")
-wrds2pg.wrds_update("package", "dealscan")
-wrds2pg.wrds_update("packageassignmentcomment", "dealscan")
-wrds2pg.wrds_update("performancepricing", "dealscan")
-wrds2pg.wrds_update("performancepricingcomments", "dealscan")
-wrds2pg.wrds_update("sublimits", "dealscan")
-wrds2pg.wrds_update("dbo_df_fac_dates_data", "dealscan")
+dealscan_tables = ["borrowerbase", "company", "currfacpricing", "dealamendment", 
+    "dealpurposecomment", "facility", "facilityamendment", "facilitydates", 
+    "facilityguarantor", "facilitypaymentschedule", "facilitysecurity", 
+    "facilitysponsor", "financialcovenant", "financialratios", "lendershares", 
+    "link_table", "lins", "marketsegment", "networthcovenant", "organizationtype", 
+    "package", "packageassignmentcomment", "performancepricing", 
+    "performancepricingcomments", "sublimits", "dbo_df_fac_dates_data"]
+
+for table in dealscan_tables:
+    wrds_update(table, "dealscan")
