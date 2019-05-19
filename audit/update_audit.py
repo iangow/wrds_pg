@@ -34,7 +34,7 @@ updated = wrds_update("feed25person", "audit")
 updated = wrds_update("namesauditorsinfo", "audit")
 
 # Partially working; need to add part4_3_text* columns
-updated = wrds_update("nt", "audit", drop="match: closest: prior: part4_3_text: ", force=True)
+updated = wrds_update("nt", "audit", drop="match: closest: prior: part4_3_text: ")
 # updated = wrds_update("nt", "audit", keep="nt_notify_key", force=True, alt_table_name="nt_other")
 updated = wrds_update("auditnonreli", "audit", drop="prior: match: closest: eventdate:")
 
