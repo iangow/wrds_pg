@@ -1,1 +1,0 @@
-CREATE INDEX ON ibes.det_guidance (CAST(anndats AS date));
