@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
 from sqlalchemy import create_engine
-import os, sys
-dbname = os.getenv("PGDATABASE")
-host = os.getenv("PGHOST", "localhost")
-wrds_id = os.getenv("WRDS_ID")
-engine = create_engine("postgresql://" + host + "/" + dbname)
+from wrds2pg import wrds_update, run_file_sql, make_engine
+from wrds2pg import make_engine, wrds_id
 
-from wrds2pg import wrds2pg
-from time import gmtime, strftime
-
+engine = make_engine()
 
 updated = wrds2pg.wrds_update("wrds_gvkey", "ciq", fix_missing=True)
 if updated:
