@@ -1,5 +1,5 @@
-library("RPostgreSQL")
-pg <- dbConnect(PostgreSQL())
+library(DBI)
+pg <- dbConnect(RPostgreSQL::PostgreSQL())
 
 dbGetQuery(pg, "
     CREATE SCHEMA IF NOT EXISTS taq;
@@ -21,14 +21,10 @@ sas_code <- "
 
     options nosource nonotes;
 
-    data mast;
-        set taq.mast:;
-    run;
-
     proc sql;
         CREATE TABLE pwd.mast AS
         SELECT DISTINCT symbol, name, cusip, fdate, shrout
-        FROM mast;
+        FROM taq.mast;
     quit;"
 
 #
