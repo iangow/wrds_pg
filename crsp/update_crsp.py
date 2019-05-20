@@ -18,10 +18,10 @@ engine = make_engine()
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77140
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77137
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77147
-
 tfz_idx = wrds_update("tfz_idx", "crsp", fix_missing=True)
-tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", fix_missing=True, drop="td:")
-if True: # tfz_idx or tfz_dly_ft:
+tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", fix_missing=True)
+if tfz_idx or tfz_dly_ft:
+
     sql = """
         DROP TABLE IF EXISTS crsp.tfz_ft;
         CREATE TABLE crsp.tfz_ft
@@ -141,11 +141,12 @@ if dsi:
     except:
         trans.rollback()
         raise
+    engine.execute("CREATE INDEX ON crsp.dsi (date)")
+    run_file_sql("make_trading_dates.sql", engine)
 
-dsedelist = wrds_update("dsedelist", "crsp",
-                            fix_missing=True)
+dsedelist = wrds_update("dsedelist", "crsp", fix_missing=True)
 if dsedelist:
-    engine.execute("ALTER TABLE crsp.dsedist ALTER permno TYPE integer;")
+    engine.execute("ALTER TABLE crsp.dsedelist ALTER permno TYPE integer;")
     engine.execute("CREATE INDEX ON crsp.dsedelist (permno)")
 
 dport = wrds_update("dport1", "crsp")
@@ -216,8 +217,7 @@ if dport or dsf or dsi or dsedelist:
         trans.rollback()
         raise
 
-ccmxpf_linktable = wrds_update("ccmxpf_linktable", "crsp",
-                                fix_missing=True)
+ccmxpf_linktable = wrds_update("ccmxpf_linktable", "crsp", fix_missing=True)
 if ccmxpf_linktable:
     engine.execute("CREATE INDEX ON crsp.ccmxpf_linktable (lpermno)")
     engine.execute("CREATE INDEX ON crsp.ccmxpf_linktable (lpermno)")
