@@ -122,4 +122,13 @@ updated = wrds_update("sec_divid", "comp", fix_missing = True)
 if updated:
     engine.execute("CREATE INDEX ON comp.g_sec_divid (gvkey, datadate)")
 
+updated = wrds_update("g_idxcst_his", "comp", rename="from=from_dt")
+updated = wrds_update("g_idx_index", "comp")
+updated = wrds_update("g_secnamesd", "comp")
+updated = wrds_update("g_names_ix", "comp")
+updated = wrds_update("g_names_ix_cst", "comp")
+updated = wrds_update("g_names", "comp")
+updated = wrds_update("g_namesq", "comp")
+updated = wrds_update("g_chars", "comp")
+
 engine.dispose()
