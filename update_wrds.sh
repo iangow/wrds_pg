@@ -1,20 +1,16 @@
 #!/usr/bin/env bash
 printf "Updating Audit Analytics (audit) ...\n"
-cd audit
-./update_audit.py
+audit/update_audit.py
 printf "\nUpdating CRSP (crsp) ...\n"
-cd ../crsp
+cd crsp
 ./update_crsp.py
 printf "\nUpdating DealScan (dealscan) ...\n"
-cd ../dealscan
-./update_dealscan.py
-printf "\nUpdating IBES (ibes) ...\n"
-cd ../ibes
-./update_ibes.py
-printf "\nUpdating RavenPack (rpna) ...\n"
-cd ../rpna
-./update_rpna.py
-printf "\nUpdating Thomson Reuters (tfn) ...\n"
-cd ../tfn
-./update_tfn.py
 cd ..
+dealscan/update_dealscan.py
+printf "\nUpdating IBES (ibes) ...\n"
+ibes/update_ibes.py
+printf "\nUpdating RavenPack (rpna) ...\n"
+rpna/update_rpna.py
+printf "\nUpdating Thomson Reuters (tfn) ...\n"
+tfn/update_tfn.py
+wrdssec/update_wrdssec.py
