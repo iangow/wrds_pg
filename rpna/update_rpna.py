@@ -4,7 +4,7 @@ from wrds2pg.wrds2pg import wrds_update, run_file_sql, make_engine
 
 engine = make_engine()
 
-avail_years = range(2000, 2019)
+avail_years = range(2000, 2020)
 
 updated = wrds_update("rp_entity_mapping", "rpna")
 
