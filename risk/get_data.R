@@ -1,14 +1,23 @@
 #!/usr/bin/env Rscript
+library(DBI)
+library(haven)
+library(dplyr, warn.conflicts = FALSE)
+
 convertToInteger <- function(vec) {
     # This is a small function that converts numeric vectors to
     # integers if doing so does not lose information
     notNA <- !is.na(vec)
 
-    if (all(vec[notNA]==as.integer(vec[notNA]))) {
-        return(as.integer(vec))
+    if (all(vec[notNA]==bit64::as.integer64(vec[notNA]))) {
+        return(bit64::as.integer64(vec))
     } else {
         return(vec)
     }
+}
+
+fix_names <- function(df) {
+  names(df) <- tolower(names(df))
+  df
 }
 
 get_data <- function(libname, datatable) {
@@ -34,15 +43,18 @@ get_data <- function(libname, datatable) {
     # The following pipes the SAS code to the SAS command. The "intern=TRUE"
     # means that we can capture the output in an R variable.
     system(paste("echo '", sas_code, "' |", sas_command), intern=FALSE)
-    library(foreign)
-    temp <- read.dta(temp_file)
+
+    temp <-
+      read_dta(temp_file, encoding = "latin1") %>%
+      fix_names() %>%
+      mutate_if(is.numeric, convertToInteger)
 
     # Convert numeric vectors to integers if possible
-    for (i in names(temp)) {
-        if(is.numeric(temp[,i])) { temp[,i] <- convertToInteger(temp[,i]) }
-    }
     if (datatable=="votes") {
-        temp <- fix_data(temp)
+        temp <-
+          temp %>%
+          filter(!is.na(year)) %>%
+          fix_data()
     }
 
     if (datatable=="proposals") {
@@ -55,58 +67,55 @@ get_data <- function(libname, datatable) {
 }
 
 fix_data <- function(df) {
-    df$votes_for <- as.numeric(df$votes_for)
-    df$votes_against <- as.numeric(df$votes_against)
-    df$abstentions__mgmt_proposals_on <-
-        as.numeric(df$abstentions__mgmt_proposals_on)
-    df$company_results_for__shareholder <-
-        as.numeric(df$company_results_for__shareholder)
-    df$company_results_against__shareho <-
-        as.numeric(df$company_results_against__shareho)
-    df$company_results_abstentions__sha <-
-        as.numeric(df$company_results_abstentions__sha)
-    df$irrc_issue_code <- as.integer(df$irrc_issue_code)
-    return(df)
+
+    df %>%
+      mutate_at(vars(votes_against,
+                     abstentions_mgmt_proposals_on,
+                     company_results_for_shareholder,
+                     abstentions_mgmt_proposals_on,
+                     company_results_against_shareho,
+                     company_results_abstentions_sha,
+                     irrc_issue_code), as.numeric)
 }
 
 # Get data mapping issue codes to categories in Cunat et al. (JF, 2012)
-library(RPostgreSQL)
-pg <- dbConnect(PostgreSQL())
 
 library(googlesheets)
-gs_auth()
+# gs_auth()
 gs <- gs_key("1RrNACT_vKo7eT_HngWPhcRGOpJ09Ss4xipdmqsc5yuA")
 
-issue_codes <- gs_read(gs)
+issue_codes <- gs_read(gs, ws = "issue_codes")
 
-rs <- dbGetQuery(pg, "CREATE SCHEMA IF NOT EXISTS risk")
-rs <- dbWriteTable(pg, c("risk", "issue_codes"), issue_codes,
+pg <- dbConnect(RPostgres::Postgres())
+
+rs <- dbExecute(pg, "CREATE SCHEMA IF NOT EXISTS risk")
+rs <- dbExecute(pg, "SET search_path TO risk")
+rs <- dbWriteTable(pg, "issue_codes", issue_codes,
                    row.names=FALSE, overwrite=TRUE)
 rs <- dbDisconnect(pg)
 
 fix_proposals <- function(df) {
     df$issue_code <- as.integer(df$issue_code)
-    df$issue_code[df$resolution=="no consulting by auditors"] <-  2002L
+    df$issue_code[df$resolution=="no consulting by auditors"] <-2002L
     return(df)
 }
-
-
 
 # Now get the data from WRDS
 replicate <- function(libname, datatable) {
     temp <- get_data(libname, datatable)
-    library(RPostgreSQL)
-    pg <- dbConnect(PostgreSQL())
 
-    dbWriteTable(pg, c(libname, datatable), temp,
+    pg <- dbConnect(RPostgres::Postgres())
+
+    dbExecute(pg, paste0("SET search_path TO ", libname))
+
+    dbWriteTable(pg, datatable, temp,
                  overwrite=TRUE, row.names=FALSE)
+    dbDisconnect(pg)
 }
 
-replicate("risk", "proposals")
+# replicate("risk", "proposals")
+# replicate("risk", "rmgovernance")
 replicate("risk", "gset")
-replicate("risk", "rmgovernance")
-# replicate("risk", "votes")
+replicate("risk", "votes")
+replicate("risk", "directors")
 
-system.time(temp <- get_data("risk", "proposals"))
-system.time(temp <- get_data("risk", "rmgovernance"))
-# system.time(temp <- get_data("risk", "votes"))

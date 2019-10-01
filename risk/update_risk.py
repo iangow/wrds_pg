@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-from sqlalchemy import create_engine
-import os, sys
-from wrds2pg import wrds2pg
+from wrds2pg.wrds2pg import wrds_update
 
-wrds2pg.wrds_update("globalvoteresults", "risk")
-wrds2pg.wrds_update("vavoteresults", "risk")
-wrds2pg.wrds_update("issrec", "risk")
+wrds_update("globalvoteresults", "risk")
+wrds_update("vavoteresults", "risk")
+wrds_update("issrec", "risk")
+wrds_update("directors", "risk")
+wrds_update("gset", "risk")
+wrds_update("votes", "risk")
