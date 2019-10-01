@@ -1,3 +1,6 @@
+library(haven)
+library(DBI)
+library(dplyr, warn.conflicts = FALSE)
 
 convertToInteger <- function(vec) {
   # This is a small function that converts numeric vectors to
@@ -9,6 +12,11 @@ convertToInteger <- function(vec) {
   } else {
     return(vec)
   }
+}
+
+fix_names <- function(df) {
+  names(df) <- tolower(names(df))
+  df
 }
 
 get_iclink <- function() {
@@ -36,13 +44,11 @@ get_iclink <- function() {
   # The following pipes the SAS code to the SAS command. The "intern=TRUE"
   # means that we can capture the output in an R variable.
   system(paste("echo '", sas_code, "' |", sas_command), intern=FALSE)
-  library(foreign)
-  temp <- read.dta(temp_file)
 
-  # Convert numeric vectors to integers if possible
-  for (i in names(temp)) {
-    if(is.numeric(temp[,i])) { temp[,i] <- convertToInteger(temp[,i]) }
-  }
+  temp <-
+    read_dta(temp_file) %>%
+    mutate_if(is.numeric, convertToInteger) %>%
+    fix_names()
 
   # Delete the temporary file
   unlink(temp_file)
@@ -52,12 +58,13 @@ get_iclink <- function() {
 # Now get the data from WRDS
 system.time(iclink <- get_iclink())
 
-library(RPostgreSQL)
-pg <- dbConnect(PostgreSQL())
+pg <- dbConnect(RPostgres::Postgres())
+rs <- dbExecute(pg, "SET search_path TO ibes")
 
-rs <- dbWriteTable(pg, c("ibes", "iclink"), iclink, overwrite=TRUE, row.names=FALSE)
-rs <- dbGetQuery(pg, "CREATE INDEX ON ibes.iclink (ticker)")
+rs <- dbWriteTable(pg, "iclink", iclink, overwrite=TRUE, row.names=FALSE)
 
+rs <- dbExecute(pg, "CREATE INDEX ON iclink (ticker)")
+rs <- dbExecute(pg, "CREATE INDEX ON iclink (permno)")
 rs <- dbDisconnect(pg)
 
 pg_comment <- function(table, comment) {

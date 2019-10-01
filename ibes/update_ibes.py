@@ -42,4 +42,4 @@ wrds_update("actpsum_epsus", "ibes")
 engine.dispose()
 
 import subprocess
-subprocess.call("Rscript --vanilla get_iclink.R", shell=True)
+subprocess.call("Rscript --vanilla ibes/get_iclink.R", shell=True)
