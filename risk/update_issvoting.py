@@ -1,17 +1,10 @@
 #!/usr/bin/env python3
-from sqlalchemy import create_engine
-import os, sys
-dbname = os.getenv("PGDATABASE")
-host = os.getenv("PGHOST", "localhost")
-wrds_id = os.getenv("WRDS_ID")
-engine = create_engine("postgresql://" + host + "/" + dbname)
-
-from wrds2pg import wrds2pg
+from wrds2pg.wrds2pg import wrds_update, make_engine
 
 # engine.execute("CREATE ROLE risk")
 # engine.execute("GRANT USAGE ON SCHEMA risk TO risk")
-
-update = wrds2pg.wrds_update("vavoteresults", "risk")
+update = wrds_update("va_proposals", "risk")
+update = wrds_update("vavoteresults", "risk")
 
 if update:
     sql = """
@@ -53,8 +46,9 @@ if update:
             SET (votedfor, voteresult)=(70548942, 'Pass')
             WHERE itemonagendaid=6049746;
     """
+    engine = make_engine()
     engine.execute(sql)
+    engine.dispose()
 
-wrds2pg.wrds_update("issrec", "risk")
-wrds2pg.wrds_update("globalvoteresults", "risk")
-wrds2pg.wrds_update("proposals", "risk")
+wrds_update("issrec", "risk")
+wrds_update("globalvoteresults", "risk")
