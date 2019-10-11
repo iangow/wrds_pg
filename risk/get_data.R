@@ -2,6 +2,7 @@
 library(DBI)
 library(haven)
 library(dplyr, warn.conflicts = FALSE)
+library(googlesheets)
 
 convertToInteger <- function(vec) {
     # This is a small function that converts numeric vectors to
@@ -80,7 +81,7 @@ fix_data <- function(df) {
 
 # Get data mapping issue codes to categories in Cunat et al. (JF, 2012)
 
-library(googlesheets)
+
 # gs_auth()
 gs <- gs_key("1RrNACT_vKo7eT_HngWPhcRGOpJ09Ss4xipdmqsc5yuA")
 
