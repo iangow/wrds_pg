@@ -13,4 +13,10 @@ printf "\nUpdating RavenPack (rpna) ...\n"
 rpna/update_rpna.py
 printf "\nUpdating Thomson Reuters (tfn) ...\n"
 tfn/update_tfn.py
+printf "\nUpdating WRDS SEC Analytics (wrdssec) ...\n"
 wrdssec/update_wrdssec.py
+printf "\nUpdating MFLINKS (mflinks) ...\n"
+mflinks/update_mflinks.py
+printf "\nUpdating Capital IQ (ciq) ...\n"
+ciq/update_ciq.py
+
