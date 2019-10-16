@@ -65,6 +65,8 @@ rs <- dbWriteTable(pg, "iclink", iclink, overwrite=TRUE, row.names=FALSE)
 
 rs <- dbExecute(pg, "CREATE INDEX ON iclink (ticker)")
 rs <- dbExecute(pg, "CREATE INDEX ON iclink (permno)")
+rs <- dbExecute(pg, "ALTER TABLE iclink OWNER TO ibes")
+rs <- dbExecute(pg, "GRANT SELECT ON iclink TO ibes_access")
 rs <- dbDisconnect(pg)
 
 pg_comment <- function(table, comment) {
