@@ -15,8 +15,10 @@ if updated:
 updated = wrds_update("det_xepsus", "ibes")
 if updated:
     engine.execute("CREATE INDEX ON ibes.det_xepsus (ticker, revdats)")
-    
+
+wrds_update("curr", "ibes")    
 wrds_update("det_epsus", "ibes")
+wrds_update("detu_epsint", "ibes")
 wrds_update("id", "ibes")
 wrds_update("idsum", "ibes")
 wrds_update("surpsum", "ibes")
@@ -34,7 +36,6 @@ if updated:
 wrds_update("det_guidance_ext", "ibes")
 wrds_update("id_guidance", "ibes")
 wrds_update("split_guidance", "ibes")
-
 wrds_update("stop_epsus", "ibes")
 wrds_update("exc_epsus", "ibes")
 wrds_update("actpsum_epsus", "ibes")
