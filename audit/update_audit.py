@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg.wrds2pg import wrds_update, run_file_sql
-from wrds2pg.wrds2pg import make_engine, wrds_id
+from wrds2pg.wrds2pg import wrds_update, make_engine
 from sqlalchemy import Table, MetaData, Boolean
 
 engine = make_engine()
@@ -29,14 +28,13 @@ def is_col_to_bool(engine, schema, table):
 
     return modify_lst
 
-
 updated = wrds_update("feed25person", "audit")
 updated = wrds_update("namesauditorsinfo", "audit")
 
 # Partially working; need to add part4_3_text* columns
 updated = wrds_update("nt", "audit", drop="match: closest: prior: part4_3_text: ")
 # updated = wrds_update("nt", "audit", keep="nt_notify_key", force=True, alt_table_name="nt_other")
-updated = wrds_update("auditnonreli", "audit", drop="prior: match: closest: eventdate:")
+updated = wrds_update("auditnonreli", "audit", drop="prior: match: closest: eventdate: http_name_html")
 
 updated = wrds_update("bankrupt", "audit", drop="match: closest: prior:")
 if updated:
@@ -48,8 +46,9 @@ if updated:
             ALTER COLUMN court_type_code TYPE integer USING court_type_code::integer;
         ALTER TABLE audit.bankrupt ALTER COLUMN eventdate_aud_fkey TYPE integer;""")
 
-updated = wrds_update("diroffichange", "audit",
-                        drop="match: prior: closest: eventdate:")
+# obs=1000, #force = True, 
+updated = wrds_update("diroffichange", "audit", force = True, obs=1000,
+                        drop="match: prior: closest: eventdate_aud_name first_name last_name middle_name")
 if updated:
     engine.execute("""
         ALTER TABLE audit.diroffichange
@@ -58,6 +57,14 @@ if updated:
 
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON audit.diroffichange (do_off_pers_key)")
+
+updated = wrds_update("diroffichange", "audit", 
+                        keep="do_off_pers_key first_name last_name middle_name",
+                        alt_table_name="diroffichange_names")
+
+updated = wrds_update("diroffichange", "audit", 
+                        keep="eventdate_aud_fkey eventdate_aud_name",
+                        alt_table_name="diroffichange_aud_names")
 
 updated = wrds_update("sholderact", "audit")
 
@@ -117,7 +124,7 @@ if updated:
 updated = wrds_update("feed14party", "audit")
 if updated:
     engine.execute("""
-        ALTER TABLE audit.feed14party ADD COLUMN company_fkey_temp  integer;
+        ALTER TABLE audit.feed14party ADD COLUMN company_fkey_temp integer;
 
         UPDATE audit.feed14party SET company_fkey_temp=CASE WHEN company_fkey='.' THEN NULL ELSE company_fkey::integer END;
         ALTER TABLE audit.feed14party DROP COLUMN company_fkey;
@@ -147,19 +154,23 @@ updated = wrds_update("auditchange", "audit", drop="matchfy: matchqu: priorfy: p
 if updated:
     is_col_to_bool(engine, "audit", "auditchange")
 
-updated = wrds_update("auditsox404", "audit", drop="matchfy: matchqu: priorfy: priorqu:")
+updated = wrds_update("auditsox404", "audit", drop="closest: match: prior: op_aud_name eventdate_aud_name")
 if updated:
     is_col_to_bool(engine, "audit", "auditsox404")
 
-update = False
-# updated = wrds_update("auditsox302", "audit", drop="match: prior: closest:")
+updated = wrds_update("auditsox404", "audit", keep="auditor_fkey op_aud_name",
+                      alt_table_name="sox404_auditors")
+updated = wrds_update("auditsox404", "audit", keep="eventdate_aud_fkey eventdate_aud_name",
+                      alt_table_name="sox404_event_auditors")
+                      
+updated = wrds_update("auditsox302", "audit", drop="match: prior: closest: eventdate_aud_name")
 if updated:
     engine.execute("""
         ALTER TABLE audit.auditsox302
-        ALTER COLUMN is_effective TYPE integer USING is_effective::integer;""")
+        ALTER COLUMN is_effective TYPE integer USING is_effective::integer""")
     is_col_to_bool(engine, "audit", "auditsox302")
 
-updated = wrds_update("auditlegal", "audit", drop="matchfy: matchqu: priorfy: priorqu:")
+updated = wrds_update("auditlegal", "audit", drop="closest: match: prior:")
 if updated:
      # Takes a lot of time
     is_col_to_bool(engine, "audit", "auditlegal")
