@@ -7,6 +7,8 @@ from time import gmtime, strftime
 
 engine = make_engine()
 
+dsf = wrds_update("dsf", "crsp", fix_missing=True, force=True)
+
 # Update Treasury yield table crsp.tfz_ft
 # From wrds:
 # The error is correct, the table "tfz_ft," does not exist. Behind the scenes this web
@@ -20,16 +22,13 @@ engine = make_engine()
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77147
 
 tfz_idx = wrds_update("tfz_idx", "crsp", fix_missing=True)
-tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", fix_missing=True)
-if tfz_idx or tfz_dly_ft:
+tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", fix_missing=True, drop="td:")
+if True: # tfz_idx or tfz_dly_ft:
     sql = """
         DROP TABLE IF EXISTS crsp.tfz_ft;
         CREATE TABLE crsp.tfz_ft
         AS
-        (SELECT kytreasnox, tidxfam, ttermtype, ttermlbl, caldt, rdtreasno,
-                rdcrspid, -- to_timestamp(rdcrspid, 'YYYYMMDD.HH24MISS') as rdcrspid,
-                tdyearstm, tdduratn, tdretadj, tdytm, tdbid, tdask, tdnomprc,
-                tdnomprc_flg, tdaccint
+        (SELECT kytreasnox, tidxfam, ttermtype, ttermlbl, caldt, rdtreasno, rdcrspid
         FROM crsp.tfz_idx
         INNER JOIN crsp.tfz_dly_ft
         USING (kytreasnox))
@@ -121,7 +120,7 @@ if mport or msf or msi or msedelist:
         raise
 
 # Update daily data
-dsf = wrds_update("dsf", "crsp", fix_missing=True)
+
 if dsf:
     engine.execute("ALTER TABLE crsp.dsf ALTER permno TYPE integer")
     engine.execute("SET maintenance_work_mem='1999MB'")
