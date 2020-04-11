@@ -24,7 +24,23 @@ def is_col_to_bool(engine, schema, table):
 
     modify_lst = [mod_col(col, schema, table, engine) for col in col_lst]
     if modify_lst:
-    	print("Columns changed to boolean", modify_lst)
+    	print("Columns changed to boolean:", modify_lst)
+
+    return modify_lst
+    
+def col_to_bool(engine, schema, table, col_lst=None):
+    """
+    This function changes provided columns to boolean.
+    """
+
+    if col_lst:
+        modify_lst = [mod_col(col, schema, table, engine) for col in col_lst]
+    else:
+        print("No columns supplied!")
+        return None
+        
+    if modify_lst:
+    	print("Columns changed to boolean:", modify_lst)
 
     return modify_lst
 
@@ -32,9 +48,10 @@ updated = wrds_update("feed25person", "audit")
 updated = wrds_update("namesauditorsinfo", "audit")
 
 # Partially working; need to add part4_3_text* columns
-updated = wrds_update("nt", "audit", drop="match: closest: prior: part4_3_text: ")
-# updated = wrds_update("nt", "audit", keep="nt_notify_key", force=True, alt_table_name="nt_other")
-updated = wrds_update("auditnonreli", "audit", drop="prior: match: closest: eventdate: http_name_html")
+updated = wrds_update("nt", "audit", drop="match: closest: prior: part4_3_text:")
+updated = wrds_update("nt", "audit", keep="nt_notify_key part4_3_text1",
+                      alt_table_name = "nt_part4_3_text")
+pdated = wrds_update("auditnonreli", "audit", drop="prior: match: closest: eventdate: http_name_html")
 
 updated = wrds_update("bankrupt", "audit", drop="match: closest: prior:")
 if updated:
@@ -46,25 +63,36 @@ if updated:
             ALTER COLUMN court_type_code TYPE integer USING court_type_code::integer;
         ALTER TABLE audit.bankrupt ALTER COLUMN eventdate_aud_fkey TYPE integer;""")
 
-# obs=1000, #force = True, 
-updated = wrds_update("diroffichange", "audit", force = True, obs=1000,
-                        drop="match: prior: closest: eventdate_aud_name first_name last_name middle_name")
+# Director and officer changes ----
+updated = wrds_update("diroffichange", "audit", 
+                        drop="match: prior: closest: do_change_text:")
 if updated:
     engine.execute("""
         ALTER TABLE audit.diroffichange
         ALTER COLUMN do_off_pers_key TYPE integer""")
     is_col_to_bool(engine, "audit", "diroffichange")
-
+    col_to_bool(engine, "audit", "diroffichange", 
+                col_lst=["interim", "do_off_remains", "retain_other_pos",
+                         "eff_date_unspec", "eff_date_next_meet"])
+                         
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON audit.diroffichange (do_off_pers_key)")
 
-updated = wrds_update("diroffichange", "audit", 
-                        keep="do_off_pers_key first_name last_name middle_name",
-                        alt_table_name="diroffichange_names")
+updated = wrds_update("feed17change", "audit")
+if updated:
+    engine.execute("""
+        ALTER TABLE audit.feed17change
+        ALTER COLUMN director_officer_change_key TYPE integer""")
+        
+    engine.execute("""
+        ALTER TABLE audit.feed17change
+        RENAME COLUMN director_officer_change_key TO do_change_key""")
+    is_col_to_bool(engine, "audit", "feed17change")
 
-updated = wrds_update("diroffichange", "audit", 
-                        keep="eventdate_aud_fkey eventdate_aud_name",
-                        alt_table_name="diroffichange_aud_names")
+    engine.execute("SET maintenance_work_mem='1999MB'")
+    engine.execute("CREATE INDEX ON audit.feed17change (do_change_key)")  
+
+updated = wrds_update("feed17del", "audit")
 
 updated = wrds_update("sholderact", "audit")
 
@@ -147,10 +175,9 @@ if updated:
         ALTER TABLE audit.feed14party ALTER COLUMN been_terminated TYPE boolean USING been_terminated=1;
     """)
 
-updated = wrds_update("feed17change", "audit")
-updated = wrds_update("feed17del", "audit")
 
-updated = wrds_update("auditchange", "audit", drop="matchfy: matchqu: priorfy: priorqu:")
+
+updated = wrds_update("auditchange", "audit", drop="matchfy: matchqu: priorfy: priorqu: closestqu: closestfy:")
 if updated:
     is_col_to_bool(engine, "audit", "auditchange")
 
@@ -162,8 +189,10 @@ updated = wrds_update("auditsox404", "audit", keep="auditor_fkey op_aud_name",
                       alt_table_name="sox404_auditors")
 updated = wrds_update("auditsox404", "audit", keep="eventdate_aud_fkey eventdate_aud_name",
                       alt_table_name="sox404_event_auditors")
-                      
-updated = wrds_update("auditsox302", "audit", drop="match: prior: closest: eventdate_aud_name")
+
+# eventdate_aud_name          
+updated = wrds_update("auditsox302", "audit", 
+                      drop="match: prior: closest: ic_dc_text:")
 if updated:
     engine.execute("""
         ALTER TABLE audit.auditsox302
