@@ -44,10 +44,10 @@ def col_to_bool(engine, schema, table, col_lst=None):
 
     return modify_lst
 
-# Non-reliance restatements
+# Transfer agents
+updated = wrds_update("feed41_transfer_agents", "audit")
 
-# disc_text:
-# eventdate
+# Non-reliance restatements
 updated = wrds_update("auditnonreli", "audit",
                         drop="prior: match: closest: disc_text:")
 
@@ -99,8 +99,6 @@ if updated:
     engine.execute("CREATE INDEX ON audit.feed09filing (res_filing_key)")  
 
 updated = wrds_update("feed09cat", "audit")
-                      
-exit()
 
 updated = wrds_update("feed25person", "audit")
 updated = wrds_update("namesauditorsinfo", "audit")
