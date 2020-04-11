@@ -44,6 +44,64 @@ def col_to_bool(engine, schema, table, col_lst=None):
 
     return modify_lst
 
+# Non-reliance restatements
+
+# disc_text:
+# eventdate
+updated = wrds_update("auditnonreli", "audit",
+                        drop="prior: match: closest: disc_text:")
+
+if updated:
+    col_to_bool(engine, "audit", "auditnonreli", 
+                col_lst=["res_accounting", "res_fraud", "res_cler_err",
+                         "res_adverse", "res_improves", "res_other",
+                         "res_sec_invest"])
+    int_cols = ["res_begin_aud_fkey", "res_notif_key", "current_aud_fkey", 
+                "res_begin_aud_fkey", "res_end_aud_fkey", "file_date_aud_fkey"]
+    for col in int_cols:
+        engine.execute("""
+            ALTER TABLE audit.auditnonreli
+            ALTER COLUMN %s TYPE integer USING %s::integer""" % (col, col))
+    
+    list_cols = ["res_acc_res_fkey_list", "res_fraud_res_fkey_list",
+                "res_cler_err_fkey_list", "res_period_aud_fkey", "res_other_rescat_fkey"]
+    for col in list_cols:
+        engine.execute("""
+            ALTER TABLE audit.auditnonreli
+            ALTER COLUMN %s TYPE integer[] USING 
+                array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ % (col, col))
+                    
+    engine.execute("SET maintenance_work_mem='1999MB'")
+    engine.execute("CREATE INDEX ON audit.auditnonreli (res_notif_key)")
+
+updated = wrds_update("feed09tocat", "audit")
+if updated:
+    engine.execute("ALTER TABLE audit.feed09tocat ALTER res_notify_key TYPE integer")
+    engine.execute("ALTER TABLE audit.feed09tocat ALTER res_category_fkey TYPE integer")
+
+updated = wrds_update("feed09period", "audit")
+if updated:
+    engine.execute("ALTER TABLE audit.feed09period ALTER res_notify_key TYPE integer")
+    engine.execute("ALTER TABLE audit.feed09period ALTER res_period_aud_fkey TYPE integer USING res_period_aud_fkey::double precision")
+
+updated = wrds_update("feed09filing", "audit", drop="file_date_num", force=True)
+if updated:
+    engine.execute("""
+        ALTER TABLE audit.feed09filing
+        RENAME COLUMN res_notify_key TO res_notif_key""")
+    
+    int_cols = ["res_filing_key", "res_notif_key"]
+    for col in int_cols:
+        engine.execute("""
+            ALTER TABLE audit.feed09filing
+            ALTER COLUMN %s TYPE integer USING %s::integer""" % (col, col))
+    engine.execute("CREATE INDEX ON audit.feed09filing (res_notif_key)")  
+    engine.execute("CREATE INDEX ON audit.feed09filing (res_filing_key)")  
+
+updated = wrds_update("feed09cat", "audit")
+                      
+exit()
+
 updated = wrds_update("feed25person", "audit")
 updated = wrds_update("namesauditorsinfo", "audit")
 
@@ -51,7 +109,6 @@ updated = wrds_update("namesauditorsinfo", "audit")
 updated = wrds_update("nt", "audit", drop="match: closest: prior: part4_3_text:")
 updated = wrds_update("nt", "audit", keep="nt_notify_key part4_3_text1",
                       alt_table_name = "nt_part4_3_text")
-pdated = wrds_update("auditnonreli", "audit", drop="prior: match: closest: eventdate: http_name_html")
 
 updated = wrds_update("bankrupt", "audit", drop="match: closest: prior:")
 if updated:
@@ -63,7 +120,7 @@ if updated:
             ALTER COLUMN court_type_code TYPE integer USING court_type_code::integer;
         ALTER TABLE audit.bankrupt ALTER COLUMN eventdate_aud_fkey TYPE integer;""")
 
-# Director and officer changes ----
+# Director and officer changes
 updated = wrds_update("diroffichange", "audit", 
                         drop="match: prior: closest: do_change_text:")
 if updated:
@@ -96,18 +153,7 @@ updated = wrds_update("feed17del", "audit")
 
 updated = wrds_update("sholderact", "audit")
 
-updated = wrds_update("feed09tocat", "audit")
-if updated:
-    engine.execute("ALTER TABLE audit.feed09tocat ALTER res_notify_key TYPE integer")
-    engine.execute("ALTER TABLE audit.feed09tocat ALTER res_category_fkey TYPE integer")
 
-updated = wrds_update("feed09period", "audit")
-if updated:
-    engine.execute("ALTER TABLE audit.feed09period ALTER res_notify_key TYPE integer")
-    engine.execute("ALTER TABLE audit.feed09period ALTER res_period_aud_fkey TYPE integer USING res_period_aud_fkey::double precision")
-
-updated = wrds_update("feed09filing", "audit", drop="file_date_num")
-updated = wrds_update("feed09cat", "audit")
 
 updated = wrds_update("feed13cat", "audit")
 
