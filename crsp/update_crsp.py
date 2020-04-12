@@ -5,6 +5,8 @@ from wrds2pg.wrds2pg import wrds_update, get_process, wrds_process_to_pg, \
     run_file_sql, make_engine, wrds_id, set_table_comment
 from time import gmtime, strftime
 
+dsf = wrds_update("dsf", "crsp", fix_missing=True) #, force=True)
+
 engine = make_engine()
 
 # Update Treasury yield table crsp.tfz_ft
