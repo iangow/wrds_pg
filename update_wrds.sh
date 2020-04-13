@@ -2,10 +2,8 @@
 printf "Updating Audit Analytics (audit) ...\n"
 audit/update_audit.py
 printf "\nUpdating CRSP (crsp) ...\n"
-cd crsp
-./update_crsp.py
+crsp/update_crsp.py
 printf "\nUpdating DealScan (dealscan) ...\n"
-cd ..
 dealscan/update_dealscan.py
 printf "\nUpdating IBES (ibes) ...\n"
 ibes/update_ibes.py
@@ -21,4 +19,5 @@ printf "\nUpdating Capital IQ (ciq) ...\n"
 ciq/update_ciq.py
 printf "\nUpdating KLD (kld) ...\n"
 kld/update_kld.sh
-
+printf "\nUpdating TFN (tfn) ...\n"
+tfn/update_tfn.sh

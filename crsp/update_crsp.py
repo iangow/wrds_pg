@@ -87,7 +87,7 @@ if mport:
 
     p = get_process(sas_code, wrds_id)
     res = wrds_process_to_pg("ermport", "crsp", engine, p)
-    run_file_sql("crsp_make_ermport1.sql", engine)
+    run_file_sql("crsp/crsp_make_ermport1.sql", engine)
     engine.execute("ALTER TABLE crsp.ermport OWNER TO crsp")
     engine.execute("GRANT SELECT ON crsp.ermport TO crsp_access")
     ### Add comments here
@@ -106,7 +106,7 @@ if msi:
     engine.execute("CREATE INDEX ON crsp.msi (  date)")
 
 if mport or msf or msi or msedelist:
-    run_file_sql("crsp_make_mrets.sql", engine)
+    run_file_sql("crsp/crsp_make_mrets.sql", engine)
     # Add comments here
     sql = "COMMENT ON TABLE crsp.mrets IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
     connection = engine.connect()
@@ -128,8 +128,8 @@ if dsf:
 
 dsi = wrds_update("dsi", "crsp")
 if dsi:
-    # engine.execute("CREATE INDEX ON crsp.dsi (date)")
-    # run_file_sql("make_trading_dates.sql", engine)
+    engine.execute("CREATE INDEX ON crsp.dsi (date)")
+    run_file_sql("crsp/make_trading_dates.sql", engine)
     # Add comments here
     sql1 = "COMMENT ON TABLE crsp.trading_dates IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
     sql2 = "COMMENT ON TABLE crsp.anncdates IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
@@ -188,7 +188,7 @@ if dport:
     p = get_process(sas_code, wrds_id)
     res = wrds_process_to_pg("erdport", "crsp", engine, p)
 
-    run_file_sql("crsp_make_erdport1.sql", engine)
+    run_file_sql("crsp/crsp_make_erdport1.sql", engine)
     engine.execute("CREATE INDEX ON crsp.dport1 (permno, date)")
     engine.execute("ALTER TABLE crsp.erdport OWNER TO crsp")
     engine.execute("GRANT SELECT ON TABLE crsp.erdport TO crsp_access")
@@ -205,7 +205,7 @@ if dport:
         raise
 
 if dport or dsf or dsi or dsedelist:
-    run_file_sql("crsp_make_rets_alt.sql", engine)
+    run_file_sql("crsp/crsp_make_rets_alt.sql", engine)
     #### Add comments here
     sql = "COMMENT ON TABLE crsp.rets IS 'Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
     connection = engine.connect()
