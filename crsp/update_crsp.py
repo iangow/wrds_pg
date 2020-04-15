@@ -5,7 +5,7 @@ from wrds2pg import wrds_update, get_process, wrds_process_to_pg, \
     run_file_sql, make_engine, wrds_id, set_table_comment
 from time import gmtime, strftime
 
-dsf = wrds_update("dsf", "crsp", fix_missing=True) #, force=True)
+dsf = wrds_update("dsf", "crsp", fix_missing=True)
 
 engine = make_engine()
 

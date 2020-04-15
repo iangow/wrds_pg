@@ -84,7 +84,7 @@ if updated:
     engine.execute("ALTER TABLE audit.feed09period ALTER res_notify_key TYPE integer")
     engine.execute("ALTER TABLE audit.feed09period ALTER res_period_aud_fkey TYPE integer USING res_period_aud_fkey::double precision")
 
-updated = wrds_update("feed09filing", "audit", drop="file_date_num", force=True)
+updated = wrds_update("feed09filing", "audit", drop="file_date_num")
 if updated:
     engine.execute("""
         ALTER TABLE audit.feed09filing
