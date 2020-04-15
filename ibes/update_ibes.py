@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from wrds2pg.wrds2pg import wrds_update, run_file_sql
-from wrds2pg.wrds2pg import make_engine, wrds_id
+from wrds2pg import wrds_update, run_file_sql
+from wrds2pg import make_engine, wrds_id
 
 engine = make_engine()
 

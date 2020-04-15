@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from time import gmtime, strftime
-from wrds2pg.wrds2pg import wrds_update, make_engine, run_file_sql
+from wrds2pg import wrds_update, make_engine, run_file_sql
 
 engine = make_engine()
 

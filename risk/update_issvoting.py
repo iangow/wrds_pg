@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg.wrds2pg import wrds_update, make_engine
+from wrds2pg import wrds_update, make_engine
 
 # engine.execute("CREATE ROLE risk")
 # engine.execute("GRANT USAGE ON SCHEMA risk TO risk")

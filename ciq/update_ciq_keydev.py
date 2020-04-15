@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg.wrds2pg import make_engine, wrds_update
+from wrds2pg import make_engine, wrds_update
 
 updated = wrds_update("wrds_keydev", "ciq", fix_missing=True)
 if updated:

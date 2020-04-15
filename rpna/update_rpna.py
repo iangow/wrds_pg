@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from sqlalchemy import MetaData
-from wrds2pg.wrds2pg import wrds_update, run_file_sql, make_engine
+from wrds2pg import wrds_update, run_file_sql, make_engine
 
 engine = make_engine()
 

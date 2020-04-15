@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg.wrds2pg import wrds_update
+from wrds2pg import wrds_update
 
 dealscan_tables = ["borrowerbase", "company", "currfacpricing", "dealamendment", 
     "dealpurposecomment", "facility", "facilityamendment", "facilitydates", 

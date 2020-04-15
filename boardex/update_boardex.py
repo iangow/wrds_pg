@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from wrds2pg.wrds2pg import get_modified_str
-from wrds2pg.wrds2pg import wrds_update, make_engine
+from wrds2pg import get_modified_str
+from wrds2pg import wrds_update, make_engine
 
 import re
 from os import getenv

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg.wrds2pg import wrds_update
+from wrds2pg import wrds_update
 
 wrds_update("globalvoteresults", "risk")
 wrds_update("vavoteresults", "risk")
