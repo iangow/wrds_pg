@@ -43,7 +43,8 @@ get_iclink <- function() {
 
   # The following pipes the SAS code to the SAS command. The "intern=TRUE"
   # means that we can capture the output in an R variable.
-  system(paste("echo '", sas_code, "' |", sas_command), intern=FALSE)
+  cmd <- paste("echo '", sas_code, "' |", sas_command)
+  system(cmd, intern=FALSE)
 
   temp <-
     read_dta(temp_file) %>%
@@ -70,11 +71,10 @@ rs <- dbExecute(pg, "GRANT SELECT ON iclink TO ibes_access")
 rs <- dbDisconnect(pg)
 
 pg_comment <- function(table, comment) {
-    library(RPostgreSQL)
-    pg <- dbConnect(PostgreSQL())
+    pg <- dbConnect(RPostgres::Postgres())
     sql <- paste0("COMMENT ON TABLE ", table, " IS '",
                   comment, " ON ", Sys.Date() , "'")
-    rs <- dbGetQuery(pg, sql)
+    rs <- dbExecute(pg, sql)
     dbDisconnect(pg)
 }
 
