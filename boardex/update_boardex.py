@@ -35,7 +35,7 @@ def update_schema(schema, wrds_id):
             continue
 
         fix_missing = re.search(regex, table) is not None
-        wrds_update(table_name=table, schema=schema, 
+        wrds_update(table_name=table, schema="boardex", 
                     wrds_id=wrds_id, fix_missing = fix_missing)
 
 schemas = ["boardex_uk","boardex_row", "boardex_eur", "boardex_na"]
