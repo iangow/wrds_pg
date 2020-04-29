@@ -20,4 +20,4 @@ ciq/update_ciq.py
 printf "\nUpdating KLD (kld) ...\n"
 kld/update_kld.sh
 printf "\nUpdating TFN (tfn) ...\n"
-tfn/update_tfn.sh
+tfn/update_tfn.py
