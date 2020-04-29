@@ -11,12 +11,17 @@ CREATE INDEX ON crsp.trading_dates (date);
 CREATE INDEX trading_dates_td_idx ON crsp.trading_dates (td);
 CLUSTER crsp.trading_dates USING trading_dates_td_idx;
 ANALYZE crsp.trading_dates;
+ALTER TABLE crsp.trading_dates OWNER TO crsp;
+GRANT SELECT ON TABLE crsp.trading_dates TO crsp_access;
+
 DROP VIEW IF EXISTS crsp.all_dates;
 
 CREATE VIEW crsp.all_dates AS
 SELECT anncdate::date
 FROM generate_series((SELECT min(date) FROM crsp.trading_dates)::timestamp,
 		(SELECT max(date) FROM crsp.trading_dates), '1 day') AS anncdate;
+ALTER TABLE crsp.all_dates OWNER TO crsp;
+GRANT SELECT ON TABLE crsp.all_dates TO crsp_access;
 
 DROP TABLE IF EXISTS crsp.anncdates;
 
@@ -28,11 +33,10 @@ ON b.date = a.anncdate
 WINDOW w AS (ORDER BY anncdate ROWS BETWEEN CURRENT ROW AND 7 FOLLOWING)
 ORDER BY anncdate;
 
--- CREATE INDEX ON crsp.anncdates (td);
 CREATE INDEX anncdates_anncdate_idx ON crsp.anncdates (anncdate);
--- CREATE INDEX ON crsp.anncdates (date);
 CLUSTER crsp.anncdates USING anncdates_anncdate_idx;
 ANALYZE crsp.anncdates;
 
-SELECT * FROM crsp.anncdates WHERE date IS NULL;
 CREATE INDEX ON crsp.anncdates (anncdate);
+ALTER TABLE crsp.anncdates OWNER TO crsp;
+GRANT SELECT ON TABLE crsp.anncdates TO crsp_access;
