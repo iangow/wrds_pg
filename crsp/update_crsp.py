@@ -250,6 +250,8 @@ wrds_update("msp500list", "crsp")
 wrds_update("ccmxpf_lnkused", "crsp", fix_missing=True)
 # wrds_update("fund_names", "crsp", fix_missing=True)
 
+wrds_update("dsp500", "crsp")
+wrds_update("dsp500p", "crsp")
 wrds_update("msp500", "crsp")
 wrds_update("msp500p", "crsp")
 wrds_update("mcti", "crsp")
