@@ -63,7 +63,7 @@ if secm_updated:
    engine.execute("CREATE INDEX ON comp.secm (gvkey, datadate)")
 
 if secm_updated or company_updated:
-    run_file_sql("create_ciks.sql", engine)
+    run_file_sql("comp/create_ciks.sql", engine)
     sql = "COMMENT ON TABLE comp.ciks IS 'Created using update_comp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
 
     connection = engine.connect()
