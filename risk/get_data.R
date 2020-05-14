@@ -41,7 +41,7 @@ get_comment <- function(libname, datatable) {
   suppressWarnings(contents <- system(paste("echo '", sas_code, "' |", sas_command), intern=TRUE,
                      ignore.stderr = TRUE))
   modified_line <- contents[grepl("^Last Modified", contents)]
-  last_modified_date <- gsub(pattern = "Last Modified\\s+([^A-Z]*)(.*)$", "\\1", modifed_line)
+  last_modified_date <- gsub(pattern = "Last Modified\\s+([^A-Z]*)(.*)$", "\\1", modified_line)
   comment <- trimws(paste0("Last modified: ", last_modified_date))
   return(comment)
 }
