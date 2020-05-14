@@ -2,7 +2,6 @@
 library(DBI)
 library(haven)
 library(dplyr, warn.conflicts = FALSE)
-library(googlesheets)
 
 convertToInteger <- function(vec) {
     # This is a small function that converts numeric vectors to
@@ -20,6 +19,35 @@ fix_names <- function(df) {
   names(df) <- tolower(names(df))
   df
 }
+
+get_comment <- function(libname, datatable) {
+
+  sas_code <- paste("
+    proc contents data=", libname, ".", datatable,";
+    run;", sep="")
+
+  # This command calls SAS on the remote server.
+  # -C means "compress output" ... this seems to have an impact even though we're
+  # using gzip for compression of the CSV file spat out by SAS after it's
+  # been transferred to the local computer (trial and error suggested this was
+  # the most efficient approach).
+  # -stdio means that SAS will take input from STDIN and output to STDOUT
+  wrds_id <- Sys.getenv("WRDS_ID")
+  sas_command <- paste0("ssh -C ", wrds_id, "@wrds-cloud.wharton.upenn.edu ",
+                        "'qsas -stdio -noterminal' ")
+
+  # The following pipes the SAS code to the SAS command. The "intern=TRUE"
+  # means that we can capture the output in an R variable.
+  suppressWarnings(contents <- system(paste("echo '", sas_code, "' |", sas_command), intern=TRUE,
+                     ignore.stderr = TRUE))
+  modified_line <- contents[grepl("^Last Modified", contents)]
+  last_modified_date <- gsub(pattern = "Last Modified\\s+([^A-Z]*)(.*)$", "\\1", modifed_line)
+  comment <- trimws(paste0("Last modified: ", last_modified_date))
+  return(comment)
+}
+
+libname <- "risk"
+datatable <- "rmgovernance"
 
 get_data <- function(libname, datatable) {
 
@@ -79,22 +107,6 @@ fix_data <- function(df) {
                      irrc_issue_code), as.numeric)
 }
 
-# Get data mapping issue codes to categories in Cunat et al. (JF, 2012)
-
-
-# gs_auth()
-gs <- gs_key("1RrNACT_vKo7eT_HngWPhcRGOpJ09Ss4xipdmqsc5yuA")
-
-issue_codes <- gs_read(gs, ws = "issue_codes")
-
-pg <- dbConnect(RPostgres::Postgres())
-
-rs <- dbExecute(pg, "CREATE SCHEMA IF NOT EXISTS risk")
-rs <- dbExecute(pg, "SET search_path TO risk")
-rs <- dbWriteTable(pg, "issue_codes", issue_codes,
-                   row.names=FALSE, overwrite=TRUE)
-rs <- dbDisconnect(pg)
-
 fix_proposals <- function(df) {
     df$issue_code <- as.integer(df$issue_code)
     df$issue_code[df$resolution=="no consulting by auditors"] <-2002L
@@ -111,12 +123,22 @@ replicate <- function(libname, datatable) {
 
     dbWriteTable(pg, datatable, temp,
                  overwrite=TRUE, row.names=FALSE)
+
+    dbExecute(pg, paste0("ALTER TABLE ", datatable, " OWNER TO ", libname))
+
+    comment <- get_comment(libname, datatable)
+    sql <- sprintf('COMMENT ON TABLE "%s"."%s" IS \'%s\'', libname, datatable, comment)
+    dbExecute(pg, sql)
+
+    sql <- sprintf('GRANT SELECT ON "%s"."%s" TO %s_access', libname, datatable, libname)
+    dbExecute(pg, sql)
+
     dbDisconnect(pg)
 }
 
 # replicate("risk", "proposals")
-# replicate("risk", "rmgovernance")
-replicate("risk", "gset")
+replicate("risk", "rmgovernance")
 replicate("risk", "votes")
 replicate("risk", "directors")
+replicate("risk", "rmdirectors")
 
