@@ -136,9 +136,7 @@ replicate <- function(libname, datatable) {
     dbDisconnect(pg)
 }
 
-# replicate("risk", "proposals")
 replicate("risk", "rmgovernance")
 replicate("risk", "votes")
 replicate("risk", "directors")
 replicate("risk", "rmdirectors")
-
