@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 from sqlalchemy import MetaData
 from wrds2pg import wrds_update, run_file_sql, make_engine
+import datetime
 
 engine = make_engine()
 
-avail_years = range(2000, 2020)
+now = datetime.datetime.now()
+avail_years = range(2000, now.year+1)
 
 updated = wrds_update("rp_entity_mapping", "rpna")
 
