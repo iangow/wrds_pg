@@ -54,4 +54,3 @@ wrds_update("issrec", "risk")
 wrds_update("globalvoteresults", "risk")
 wrds_update("gset", "risk")
 wrds_update("votes", "risk")
-

@@ -1,6 +1,3 @@
--- SELECT CURRENT_DATE + s.a AS dates
---   FROM generate_series(0,14,7) as s(a);
--- DROP TABLE IF EXISTS crsp.trading_dates CASCADE;
 DROP TABLE IF EXISTS crsp.trading_dates CASCADE;
 
 CREATE TABLE crsp.trading_dates AS
