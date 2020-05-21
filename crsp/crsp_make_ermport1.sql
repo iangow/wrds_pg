@@ -8,3 +8,8 @@ SELECT c.*, d.decret FROM
 	ON a.permno=b.permno AND extract (year FROM a.date)=b.year) AS c
 INNER JOIN crsp.ermport AS d
 ON c.date=d.date AND c.capn=d.capn;
+
+
+ALTER VIEW crsp.ermport1 OWNER TO crsp;
+
+GRANT SELECT ON crsp.ermport1 TO crsp_access;

@@ -32,6 +32,10 @@ ANALYZE crsp.rets;
 
 RESET work_mem;
 
+ALTER TABLE crsp.rets OWNER TO crsp;
+
+GRANT SELECT ON TABLE crsp.rets TO crsp_access;
+
 -- Create indexes on PERMNO and DATE
 SET maintenance_work_mem='1999MB';
 CREATE INDEX ON crsp.rets (permno);
