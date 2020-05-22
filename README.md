@@ -7,7 +7,7 @@ The code will only work if you have installed `wrds2pg` and have access to WRDS 
 
 ## Requirements
 
-Instrutions setting up `wrds2pg` can be found [here](https://github.com/iangow/wrds2pg/blob/master/README.md).
+Instructions for setting up `wrds2pg` can be found [here](https://github.com/iangow/wrds2pg/blob/master/README.md).
 
 ### 1. R
 
