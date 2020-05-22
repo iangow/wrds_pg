@@ -1,15 +1,13 @@
 Code to import WRDS data to PostgreSQL
 =========
 
-This repository contains code to pull together data from [WRDS](https://wrds-web.wharton.upenn.edu/wrds/).
+This repository contains code to pull together data from [WRDS](https://wrds-web.wharton.upenn.edu/wrds/) primarily using the `wrds2pg` Python package.
 
-The code will only work if you have access to WRDS and to the data in question.
-
-The package used in this repository is available [here](https://github.com/iangow/wrds2pg). 
+The code will only work if you have installed `wrds2pg` and have access to WRDS (and also to the data in question). The `wrds2pg` package is available for installation via `pip` (see [here](https://pypi.org/project/wrds2pg)). 
 
 ## Requirements
 
-Instrcutions of Git, Python, WRDS, PostgreSQL and environment variables settings can be found [here](https://github.com/iangow/wrds2pg/blob/master/README.md).
+Instrutions setting up `wrds2pg` can be found [here](https://github.com/iangow/wrds2pg/blob/master/README.md).
 
 ### 1. R
 
