@@ -6,7 +6,7 @@ engine = make_engine()
 
 updated = wrds_update("g_exrt_dly", "comp")
 
-updated = wrds_update("g_funda", "comp", fix_missing = True, rename="do=do_")
+updated = wrds_update("g_funda", "comp", fix_missing = True)
 if updated:
     engine.execute("CREATE INDEX ON comp.g_funda (gvkey)")
 
@@ -18,7 +18,7 @@ updated = wrds_update("g_security", "comp")
 updated = wrds_update("g_company", "comp")
 
 updated = wrds_update("sec_history", "comp")
-ecupdated = wrds_update("idxcst_his", "comp", rename="from=fromdt")
+updated = wrds_update("idxcst_his", "comp")
 
 updated = wrds_update("anncomp", "comp")
 if updated:
@@ -84,7 +84,7 @@ updated = wrds_update("spind_mth", "comp")
 if updated:
     engine.execute("CREATE INDEX ON comp.spind_mth (gvkey, datadate)")
 
-updated = wrds_update("funda", "comp", fix_missing = True, rename="do=do_")
+updated = wrds_update("funda", "comp", fix_missing = True)
 if updated:
     engine.execute("CREATE INDEX ON comp.funda (gvkey, datadate)")
 
@@ -96,11 +96,11 @@ updated = wrds_update("g_sec_divid", "comp", fix_missing = True)
 if updated:
     engine.execute("CREATE INDEX ON comp.g_sec_divid (gvkey, datadate)")
 
-updated = wrds_update("idxcst_his", "comp", rename="from=fromdt")
-updated = wrds_update("g_idxcst_his", "comp", rename="from=fromdt")
+updated = wrds_update("idxcst_his", "comp")
+updated = wrds_update("g_idxcst_his", "comp")
 updated = wrds_update("names_ix", "comp")
 updated = wrds_update("g_names_ix", "comp")
-updated = wrds_update("idxcst_his", "comp", rename="from=fromdt")
+updated = wrds_update("idxcst_his", "comp")
 
 updated = wrds_update("funda_fncd", "comp")
 if updated:
@@ -122,7 +122,7 @@ updated = wrds_update("sec_divid", "comp", fix_missing = True)
 if updated:
     engine.execute("CREATE INDEX ON comp.g_sec_divid (gvkey, datadate)")
 
-updated = wrds_update("g_idxcst_his", "comp", rename="from=from_dt")
+updated = wrds_update("g_idxcst_his", "comp")
 updated = wrds_update("g_idx_index", "comp")
 updated = wrds_update("g_secnamesd", "comp")
 updated = wrds_update("g_names_ix", "comp")

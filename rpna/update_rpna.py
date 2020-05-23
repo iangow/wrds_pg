@@ -11,7 +11,7 @@ avail_years = range(2000, now.year+1)
 updated = wrds_update("rp_entity_mapping", "rpna")
 
 def update_equities(year):
-    updated = wrds_update("pr_equities_" + str(year), "rpna", rename="group=group_")
+    updated = wrds_update("pr_equities_" + str(year), "rpna")
     if updated:
         engine.execute("CREATE INDEX ON rpna.pr_equities_" + str(year) + " (rp_entity_id, rpna_date_utc)")
     return updated
