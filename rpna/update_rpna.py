@@ -19,7 +19,7 @@ def update_equities(year):
 updated = [ update_equities(year) for year in avail_years]
 
 def select(cols):
-    sql = "SELECT " + ", ".join(cols)
+    sql = 'SELECT "' + '", "'.join(cols) + '"'
     return sql
 
 def get_sql(year, cols):
