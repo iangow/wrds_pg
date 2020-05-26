@@ -4,9 +4,21 @@ from sqlalchemy import Table, MetaData, Boolean
 
 engine = make_engine()
 
-def mod_col(column, schema, table, engine):
+def mod_col_bool(column, schema, table, engine):
     command = "ALTER TABLE " + schema + "." + table + \
               " ALTER COLUMN " + column + " TYPE boolean USING (" + column + "=1)"
+    engine.execute(command)
+    return column
+    
+def mod_col_date(column, schema, table, engine):
+    command = "ALTER TABLE " + schema + "." + table + \
+              " ALTER COLUMN " + column + " TYPE integer USING (" + column + "::date)"
+    engine.execute(command)
+    return column
+
+def mod_col_int(column, schema, table, engine):
+    command = "ALTER TABLE " + schema + "." + table + \
+              " ALTER COLUMN " + column + " TYPE integer USING (" + column + "::integer)"
     engine.execute(command)
     return column
 
@@ -22,19 +34,55 @@ def is_col_to_bool(engine, schema, table):
     col_lst = [col.name for col in columns
                   if col.name.startswith("is_") and not isinstance(col.type, Boolean)]
 
-    modify_lst = [mod_col(col, schema, table, engine) for col in col_lst]
+    modify_lst = [mod_col_bool(col, schema, table, engine) for col in col_lst]
     if modify_lst:
     	print("Columns changed to boolean:", modify_lst)
 
     return modify_lst
     
+def iss_col_to_bool(engine, schema, table):
+    """
+    This function changes type of columns named "iss_" to boolean
+    The table is from PostgreSQL, originally from wrds_id
+    """
+    the_table = Table(table, MetaData(), schema=schema, autoload=True,
+                      autoload_with=engine)
+    columns = the_table.c
+
+    col_lst = [col.name for col in columns
+                  if (col.name.startswith("iss_") or col.name.startswith("aud_")) 
+                        and not isinstance(col.type, Boolean)]
+
+    modify_lst = [mod_col_bool(col, schema, table, engine) for col in col_lst
+                        if col != "iss_other_text"]
+    if modify_lst:
+    	print("Columns changed to boolean:", modify_lst)
+
+    return modify_lst
+
+def col_to_int(engine, schema, table, col_lst=None):   
+    """
+    This function changes provided columns to integer.
+    """
+
+    if col_lst:
+        modify_lst = [mod_col_int(col, schema, table, engine) for col in col_lst]
+    else:
+        print("No columns supplied!")
+        return None
+        
+    if modify_lst:
+    	print("Columns changed to integer:", modify_lst)
+
+    return modify_lst
+
 def col_to_bool(engine, schema, table, col_lst=None):
     """
     This function changes provided columns to boolean.
     """
 
     if col_lst:
-        modify_lst = [mod_col(col, schema, table, engine) for col in col_lst]
+        modify_lst = [mod_col_bool(col, schema, table, engine) for col in col_lst]
     else:
         print("No columns supplied!")
         return None
@@ -44,6 +92,65 @@ def col_to_bool(engine, schema, table, col_lst=None):
 
     return modify_lst
 
+# Auditors
+updated = wrds_update("auditorsinfo", "audit", 
+                      col_types = {"auditor_key": "integer",
+                                   "pcaob_reg_num": "integer",
+                                   "pcaob_app_num": "integer",
+                                  "aud_loc_key": "integer", 
+                                   "eventdate_aud_fkey": "integer", 
+                                   "auditor_pcaob_reg": "boolean"})
+
+# Auditor Changes
+updated = wrds_update("auditchange", "audit", 
+                      col_types = {"auditor_change_key": "integer",
+                                   "dismiss_key": "integer",
+                                   "engaged_auditor_key": "integer",
+                                  "dismissed_gc": "boolean", 
+                                   "dismissed_disagree": "boolean", 
+                                   "auditor_resigned": "boolean",
+                                   "dismiss_pcaob_reg": "boolean",
+                                   "merger": "boolean",
+                                   "is_benefit_plan": "boolean",
+                                   "engaged_auditor_pcaob": "boolean"}, 
+                      drop="match: prior: closest: dismiss_name " + 
+                            "engaged_auditor_name eventdate_aud_name")
+if updated:
+    iss_col_to_bool(engine, "audit", "auditchange")
+
+# Audit Fees
+updated = wrds_update("auditfees", "audit", 
+                      drop="match: prior: closest: auditor_name eventdate_aud_name", 
+                      col_types = {"eventdate_aud_fkey":"integer", 
+                                   "auditor_fkey":"integer", 
+                                   "audit_gig_key":"integer",
+                                   "fiscal_year":"integer",
+                                   "restatement":"boolean",
+                                   "fees_pcaob_reg":"boolean",
+                                   "is_benefit_plan":"boolean"})
+               
+# Audit Fees with Restatements
+updated = wrds_update("auditfeesr", "audit", 
+                      drop="match: prior: closest: auditor_name eventdate_aud_name", 
+                      col_types = {"eventdate_aud_fkey":"integer", 
+                                   "auditor_fkey":"integer", 
+                                   "audit_gig_key":"integer",
+                                   "fiscal_year":"integer",
+                                   "restatement":"boolean",
+                                   "fees_pcaob_reg":"boolean",
+                                   "is_benefit_plan":"boolean"})
+
+# Audit Opinions
+updated = wrds_update("auditopin", "audit",
+                      drop="match: prior: closest:", 
+                      col_types = {"audit_op_key": "integer", 
+                                   "auditor_fkey": "integer",
+                                   "auditor_affil_fkey": "integer",
+                                   "going_concern": "boolean",
+                                   "op_aud_pcaob": "boolean",
+                                   "eventdate_aud_fkey": "integer",
+                                   "fiscal_year_of_op": "integer"})
+exit()                                   
 # Transfer agents
 updated = wrds_update("feed41_transfer_agents", "audit")
 
@@ -223,9 +330,7 @@ if updated:
 
 
 
-updated = wrds_update("auditchange", "audit", drop="matchfy: matchqu: priorfy: priorqu: closestqu: closestfy:")
-if updated:
-    is_col_to_bool(engine, "audit", "auditchange")
+
 
 updated = wrds_update("auditsox404", "audit", drop="closest: match: prior: op_aud_name eventdate_aud_name")
 if updated:
