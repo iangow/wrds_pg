@@ -9,6 +9,8 @@ printf "\nUpdating DealScan (dealscan) ...\n"
 dealscan/update_dealscan.py
 printf "\nUpdating IBES (ibes) ...\n"
 ibes/update_ibes.py
+printf "\nUpdating ISS voting (risk) ...\n"
+risk/update_issvoting.py
 printf "\nUpdating KLD (kld) ...\n"
 kld/update_kld.sh
 printf "\nUpdating MFLINKS (mflinks) ...\n"
