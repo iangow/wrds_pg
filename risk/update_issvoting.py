@@ -54,3 +54,27 @@ wrds_update("issrec", "risk")
 wrds_update("globalvoteresults", "risk")
 wrds_update("gset", "risk")
 wrds_update("votes", "risk")
+
+engine = make_engine()
+
+# df = wrds_update("msi", "crsp", wrds_id="iangow", force=True)
+# df = wrds_to_pandas("proposals", "risk", wrds_id="iangow") #, force=True)
+updated = wrds_update("rmgovernance", "risk", 
+                      col_types={'company_id':'float8'})
+if updated:
+    engine.execute("ALTER TABLE risk.rmgovernance ALTER COLUMN " +
+                       "company_id TYPE integer USING company_id::integer")
+
+updated = wrds_update("directors", "risk",
+                      col_types={'year_term_ends': 'float8',
+                                 'voting': 'float8',
+                                 'votecref':'float8',
+                                 'outside_public_boards':'text'})
+
+updated = wrds_update("votes", "risk")
+
+updated = wrds_update("rmdirectors", "risk", 
+                      col_types={'company_id':'float8'})
+if updated:
+    engine.execute("ALTER TABLE risk.rmdirectors ALTER COLUMN " +
+                       "company_id TYPE integer USING company_id::integer")
