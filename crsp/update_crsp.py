@@ -141,8 +141,6 @@ if dsi:
     except:
         trans.rollback()
         raise
-    engine.execute("CREATE INDEX ON crsp.dsi (date)")
-    run_file_sql("make_trading_dates.sql", engine)
 
 dsedelist = wrds_update("dsedelist", "crsp", fix_missing=True)
 if dsedelist:
