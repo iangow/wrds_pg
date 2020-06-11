@@ -18,9 +18,10 @@ engine = make_engine()
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77140
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77137
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77147
-tfz_idx = wrds_update("tfz_idx", "crsp", fix_missing=True)
-tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", fix_missing=True)
-if tfz_idx or tfz_dly_ft:
+# tfz_idx = wrds_update("tfz_idx", "crsp", keep="kytreasnox, tidxfam, ttermtype")
+# fix_missing=True)
+    # tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", fix_missing=True)
+if False: # tfz_idx or tfz_dly_ft:
 
     sql = """
         DROP TABLE IF EXISTS crsp.tfz_ft;
