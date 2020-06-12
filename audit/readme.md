@@ -18,7 +18,24 @@ The University of Melbourne only has subscriptions to the first two sets of data
 ## Audit and Compliance
 
 The 14 tables provided by WRDS in this data set are listed below (with the WRDS table names listed in parentheses).
+
+- Auditors (`auditorsinfo`)
+- Auditor Changes (`auditchange`)
+- Audit Fees (`auditfees`)
+- Audit Fees with Restatements (`auditfeesr`)
+- Audit Opinions (`auditopin`)
+- Revised Audit Opinions (`revauditopin`)
+- Benefit Plan Opinions (`benefit`)
+- Current Auditors (`auditors`)
+- Non-Reliance Restatements (`auditnonreli`)
+- SOX 302 Disclosure Controls (`auditsox302`)
+- SOX 404 Internal Controls (`auditsox402`)
+- Accelerated Filer (`accfiler`)
+- Director and Officer Changes (`diroffichange`)
+- Non-timely Filer Information And Analysis (`nt`)
+
 In each case, the MCCGR database includes a table with the same name, but in general we do not include *all* variables that provided in the WRDS version of the table.
+Discussion of the changes we make are given below.
 
 ### Omission of financial variables
 
@@ -205,17 +222,4 @@ Because the `auditor_name` appears on `auditors`, it is redundant to include the
 So we have deleted it from many tables.
 Simply join the table with `auditors` using `auditor_key` to recover this variable.
 
-- Auditors (`auditorsinfo`)
-- Auditor Changes (`auditchange`)
-- Audit Fees (`auditfees`)
-- Audit Fees with Restatements (`auditfeesr`)
-- Audit Opinions (`auditopin`)
-- Revised Audit Opinions (`revauditopin`)
-- Benefit Plan Opinions (`benefit`)
-- Current Auditors (`auditors`)
-- Non-Reliance Restatements (`auditnonreli`)
-- SOX 302 Disclosure Controls (`auditsox302`)
-- SOX 404 Internal Controls (`auditsox402`)
-- Accelerated Filer (`accfiler`)
-- Director and Officer Changes (`diroffichange`)
-- Non-timely Filer Information And Analysis (`nt`)
+
