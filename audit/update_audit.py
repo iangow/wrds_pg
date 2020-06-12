@@ -313,23 +313,7 @@ updated = wrds_update("diroffichange", "audit",
 
 updated = wrds_update("diroffichange", "audit", 
                       keep="ftp_file_fkey do_change_text3",
-                      alt_table_name="diroffichange_text3")                     
-
-updated = wrds_update("feed17change", "audit")
-if updated:
-    engine.execute("""
-        ALTER TABLE audit.feed17change
-        ALTER COLUMN director_officer_change_key TYPE integer""")
-        
-    engine.execute("""
-        ALTER TABLE audit.feed17change
-        RENAME COLUMN director_officer_change_key TO do_change_key""")
-    is_col_to_bool(engine, "audit", "feed17change")
-
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON audit.feed17change (do_change_key)")  
-
-updated = wrds_update("feed17del", "audit")
+                      alt_table_name="diroffichange_text3")
 
 # Non-timely Filer Information And Analysis
 # Partially working; need to add part4_3_text* columns
