@@ -206,8 +206,7 @@ if updated:
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON audit.auditnonreli (res_notif_key)")
     
-
-    
+# SOX 302 Disclosure Controls   
 updated = wrds_update("auditsox302", "audit",
                       drop="prior: match: closest: ic_dc_text:", 
                       col_types = {"ic_dc_key": "integer", 
@@ -246,6 +245,7 @@ updated = wrds_update("auditsox302", "audit",
                       alt_table_name="auditsox302_text",
                       col_types = {"ic_dc_key": "integer"})
 
+# SOX 404 Internal Controls
 updated = wrds_update("auditsox404", "audit",
                       drop="prior: match: closest: ic_text:",
                         col_types = {"ic_op_fkey": "integer",
@@ -304,28 +304,16 @@ if updated:
     engine.execute("CREATE INDEX ON audit.diroffichange (do_off_pers_key)")
     
 updated = wrds_update("diroffichange", "audit", 
-                      keep="do_off_pers_key do_change_text1",
-                      col_types = {"do_off_pers_key": "integer"},
+                      keep="ftp_file_fkey do_change_text1",
                       alt_table_name="diroffichange_text1")
-if updated:                      
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON audit.diroffichange_text1 (do_off_pers_key)")            
 
 updated = wrds_update("diroffichange", "audit", 
-                      keep="do_off_pers_key do_change_text2",
-                      col_types = {"do_off_pers_key": "integer"},
+                      keep="ftp_file_fkey do_change_text2",
                       alt_table_name="diroffichange_text2")
-if updated:                      
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON audit.diroffichange_text2 (do_off_pers_key)")                      
 
 updated = wrds_update("diroffichange", "audit", 
-                      keep="do_off_pers_key do_change_text3",
-                      col_types = {"do_off_pers_key": "integer"},
+                      keep="ftp_file_fkey do_change_text3",
                       alt_table_name="diroffichange_text3")                     
-if updated:                      
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON audit.diroffichange_text3 (do_off_pers_key)")
 
 updated = wrds_update("feed17change", "audit")
 if updated:
