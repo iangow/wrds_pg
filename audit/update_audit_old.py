@@ -92,9 +92,6 @@ def col_to_bool(engine, schema, table, col_lst=None):
 
     return modify_lst                                
 
-# Transfer agents
-updated = wrds_update("feed41_transfer_agents", "audit")
-
 updated = wrds_update("feed09tocat", "audit")
 if updated:
     engine.execute("ALTER TABLE audit.feed09tocat ALTER res_notify_key TYPE integer")
@@ -125,11 +122,6 @@ updated = wrds_update("feed09cat", "audit")
 updated = wrds_update("feed25person", "audit")
 updated = wrds_update("namesauditorsinfo", "audit")
 
-# Partially working; need to add part4_3_text* columns
-updated = wrds_update("nt", "audit", drop="match: closest: prior: part4_3_text:")
-updated = wrds_update("nt", "audit", keep="nt_notify_key part4_3_text1",
-                      alt_table_name = "nt_part4_3_text")
-
 updated = wrds_update("bankrupt", "audit", drop="match: closest: prior:")
 if updated:
     engine.execute("""
@@ -139,14 +131,6 @@ if updated:
         ALTER TABLE audit.bankrupt
             ALTER COLUMN court_type_code TYPE integer USING court_type_code::integer;
         ALTER TABLE audit.bankrupt ALTER COLUMN eventdate_aud_fkey TYPE integer;""")
-
-
-
-
-
-updated = wrds_update("sholderact", "audit")
-
-
 
 updated = wrds_update("feed13cat", "audit")
 
@@ -213,32 +197,5 @@ if updated:
         ALTER TABLE audit.feed14party ALTER COLUMN is_creditor TYPE boolean USING is_creditor=1;
         ALTER TABLE audit.feed14party ALTER COLUMN been_terminated TYPE boolean USING been_terminated=1;
     """)
-
-
-
-
-
-updated = wrds_update("auditsox404", "audit", drop="closest: match: prior: op_aud_name eventdate_aud_name")
-if updated:
-    is_col_to_bool(engine, "audit", "auditsox404")
-
-updated = wrds_update("auditsox404", "audit", keep="auditor_fkey op_aud_name",
-                      alt_table_name="sox404_auditors")
-updated = wrds_update("auditsox404", "audit", keep="eventdate_aud_fkey eventdate_aud_name",
-                      alt_table_name="sox404_event_auditors")
-
-# eventdate_aud_name          
-updated = wrds_update("auditsox302", "audit", 
-                      drop="match: prior: closest: ic_dc_text:")
-if updated:
-    engine.execute("""
-        ALTER TABLE audit.auditsox302
-        ALTER COLUMN is_effective TYPE integer USING is_effective::integer""")
-    is_col_to_bool(engine, "audit", "auditsox302")
-
-updated = wrds_update("auditlegal", "audit", drop="closest: match: prior:")
-if updated:
-     # Takes a lot of time
-    is_col_to_bool(engine, "audit", "auditlegal")
 
 engine.dispose()
