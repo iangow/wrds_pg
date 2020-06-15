@@ -21,6 +21,7 @@ This manual includes step by step instructions on how to set up a PostgreSQL dat
 -	In the prompt “System Properties-Advanced” tab, click “Environment Variables”;
 -	In the prompt “Environment Variables” window, under “System variables”, click “New”;
 -	In the prompt “New System Variable” window, type in a pair of variable name and variable value, and click “OK” one by one. Then click “OK” again to save changes. For example, to use the python wrds2pg package, we type in the following pairs one by one (4 times):
+
 |     variable name    |     variable value                                                                                                                     |
 |----------------------|----------------------------------------------------------------------------------------------------------------------------------------|
 |     PGDATABASE       |     The name of the PostgreSQL database you use                                                                                        |
