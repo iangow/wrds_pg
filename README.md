@@ -7,7 +7,7 @@ The code will only work if you have installed `wrds2pg` and have access to WRDS 
 
 ## Requirements
 
-Instructions for setting up `wrds2pg` in Linux or Mac can be found [here](https://github.com/iangow/wrds2pg/blob/master/README.md). Step by step instructions to install and use `wrds2pg` package in Windows 10 can be found [here](https://github.com/mccgr/wrds_pg/blob/master/Use_wrds2pg_in_Windows.md).
+Step by step instructions to install and use `wrds2pg` package in Linux or Mac can be found [here](https://github.com/iangow/wrds2pg/blob/master/README.md), in Windows 10 can be found [here](https://github.com/mccgr/wrds_pg/blob/master/Use_wrds2pg_in_Windows.md).
 
 ### 1. R
 
