@@ -68,22 +68,21 @@ True
 >>>
 ```
 
-
 ## Data sets covered
 
 - [Audit Analytics](audit/readme.md) (`audit`)
-- [BoardEx]
-- [Capital IQ]
-- [Compustat]
-- [CRSP]
-- [CUSIP]
-- [DealScan]
-- [IBES]
-- [KLD]
-- [MFLINKs]
-- [ISS]
-- [RavenPack]
-- [TFN]
+- [BoardEx](boardex/readme.md) (`boardex`)
+- [Capital IQ](boardex/readme.md) (`boardex`)
+- [Compustat](comp/readme.md) (`comp`)
+- [CRSP](crsp/readme.md) (`crsp`)
+- [CUSIP](cusipm/readme.md) (`cusipm`)
+- [DealScan](dealscan/readme.md) (`dealscan`)
+- [IBES](ibes/readme.md) (`ibes`)
+- [KLD](kld/readme.md) (`kld`)
+- [MFLINKs](mflinks/readme.md) (`mflinks`)
+- [ISS](risk/readme.md) (`risk`)
+- [RavenPack](rpna/readme.md) (`rpna`)
+- [Thomson Reuters](tfn/readme.md) (`tfn`)
 
 ## Requirements
 
