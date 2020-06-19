@@ -72,7 +72,7 @@ True
 
 - [Audit Analytics](audit/readme.md) (`audit`)
 - [BoardEx](boardex/readme.md) (`boardex`)
-- [Capital IQ](boardex/readme.md) (`boardex`)
+- [Capital IQ](ciq/readme.md) (`ciq`)
 - [Compustat](comp/readme.md) (`comp`)
 - [CRSP](crsp/readme.md) (`crsp`)
 - [CUSIP](cusipm/readme.md) (`cusipm`)
