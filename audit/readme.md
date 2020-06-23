@@ -1,24 +1,19 @@
-# Audit Analytics (`audit`)
+# Audit Analytics (`audit`[/wrds/audit/sasdata/ ])
 
-Audit Analytics contains the severals data sets.
-Unfortunately, the tables provided by WRDS are a complete mess and the data are often not well formatted.
-One particular issue is that the tables are very much *not* normalized.
-So there is a lot of duplicated data and tables are loaded with extraneous information.
+## Introduction
+[Audit Analytics](https://www.auditanalytics.com/) "is an independent research provider of audit, regulatory and disclosure intelligence. Audit Analytics provides detailed data on over 150,000 active audits and more than 10,000 accounting firms." Please refer to the [Manuals and Overviews](https://wrds-www.wharton.upenn.edu/pages/support/manuals-and-overviews/audit-analytics/) or download a [zip file](https://github.com/mccgr/wrds_pg/blob/master/audit/AuditAnalyticsManuals.zip?raw=true) to view the data structures and variable definitions of Audit Analytics via WRDS.
 
+## List of datasets imported
 Audit Analytics comprises five sets of data:
-
 1. Audit and Compliance
 2. Corporate and Legal
 3. Accounting and Oversight
 4. Other Independent Audit
 5. Canada (SEDAR)
 
-The University of Melbourne only has subscriptions to the first two sets of data
+The University of Melbourne currently has subscriptions to the first two sets of data, out of which we import the following 14 tables (with the WRDS table names listed in parentheses).
 
-## Audit and Compliance
-
-The 14 tables provided by WRDS in this data set are listed below (with the WRDS table names listed in parentheses).
-
+### Audit and Compliance
 - Auditors (`auditorsinfo`)
 - Auditor Changes (`auditchange`)
 - Audit Fees (`auditfees`)
@@ -34,13 +29,16 @@ The 14 tables provided by WRDS in this data set are listed below (with the WRDS 
 - Director and Officer Changes (`diroffichange`)
 - Non-timely Filer Information And Analysis (`nt`)
 
-In each case, the MCCGR database includes a table with the same name, but in general we do not include *all* variables that provided in the WRDS version of the table.
-Discussion of the changes we make are given below.
+In each case, the MCCGR database includes a table with the same name, but in general, we do not include *all* variables provided in the WRDS version of the table. A detailed discussion of the changes we make is given in the next section.
+
+## Issues identified and fixed
+
+While Audit Analytics provides comprehensive data, the tables provided by WRDS, unfortunately, are a complete mess and the data are often not well-formatted. One particular issue is that the tables are very much *not* normalized. So there is a lot of duplicated data and tables are loaded with extraneous information. Also, some textual variables are split across a number of columns, and some textual data is placed in separate tables. We identified and fixed the following three issues.
 
 ### Omission of financial variables
 
 Specifically, the WRDS tables often include variables from the "company financial block", which are financial statement variables such as net income or total assets for the "`closest`", "`match`", "`hiwater`", or "`prior`" periods (either quarters [`qu`] or years [`yr`]).
-These variables expand the size of the tables dramatically and their provenance is unclear (likely scraped from SEC filings, which the main source for Audit Analytics data).
+These variables expand the size of the tables dramatically, and their provenance is unclear (likely scraped from SEC filings, which are the primary source for Audit Analytics data).
 Also, the meaning of the terms "`closest`", "`match`", "`hiwater`", and "`prior`" is unclear and the data are very poorly documented on WRDS.
 So, we simply omit these variables when importing the data.
 
@@ -48,7 +46,7 @@ So, we simply omit these variables when importing the data.
 
 Several tables include fields with the text (or portions of the text) of the underlying SEC filings.
 Presumably due to constraints on field size in SAS, these text variables are split into a number of columns.
-For example, the text in filings related to rows in `diroffichange` is found in `do_change_text1`, `do_change_text2`, and `do_change_text3`. It is likely that pasting `do_change_text1`, `do_change_text2`, and `do_change_text3` back together, one gets the original text that was fed to WRDS by Audit Analytics.
+For example, the text in filings related to rows in `diroffichange` is found in `do_change_text1`, `do_change_text2`, and `do_change_text3`. It is likely that by pasting `do_change_text1`, `do_change_text2`, and `do_change_text3` back together, one gets the original text that was fed to WRDS by Audit Analytics.
 
 In addition to the data being split across a number of columns, the textual data often causes problems in importing tables.
 For this reason, often the textual data is placed in a separate table from the other data (and in some cases, a number of separate tables).
@@ -60,6 +58,17 @@ Separate text tables are provided for the following tables:
 - `auditsox404`: `auditsox404_text1`, `auditsox404_text2`
 - `diroffichange`: `diroffichange_text1`, `diroffichange_text2`, `diroffichange_text3`  
 - `nt`: `nt_text1`, `nt_text2`, `nt_text3` 
+
+### Omission of auditor names from some tables
+
+The WRDS tables include auditor names as well as an auditor key (i.e., `auditor_key` as found on `auditorsinfo`).
+Because the `auditor_name` appears on `auditors`, it is redundant to include the same information on each table in which `auditor_key` appears. 
+So we have deleted it from many tables.
+Simply join the table with `auditors` using `auditor_key` to recover this variable.
+
+## Sample code
+
+### Merge tables and combine textual variables for `auditsox404`
 
 Here is some code illustrating how to merge the tables and combine the textual variables (in this case, for `auditsox404` data).
 
@@ -101,6 +110,8 @@ auditsox404_text
 ```
 
 <sup>Created on 2020-06-12 by the [reprex package](https://reprex.tidyverse.org) (v0.3.0)</sup>
+
+### Combine textual variables for `diroffichange`
 
 And here is similar code for `diroffichange` text variables.
 Note that there is a lot of duplication in the underlying table, as one filing may relate to multiple
@@ -152,6 +163,8 @@ diroffichange_text
 ```
 
 <sup>Created on 2020-06-12 by the [reprex package](https://reprex.tidyverse.org) (v0.3.0)</sup>
+
+### Combine textual variables for `nt`
 
 Finally, the text associated with `nt` is a bit different, as most rows have no data (so a `LEFT JOIN` might be needed here):
 
@@ -215,11 +228,5 @@ nt_text %>% count()
 
 <sup>Created on 2020-06-12 by the [reprex package](https://reprex.tidyverse.org) (v0.3.0)</sup>
 
-### Omission of auditor names from some tables
-
-The WRDS tables include auditor names as well as an auditor key (i.e., `auditor_key` as found on `auditorsinfo`).
-Because the `auditor_name` appears on `auditors`, it is redundant to include the same information on each table in which `auditor_key` appears. 
-So we have deleted it from many tables.
-Simply join the table with `auditors` using `auditor_key` to recover this variable.
 
 
