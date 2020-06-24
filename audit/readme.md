@@ -1,4 +1,6 @@
-# Audit Analytics (`audit`[/wrds/audit/sasdata/ ])
+# Audit Analytics
+
+Data found in `audit` data library on WRDS (`/wrds/audit/sasdata/` on SAS server)
 
 ## Introduction
 [Audit Analytics](https://www.auditanalytics.com/) "is an independent research provider of audit, regulatory and disclosure intelligence. Audit Analytics provides detailed data on over 150,000 active audits and more than 10,000 accounting firms." Please refer to the [Manuals and Overviews](https://wrds-www.wharton.upenn.edu/pages/support/manuals-and-overviews/audit-analytics/) or download a [zip file](https://github.com/mccgr/wrds_pg/blob/master/audit/AuditAnalyticsManuals.zip?raw=true) to view the data structures and variable definitions of Audit Analytics via WRDS.
@@ -11,9 +13,12 @@ Audit Analytics comprises five sets of data:
 4. Other Independent Audit
 5. Canada (SEDAR)
 
-The University of Melbourne currently has subscriptions to the first two sets of data, out of which we import the following 14 tables (with the WRDS table names listed in parentheses).
+The University of Melbourne currently has subscriptions to the first two sets of data
 
 ### Audit and Compliance
+
+This comprises 14 tables (table names listed in parentheses):
+
 - Auditors (`auditorsinfo`)
 - Auditor Changes (`auditchange`)
 - Audit Fees (`auditfees`)
@@ -28,6 +33,23 @@ The University of Melbourne currently has subscriptions to the first two sets of
 - Accelerated Filer (`accfiler`)
 - Director and Officer Changes (`diroffichange`)
 - Non-timely Filer Information And Analysis (`nt`)
+
+### Corporate and Legal
+
+This comprises 12 tables (table names listed in parentheses):
+
+ - Legal Case And Legal Parties (`auditlegal`)
+ - Mergers and Acquisitions (`feed18_merger_acquisition`)
+ - IPO (`ipo`)
+ - Bankruptcy Notification (`bankrupt`)
+ - Comment Letter (`commlett`)
+ - Comment Letter Conversations (`commlettconv`) 
+ - Comment Threading (`commlettthreads`)
+ - Transfer Agents (`feed41_transfer_agents`)
+ - Tax Footnotes (`taxfootnt`)
+ - Shareholder Activism (`sholderact`)
+ - Form D (`formd`)
+ - Form D Most Recent Report (`formdmro`)
 
 In each case, the MCCGR database includes a table with the same name, but in general, we do not include *all* variables provided in the WRDS version of the table. A detailed discussion of the changes we make is given in the next section.
 
