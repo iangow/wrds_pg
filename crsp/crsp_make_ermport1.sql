@@ -9,7 +9,6 @@ SELECT c.*, d.decret FROM
 INNER JOIN crsp.ermport AS d
 ON c.date=d.date AND c.capn=d.capn;
 
-
 ALTER VIEW crsp.ermport1 OWNER TO crsp;
 
 GRANT SELECT ON crsp.ermport1 TO crsp_access;
