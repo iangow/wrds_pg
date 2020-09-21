@@ -13,7 +13,7 @@ hist_long <-
   mutate(year = as.integer(year),
          ticker = if_else(ticker == "#N/A", NA_character_, ticker),
          cusip = if_else(cusip == "0", NA_character_, cusip)) %>%
-  filter(!is.na(ticker) | !is.na(cusip) | !is.na(companyid)) %>%
+  filter(!is.na(ticker) | !is.na(cusip) | !is.na(legacy_companyid)) %>%
   pivot_longer(cols = matches("_(str|con)_"),
                names_to = c("category", "type", "label"),
                names_sep = "_")
