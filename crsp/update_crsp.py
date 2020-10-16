@@ -18,10 +18,16 @@ engine = make_engine()
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77140
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77137
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77147
-# tfz_idx = wrds_update("tfz_idx", "crsp", keep="kytreasnox, tidxfam, ttermtype")
-# fix_missing=True)
-    # tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp", fix_missing=True)
-if False: # tfz_idx or tfz_dly_ft:
+tfz_idx = wrds_update("tfz_idx", "crsp", force=True,
+                      col_types = {'kytreasnox':'integer', 
+                                   'ttermtype':'integer',
+                                   'rdtreasno':'integer'})
+tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp",
+            col_types = {'tdyearstm':'float8', 'tdduratn':'float8',
+                         'tdytm':'float8', 'tdbid':'float8',
+                         'tdask':'float8', 'tdnomprc':'float8',
+                         'tdaccint':'float8', 'tdretadj':'float8'})
+if tfz_idx or tfz_dly_ft:
 
     sql = """
         DROP TABLE IF EXISTS crsp.tfz_ft;
@@ -33,9 +39,6 @@ if False: # tfz_idx or tfz_dly_ft:
         USING (kytreasnox))
         """
     engine.execute(sql)
-    engine.execute("ALTER TABLE crsp.tfz_ft ALTER kytreasnox TYPE integer")
-    engine.execute("ALTER TABLE crsp.tfz_ft ALTER ttermtype TYPE integer")
-    engine.execute("ALTER TABLE crsp.tfz_ft ALTER rdtreasno TYPE integer")
     engine.execute("ALTER TABLE crsp.tfz_ft OWNER TO crsp")
     engine.execute("GRANT SELECT ON crsp.tfz_ft TO crsp_access")
     # Add comments
