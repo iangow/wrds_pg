@@ -1,5 +1,27 @@
- CREATE OR REPLACE FUNCTION risk.extract_name(text)
-  RETURNS parsed_name AS
+DO $$
+BEGIN
+IF NOT EXISTS (
+    SELECT 1
+    FROM pg_type a
+    INNER JOIN pg_namespace b
+    ON a.typnamespace=b.oid
+    WHERE typname = 'parsed_name' AND nspname = 'risk') THEN
+
+    CREATE TYPE risk.parsed_name AS
+        (
+        	prefix text,
+        	first_name text,
+        	middle_initial text,
+        	last_name text,
+        	suffix text);
+END IF;
+END$$;
+
+ALTER TYPE risk.parsed_name
+    OWNER TO risk;
+
+CREATE OR REPLACE FUNCTION risk.extract_name(text)
+  RETURNS risk.parsed_name AS
 $BODY$
     my $first_name;
     my $last_name;
@@ -109,3 +131,5 @@ $BODY$
 $BODY$
   LANGUAGE plperl VOLATILE
   COST 100;
+
+ALTER FUNCTION risk.extract_name(text) OWNER TO risk;
