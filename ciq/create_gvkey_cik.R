@@ -1,77 +1,40 @@
-# This code creates cik-gvkey link table using Capital IQ for executives.ciks matches.
-# It uses manually verified cik-gvkey links created by analyze_cik_gvkey.R
-library(dplyr, warn.conflicts = TRUE)
-library(RPostgreSQL)
+library(dplyr, warn.conflicts = FALSE)
+library(DBI)
 
-# Download data ----
-pg <- dbConnect(PostgreSQL())
-dbGetQuery(pg, "SET search_path='ciq'")
+pg <- dbConnect(RPostgres::Postgres())
 
-wrds_cik <- tbl(pg, "wrds_cik")
-wrds_gvkey <- tbl(pg, "wrds_gvkey")
+rs <- dbExecute(pg, "SET search_path TO ciq, public")
+rs <- dbExecute(pg, "SET work_mem TO '10GB'")
 
-# Equilar fy_end range useful for reconciling name changes
-start <-
-    wrds_cik %>%
-    summarize(start = min(startdate, na.rm=TRUE)) %>%
-    pull()
+ciqfininstance <- tbl(pg, "ciqfininstance")
+ciqfinperiod <- tbl(pg, "ciqfinperiod")
+ciqgvkeyiid <- tbl(pg, "ciqgvkeyiid")
 
-end <-
-    wrds_cik %>%
-    summarize(end = max(enddate, na.rm=TRUE)) %>%
-    pull()
+company <- tbl(pg, sql("SELECT * FROM comp.company"))
+filings <- tbl(pg, sql("SELECT * FROM edgar.filings"))
+accession_numbers <- tbl(pg, sql("SELECT * FROM edgar.accession_numbers"))
 
-# Capital IQ cik
-wrds_ciks <-
-    wrds_cik %>%
-    group_by(companyid, cik) %>%
-    mutate(startdate = coalesce(startdate, start),
-           enddate = coalesce(enddate, end)) %>%
-    summarize(startdate = min(startdate, na.rm = TRUE),
-              enddate = max(enddate, na.rm = TRUE)) %>%
-    mutate(cik = as.integer(cik)) %>%
+ciq_data <-
+    ciqfininstance %>%
+    inner_join(ciqfinperiod, by = "financialperiodid") %>%
+    inner_join(ciqgvkeyiid, by=c("companyid"="relatedcompanyid"))
+
+ciq_acc_nos <-
+    ciq_data %>%
+    filter(!is.na(accessionnumber)) %>%
+    distinct(gvkey, iid, accessionnumber) %>%
     compute()
 
-wrds_ciks_matched <-
-    wrds_ciks %>%
-    select(companyid, cik, startdate, enddate) %>%
-    distinct() %>%
-    compute()
+rs <- dbExecute(pg, "DROP TABLE IF EXISTS gvkey_ciks")
 
-# Capital IQ gvkey
-wrds_gvkeys <-
-    wrds_gvkey %>%
-    group_by(companyid, gvkey) %>%
-    mutate(startdate = coalesce(startdate, start),
-           enddate = coalesce(enddate, end)) %>%
-    summarize(startdate = min(startdate, na.rm = TRUE),
-              enddate = max(enddate, na.rm = TRUE)) %>%
-    compute()
+gvkey_ciks <-
+    ciq_acc_nos %>%
+    inner_join(accession_numbers, by = "accessionnumber") %>%
+    inner_join(filings, by = "file_name") %>%
+    group_by(gvkey, iid, cik) %>%
+    summarize(first_date = min(date_filed, na.rm = TRUE),
+              last_date = max(date_filed, na.rm = TRUE)) %>%
+    compute(name = "gvkey_ciks", temporary = FALSE)
 
-dbGetQuery(pg, "DROP TABLE IF EXISTS gvkey_cik")
-
-cik_gvkey_wrds <-
-    wrds_ciks_matched %>%
-    inner_join(wrds_gvkeys,
-              by = "companyid",
-              suffix = c("_cik", "_gvkey")) %>%
-    group_by(cik, gvkey) %>%
-    filter(!(enddate_gvkey < startdate_cik | enddate_cik < startdate_gvkey)) %>%
-    # cik--gvkey link period
-    mutate(first_date = greatest(startdate_cik, startdate_gvkey),
-           last_date = least(enddate_cik, enddate_gvkey)) %>%
-    select(gvkey, cik, first_date, last_date) %>%
-    distinct() %>%
-    compute(name = "gvkey_cik", temporary = FALSE)
-
-dbGetQuery(pg, "ALTER TABLE gvkey_cik OWNER TO ciq")
-dbGetQuery(pg, "GRANT SELECT ON TABLE gvkey_cik TO ciq_access")
-
-comment <- 'CREATED USING ciq/create_gvkey_cik.R'
-sql <- paste0("COMMENT ON TABLE gvkey_cik IS '",
-              comment, " ON ", Sys.time() , "'")
-rs <- dbGetQuery(pg, sql)
-
-dbDisconnect(pg)
-
-
+rs <- dbExecute(pg, "ALTER TABLE gvkey_ciks OWNER TO ciq")
+rs <- dbExecute(pg, "GRANT SELECT ON TABLE gvkey_ciks TO ciq_access")
