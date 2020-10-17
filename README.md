@@ -40,15 +40,15 @@ Another sign of the SAS data provenance of WRDS's PostgreSQL data is the retenti
 In contrast, the `wrds2pg` Python library examines the SAS data sets and attempts to infer the appropriate data type for each field.
 So integers are stored as `integer` and dates are stored as `date`.
 Inferring type relies on formatting in the SAS data files, and WRDS is very inconsistent in how carefully data sets are formatted.
-As a result, some times it's necessary to manually specify datatypes, which are inferred by visual inspection of the data or background information (e.g., we know that PERMNOs are integers).
+As a result, some times it's necessary to manually specify data types, which are inferred by visual inspection of the data or background information (e.g., we know that PERMNOs are integers).
 
 Another advantage of using the SAS data files is that they include information about when they were last modified. 
-The `wrds2pg` package uses this information is do updates if and only if necessary.
+The `wrds2pg` package uses this information to do updates if and only if necessary.
 This makes maintaining a local subset of WRDS much easier.
 
 Finally, the `wrds2pg` package is *fast*. 
 I don't think one could match the performance of the `wrds2pg` package, which uses data compression and PostgreSQL's `COPY` function to import data.
-For example, downloading the 530MB `vavotesresult.sas7bdat` file in the `risk` library takes 63 seconds.
+For example, merely downloading the 530MB `vavotesresult.sas7bdat` file in the `risk` library takes 63 seconds.
 In contrast, `wrds2pg` takes **9 seconds**!
 
 ```python
@@ -70,19 +70,28 @@ True
 
 ## Data sets covered
 
-- [Audit Analytics](audit/readme.md) (`audit`)
-- [BoardEx](boardex/readme.md) (`boardex`)
-- [Capital IQ](ciq/readme.md) (`ciq`)
+- [Audit Analytics](audit/readme.md) (`audit`)\*
+- [BoardEx](boardex/readme.md) (`boardex`)\*
+- [Capital IQ](ciq/readme.md) (`ciq`)\*
 - [Compustat](comp/readme.md) (`comp`)
-- [CRSP](crsp/readme.md) (`crsp`)
+- [CRSP](crsp/readme.md) (`crsp`)\*
 - [CUSIP](cusipm/readme.md) (`cusipm`)
-- [DealScan](dealscan/readme.md) (`dealscan`)
-- [IBES](ibes/readme.md) (`ibes`)
-- [KLD](kld/readme.md) (`kld`)
-- [MFLINKs](mflinks/readme.md) (`mflinks`)
-- [ISS](risk/readme.md) (`risk`)
-- [RavenPack](rpna/readme.md) (`rpna`)
-- [Thomson Reuters](tfn/readme.md) (`tfn`)
+- [DealScan](dealscan/readme.md) (`dealscan`)\*
+- Fama-French (`ff`)\*
+- [IBES](ibes/readme.md) (`ibes`)\*
+- [KLD](kld/readme.md) (`kld`)\*
+- [MFLINKs](mflinks/readme.md) (`mflinks`)\*
+- [ISS](risk/readme.md) (`risk`)\*
+- [RavenPack](rpna/readme.md) (`rpna`)\*
+- [Thomson Reuters](tfn/readme.md) (`tfn`)\*
+- WRDS SEC Analytics (`wrdssec`)\*
+
+Most of the schemas above (those indicated by \*) can be updated by running the script `upload_wrds.sh`.
+Exceptions are:
+
+- Compustat (`comp`): Because of the size of this data set and the frequency with which it is updated (daily), updates for this one are only triggered by running `comp/update_comp.py`.
+- ISS Voting Analytics (`risk`): The script `risk/update_risk.py` updates two data sets (`risk.voteanalysis_npx` and `risk.proposals`) to which I don't currently have access.
+
 
 ## Requirements
 
