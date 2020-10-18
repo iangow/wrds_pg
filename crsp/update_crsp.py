@@ -8,7 +8,7 @@ from time import gmtime, strftime
 engine = make_engine()
 
 # Update Treasury yield table crsp.tfz_ft
-# From wrds:
+# From WRDS:
 # The error is correct, the table "tfz_ft," does not exist. Behind the scenes this web
 # query form is joining two tables on the fly. The tables this query is joining are
 # "crsp.tfz_idx" and either "crsp.tfz_dly_ft" or "crsp.tfz_mth_ft" (depending on if
@@ -18,7 +18,7 @@ engine = make_engine()
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77140
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77137
 # https://wrds-web.wharton.upenn.edu/wrds/tools/variable.cfm?library_id=137&file_id=77147
-tfz_idx = wrds_update("tfz_idx", "crsp", force=True,
+tfz_idx = wrds_update("tfz_idx", "crsp",
                       col_types = {'kytreasnox':'integer', 
                                    'ttermtype':'integer',
                                    'rdtreasno':'integer'})
