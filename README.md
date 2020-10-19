@@ -71,7 +71,7 @@ True
 ## Data sets covered
 
 - [Audit Analytics](audit/readme.md) (`audit`)\*
-- [BoardEx](boardex/readme.md) (`boardex`)\*
+- [BoardEx](boardex/readme.md) (`boardex`)
 - [Capital IQ](ciq/readme.md) (`ciq`)\*
 - [Compustat](comp/readme.md) (`comp`)
 - [CRSP](crsp/readme.md) (`crsp`)\*
@@ -89,6 +89,7 @@ True
 Most of the schemas above (those indicated by \*) can be updated by running the script `upload_wrds.sh`.
 Exceptions are:
 
+- BoardEx (`boardex`): Because of the size of this data set and the frequency with which it is updated, updates for this one are only triggered by running `boardex/update_boardex.py`.
 - Compustat (`comp`): Because of the size of this data set and the frequency with which it is updated (daily), updates for this one are only triggered by running `comp/update_comp.py`.
 - ISS Voting Analytics (`risk`): The script `risk/update_risk.py` updates two data sets (`risk.voteanalysis_npx` and `risk.proposals`) to which I don't currently have access.
 
