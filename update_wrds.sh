@@ -22,5 +22,3 @@ printf "\nUpdating RavenPack (rpna) ...\n"
 rpna/update_rpna.py
 printf "\nUpdating Thomson Reuters (tfn) ...\n"
 tfn/update_tfn.py
-printf "\nUpdating WRDS SEC Analytics (wrdssec) ...\n"
-wrdssec/update_wrdssec.py
