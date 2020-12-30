@@ -16,8 +16,6 @@ printf "\nUpdating ISS voting (risk) ...\n"
 risk/update_issvoting.py
 printf "\nUpdating KLD (kld) ...\n"
 kld/update_kld.py
-printf "\nUpdating MFLINKS (mflinks) ...\n"
-mflinks/update_mflinks.py
 printf "\nUpdating RavenPack (rpna) ...\n"
 rpna/update_rpna.py
 printf "\nUpdating Thomson Reuters (tfn) ...\n"
