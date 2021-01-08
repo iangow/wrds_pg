@@ -22,6 +22,12 @@ wrds_update("detu_epsint", "ibes")
 wrds_update("id", "ibes")
 wrds_update("idsum", "ibes")
 wrds_update("surpsum", "ibes")
+
+updated = wrds_update("surpsumu", "ibes")
+if updated:
+    engine.execute("SET maintenance_work_mem='1999MB'")
+    engine.execute("CREATE INDEX ON ibes.surpsumu (ticker, statpers)")
+
 wrds_update("statsum_epsus", "ibes")
 updated = wrds_update("statsumu_epsus", "ibes")
 if updated:
