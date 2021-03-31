@@ -260,6 +260,6 @@ wrds_update("mcti", "crsp")
 wrds_update("mcti_corr", "crsp")
 wrds_update("msedist", "crsp")
 wrds_update("mseshares", "crsp")
-wrds_update("comphist", "crsp")
+wrds_update("comphist", "crsp", fix_missing=True)
 
 engine.dispose()
