@@ -131,4 +131,9 @@ updated = wrds_update("g_names", "comp")
 updated = wrds_update("g_namesq", "comp")
 updated = wrds_update("g_chars", "comp")
 
+# Footnotes
+wrds_update("funda_fncd", "comp")
+wrds_update("r_fndfntcd", "comp")
+wrds_update("co_adesind", "comp")
+
 engine.dispose()
