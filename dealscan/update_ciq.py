@@ -16,7 +16,8 @@ def get_wrds_tables(schema, wrds_id):
     wrds_engine.dispose()
     return table_list
 
-dealscan_tables = get_wrds_tables("ciq_transcripts", wrds_id)
+table_list = get_wrds_tables("ciq_transcripts", wrds_id)
 
-for table in dealscan_tables:
-    wrds_update(table, "ciq")
+for table in table_list:
+    fix_cr = table in ["ciqtranscriptperson", "wrds_transcript_person"]
+    wrds_update(table, "ciq", fix_cr=fix_cr)
