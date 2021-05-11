@@ -111,6 +111,7 @@ if updated:
     engine.execute("CREATE INDEX ON comp.fundq_fncd (gvkey, datadate)")
 
 updated = wrds_update("r_giccd", "comp")
+updated = wrds_update("r_auditors", "comp")
 
 updated = wrds_update("r_datacode", "comp")
 updated = wrds_update("aco_pnfnda", "comp")
