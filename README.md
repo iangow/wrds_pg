@@ -5,8 +5,7 @@ This repository contains scripts to import data from [WRDS](https://wrds-web.wha
 primarily using the `wrds2pg` Python package.
 
 The scripts require that you install `wrds2pg` and have access to WRDS (and also to the data in question). 
-The `wrds2pg` package is available for installation via `pip` (see [here](https://pypi.org/project/wrds2pg)). 
-
+The `wrds2pg` package is available for installation via `pip` (see [here](https://pypi.org/project/wrds2pg)).
 ## Rationale
 
 Some natural questions you might ask are:
@@ -16,7 +15,7 @@ Some natural questions you might ask are:
 There are at least two reasons:
 
 1. **Merging with non-WRDS data.** 
-There is no mechanism to get data from outside WRDS onto the WRDS database. 
+There is no mechanism to get large amounts of data from outside WRDS onto the WRDS database (but see the `db_to_pg` function in the [`farr` package](https://github.com/iangow/farr) for one approach).
 Almost any project you will work on will include data from other sources. 
 Having your own database, along with a mechanism for easily getting WRDS data into it (as provided by the `wrds2pg` Python library) means you can just merge on your own hardware.
 2. **Ability to store intermediate results.**
