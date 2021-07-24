@@ -10,10 +10,6 @@ updated = wrds_update("g_funda", "comp", fix_missing = True)
 if updated:
     engine.execute("CREATE INDEX ON comp.g_funda (gvkey)")
 
-updated = wrds_update("g_secd", "comp")
-if updated:
-    engine.execute("CREATE INDEX ON comp.g_secd (gvkey)")
-
 updated = wrds_update("g_security", "comp")
 updated = wrds_update("g_company", "comp")
 
@@ -76,10 +72,6 @@ if secm_updated or company_updated:
         trans.rollback()
         raise
 
-updated = wrds_update("secd", "comp")
-if updated:
-    engine.execute("CREATE INDEX ON comp.secd (gvkey, datadate)")
-
 updated = wrds_update("spind_mth", "comp")
 if updated:
     engine.execute("CREATE INDEX ON comp.spind_mth (gvkey, datadate)")
@@ -125,6 +117,7 @@ if updated:
 
 updated = wrds_update("g_idxcst_his", "comp")
 updated = wrds_update("g_idx_index", "comp")
+updated = wrds_update("g_idx_mth", "comp")
 updated = wrds_update("g_secnamesd", "comp")
 updated = wrds_update("g_names_ix", "comp")
 updated = wrds_update("g_names_ix_cst", "comp")
@@ -136,5 +129,13 @@ updated = wrds_update("g_chars", "comp")
 wrds_update("funda_fncd", "comp")
 wrds_update("r_fndfntcd", "comp")
 wrds_update("co_adesind", "comp")
+
+updated = wrds_update("g_secd", "comp")
+if updated:
+    engine.execute("CREATE INDEX ON comp.g_secd (gvkey)")
+
+updated = wrds_update("secd", "comp")
+if updated:
+    engine.execute("CREATE INDEX ON comp.secd (gvkey, datadate)")
 
 engine.dispose()
