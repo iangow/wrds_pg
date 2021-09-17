@@ -111,7 +111,7 @@ dsedelist = wrds_update("dsedelist", "crsp", fix_missing=True,
 if dsedelist:
     engine.execute("CREATE INDEX ON crsp.dsedelist (permno)")
 
-erdport1 = wrds_update("erdport1", "crsp",
+erdport1 = wrds_update("erdport1", "crsp", fix_missing = True,
                        col_types = {'permno':'integer', 'capn': 'integer'})
 
 if erdport1:
