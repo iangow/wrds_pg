@@ -13,7 +13,7 @@ ff/update_ff.py
 printf "\nUpdating IBES (ibes) ...\n"
 ibes/update_ibes.py
 printf "\nUpdating ISS voting (risk) ...\n"
-risk/update_issvoting.py
+risk/update_risk.py
 printf "\nUpdating RavenPack (rpna) ...\n"
 rpna/update_rpna.py
 printf "\nUpdating Thomson Reuters (tfn) ...\n"
