@@ -3,16 +3,14 @@ from wrds2pg import wrds_update, make_engine
 
 # engine.execute("CREATE ROLE risk")
 # engine.execute("GRANT USAGE ON SCHEMA risk TO risk")
-update = wrds_update("va_proposals", "risk")
-update = wrds_update("vavoteresults", "risk")
+update = wrds_update("vavoteresults", "risk",
+                     col_types = {'companyid':'integer', 
+                                   'meetingid':'integer',
+                                   'itemonagendaid':'integer',
+                                   'seqnumber':'integer'})
 
 if update:
     sql = """
-        ALTER TABLE risk.vavoteresults ALTER COLUMN companyid TYPE integer;
-        ALTER TABLE risk.vavoteresults ALTER COLUMN meetingid TYPE integer;
-        ALTER TABLE risk.vavoteresults ALTER COLUMN itemonagendaid TYPE integer;
-        ALTER TABLE risk.vavoteresults ALTER COLUMN seqnumber TYPE integer;
-
         UPDATE risk.vavoteresults
             SET voterequirement = 0.6667 WHERE voterequirement=66.67;
 
@@ -50,7 +48,6 @@ if update:
     engine.execute(sql)
     engine.dispose()
 
-wrds_update("issrec", "risk")
 wrds_update("globalvoteresults", "risk")
 wrds_update("gset", "risk")
 wrds_update("votes", "risk")

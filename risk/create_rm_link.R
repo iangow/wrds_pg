@@ -46,20 +46,3 @@ comment <- 'Created using create_rm_link.R'
 sql <- paste0("COMMENT ON TABLE risk.rm_link IS '",
               comment, " ON ", Sys.time() , "'")
 rs <- dbExecute(pg, sql)
-
-# linked <-
-#     rmdirectors %>%
-#     left_join(link_table) %>%
-#     mutate(has_permno = !is.na(permno))
-#
-# linked %>%
-#     count(has_permno)
-
-# library(readr)
-# linked %>%
-#     filter(!has_permno) %>%
-#     select(company_id, cusip, ticker, name) %>%
-#     distinct() %>%
-#     collect() %>%
-#     write_csv("~/Google Drive/director_photo/rm_ids.csv")
-

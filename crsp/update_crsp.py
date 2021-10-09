@@ -141,7 +141,9 @@ if ccmxpf_linktable:
     engine.execute("CREATE INDEX ON crsp.ccmxpf_linktable (lpermno)")
     engine.execute("CREATE INDEX ON crsp.ccmxpf_linktable (gvkey)")
     
-ccmxpf_lnkhist = wrds_update("ccmxpf_lnkhist", "crsp", fix_missing=True)
+    ccmxpf_lnkhist = wrds_update("ccmxpf_lnkhist", "crsp", fix_missing=True,
+                                 col_types = {'lpermno':'integer', 
+                                              'lpermco': 'integer'})
 if ccmxpf_lnkhist:
     engine.execute("CREATE INDEX ON crsp.ccmxpf_lnkhist (gvkey)")
 

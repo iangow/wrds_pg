@@ -14,12 +14,11 @@ printf "\nUpdating IBES (ibes) ...\n"
 ibes/update_ibes.py
 printf "\nUpdating ISS voting (risk) ...\n"
 risk/update_issvoting.py
-printf "\nUpdating KLD (kld) ...\n"
-kld/update_kld.py
 printf "\nUpdating RavenPack (rpna) ...\n"
 rpna/update_rpna.py
 printf "\nUpdating Thomson Reuters (tfn) ...\n"
 tfn/update_tfn.py
 printf "\nUpdating Compustat segment data (compsegd) ...\n"
 compsegd/update_compsegd.py
-
+printf "\nUpdating WRDS apps (wrdsapps) ...\n"
+wrdsapps/update_wrdsapps.py
