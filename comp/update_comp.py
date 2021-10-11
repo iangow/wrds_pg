@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 from time import gmtime, strftime
 from wrds2pg import wrds_update, make_engine, run_file_sql
-
 engine = make_engine()
+
+updated = wrds_update("g_exrt_dly", "comp")
+updated = wrds_update("co_filedate", "comp")
 
 updated = wrds_update("g_exrt_dly", "comp")
 
@@ -46,6 +48,10 @@ updated = wrds_update("io_qbuysell", "comp")
 if updated:
     engine.execute("CREATE INDEX ON comp.io_qbuysell (gvkey, datadate)")
 
+# Update segment data
+updated = wrds_update("seg_annfund", "comp")
+updated = wrds_update("seg_customer", "comp")
+updated = wrds_update("wrds_seg_customer", "comp")
 updated = wrds_update("wrds_segmerged", "comp")
 if updated:
     engine.execute("CREATE INDEX ON comp.wrds_segmerged (gvkey, datadate);")
