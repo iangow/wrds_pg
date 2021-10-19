@@ -1,43 +1,25 @@
-library(dplyr)
-library(RPostgreSQL)
+library(dplyr, warn.conflicts = FALSE)
+library(DBI)
 
-pg <- src_postgres()
+pg <- dbConnect(RPostgres::Postgres())
 
-library(RPostgreSQL)
-dbGetQuery(pg$con, "SET work_mem='8GB'")
+dbExecute(pg, "SET work_mem='8GB'")
+dbExecute(pg, "SET search_path TO comp, ciq")
 
-ciqfininstance <-
-    tbl(pg, sql("SELECT * FROM ciq.ciqfininstance"))
+ciqfininstance <- tbl(pg, "ciqfininstance")
+ciqfinperiod <- tbl(pg, "ciqfinperiod")
+ciqgvkeyiid <- tbl(pg, "ciqgvkeyiid")
 
-ciqfinperiod <-
-    tbl(pg, sql("SELECT * FROM ciq.ciqfinperiod"))
-
-ciqgvkeyiid <-
-    tbl(pg, sql("SELECT * FROM ciq.ciqgvkeyiid"))
-
-ciqfininstance <-
-    tbl(pg, sql("SELECT * FROM wrds_ciq.ciqfininstance"))
-
-ciqfinperiod <-
-     tbl(pg, sql("SELECT * FROM wrds_ciq.ciqfinperiod"))
-
-ciqgvkeyiid <-
-    tbl(pg, sql("SELECT * FROM wrds_ciq.ciqgvkeyiid"))
-
-accession_numbers <-
-    tbl(pg, sql("SELECT * FROM filings.accession_numbers"))
-
-filings <-
-    tbl(pg, sql("SELECT * FROM filings.filings"))
+accession_numbers <- tbl(pg, sql("SELECT * FROM edgar.accession_numbers"))
+filings <- tbl(pg, sql("SELECT * FROM edgar.filings"))
 
 gvkeys <-
     ciqgvkeyiid %>%
     select(gvkey, iid, relatedcompanyid)
 
-dbGetQuery(pg$con, "DROP TABLE IF EXISTS gvkey_cik")
+dbExecute(pg, "DROP TABLE IF EXISTS gvkey_cik")
 
-system.time({
-    gvkey_ciks <-
+gvkey_ciks <-
     ciqfininstance %>%
     inner_join(accession_numbers) %>%
     inner_join(ciqfinperiod) %>%
@@ -46,14 +28,11 @@ system.time({
     distinct() %>%
     compute(name = "gvkey_cik", temporary = FALSE,
             indexes = c("file_name", "gvkey"), overwrite=TRUE)
-})
 
-dbGetQuery(pg$con, "GRANT SELECT ON gvkey_cik TO wrds")
-dbGetQuery(pg$con, "DROP TABLE IF EXISTS comp.gvkey_cik")
-dbGetQuery(pg$con, "ALTER TABLE gvkey_cik SET SCHEMA comp")
+dbExecute(pg, "ALTER TABLE gvkey_cik OWNER TO comp")
+dbExecute(pg, "GRANT SELECT ON gvkey_cik TO comp_access")
 
 comment <- 'Created using create_gvkey_cik.R'
-sql <- paste0("COMMENT ON TABLE comp.gvkey_cik IS '",
+sql <- paste0("COMMENT ON TABLE gvkey_cik IS '",
               comment, " ON ", Sys.time() , "'")
-rs <- dbGetQuery(pg$con, sql)
-
+rs <- dbExecute(pg, sql)
