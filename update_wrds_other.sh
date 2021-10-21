@@ -9,3 +9,5 @@ printf "\nUpdating Capital IQ key development data (ciq) ...\n"
 ciq/update_ciq_keydev.py
 printf "\nUpdating Capital IQ transcripts data (ciq) ...\n"
 ciq/update_ciq_transcripts.py
+printf "\nUpdating Compustat data (compa) ...\n"
+compa/update_compa.py
