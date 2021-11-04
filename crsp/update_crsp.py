@@ -83,6 +83,7 @@ dsf = wrds_update("dsf", "crsp", fix_missing=True,
 if dsf:
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON crsp.dsf (permno, date)")
+    engine.execute("CREATE INDEX ON crsp.dsf (permco)")
 
 dsi = wrds_update("dsi", "crsp")
 if dsi:
