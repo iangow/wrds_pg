@@ -23,7 +23,9 @@ tfz_idx = wrds_update("tfz_idx", "crsp",
                                    'ttermtype':'integer',
                                    'rdtreasno':'integer'})
 tfz_dly_ft = wrds_update("tfz_dly_ft", "crsp",
-                         col_types = {'tdyearstm':'float8', 'tdduratn':'float8',
+                         col_types = {'kytreasnox':'integer',
+                                      'tdyearstm':'float8', 
+                                      'tdduratn':'float8',
                                       'tdytm':'float8', 'tdbid':'float8',
                                       'tdask':'float8', 'tdnomprc':'float8',
                                       'tdaccint':'float8', 'tdretadj':'float8'})
@@ -48,9 +50,13 @@ if tfz_idx or tfz_dly_ft:
 mse = wrds_update("mse", "crsp", fix_missing=True)
 
 # Update monthly data
-msf = wrds_update("msf", "crsp", fix_missing=True)
+msf = wrds_update("msf", "crsp", fix_missing=True,
+                  col_types = {'permno':'integer', 'permco':'integer'})
 if msf:
     engine.execute("CREATE INDEX ON crsp.msf (permno, date)")
+    engine.execute("CREATE INDEX ON crsp.msf (permno)")
+    engine.execute("CREATE INDEX ON crsp.msf (permco)")
+    engine.execute("CREATE INDEX ON crsp.msf (date)")
 
 msi = wrds_update("msi", "crsp")
 
@@ -79,11 +85,12 @@ if ermport1 or msf or msi or msedelist:
 
 # Update daily data
 dsf = wrds_update("dsf", "crsp", fix_missing=True,
-                  col_types = {'permno':'integer', 'permno': 'integer'})
+                  col_types = {'permno':'integer', 'permco': 'integer'})
 if dsf:
     engine.execute("SET maintenance_work_mem='1999MB'")
     engine.execute("CREATE INDEX ON crsp.dsf (permno, date)")
     engine.execute("CREATE INDEX ON crsp.dsf (permco)")
+    engine.execute("CREATE INDEX ON crsp.dsf (permno)")
 
 dsi = wrds_update("dsi", "crsp")
 if dsi:
@@ -147,9 +154,11 @@ ccmxpf_lnkhist = wrds_update("ccmxpf_lnkhist", "crsp", fix_missing=True,
                                               'lpermco': 'integer'})
 if ccmxpf_lnkhist:
     engine.execute("CREATE INDEX ON crsp.ccmxpf_lnkhist (gvkey)")
+    engine.execute("CREATE INDEX ON crsp.ccmxpf_lnkhist (lpermno)")
 
 dsedist = wrds_update("dsedist", "crsp", fix_missing=True,
-                      col_types = {'permno':'integer'})
+                      col_types = {'permno':'integer',
+                                   'permco':'integer'})
 if dsedist:
     engine.execute("CREATE INDEX ON crsp.dsedist (permno)")
 
