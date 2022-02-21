@@ -25,6 +25,10 @@ if updated:
 updated = wrds_update("adsprate", "comp")
 if updated:
     engine.execute("CREATE INDEX ON comp.adsprate (gvkey, datadate)")
+    
+updated = wrds_update("co_afnd2", "comp")
+if updated:
+    engine.execute("CREATE INDEX ON comp.co_afnd2 (gvkey)")
 
 updated = wrds_update("co_hgic", "comp")
 if updated:
