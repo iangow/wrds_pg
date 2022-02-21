@@ -123,7 +123,7 @@ erdport1 = wrds_update("erdport1", "crsp", fix_missing = True,
                        col_types = {'permno':'integer', 'capn': 'integer'})
 
 if erdport1:
-    engine.execute("CREATE INDEX ON crsp.dport1 (permno, date)")
+    engine.execute("CREATE INDEX ON crsp.erdport1 (permno, date)")
     
 if erdport1 or dsf or dsi or dsedelist:
     run_file_sql("crsp/crsp_make_rets.sql", engine)
@@ -161,6 +161,12 @@ dsedist = wrds_update("dsedist", "crsp", fix_missing=True,
                                    'permco':'integer'})
 if dsedist:
     engine.execute("CREATE INDEX ON crsp.dsedist (permno)")
+
+dse = wrds_update("dse", "crsp", fix_missing=True,
+                      col_types = {'permno':'integer',
+                                   'permco':'integer'})
+if dse:
+    engine.execute("CREATE INDEX ON crsp.dse (permno)")
 
 stocknames = wrds_update("stocknames", "crsp",
                           col_types = {'permno':'integer', 
