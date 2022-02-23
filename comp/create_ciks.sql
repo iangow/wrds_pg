@@ -11,12 +11,3 @@ GRANT ALL ON TABLE comp.ciks TO comp;
 GRANT SELECT ON TABLE comp.ciks TO comp_access;
 
 SET timezone TO 'UTC';
-
-DO
-$do$
-BEGIN
-EXECUTE 'COMMENT ON TABLE comp.ciks IS ''CREATED USING comp/create_ciks.sql ON '
-     || to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS TZ')
-     || '''';
-END
-$do$
