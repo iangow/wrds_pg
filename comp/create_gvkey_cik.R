@@ -21,8 +21,8 @@ dbExecute(pg, "DROP TABLE IF EXISTS gvkey_cik")
 
 gvkey_ciks <-
     ciqfininstance %>%
-    inner_join(accession_numbers) %>%
-    inner_join(ciqfinperiod) %>%
+    inner_join(accession_numbers, by = "accessionnumber") %>%
+    inner_join(ciqfinperiod, by = "financialperiodid") %>%
     inner_join(gvkeys, by=c("companyid"="relatedcompanyid")) %>%
     select(gvkey, iid, file_name, periodenddate) %>%
     distinct() %>%

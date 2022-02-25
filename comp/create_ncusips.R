@@ -1,8 +1,9 @@
-library(RPostgreSQL)
+library(DBI)
 suppressPackageStartupMessages(library(dplyr))
-pg <- src_postgres()
+pg <- dbConnect(RPostgres::Postgres())
 
-dbGetQuery(pg$con, "SET work_mem='5GB'")
+dbExecute(pg, "SET work_mem='5GB'")
+dbExecute(pg, "SET search_path TO comp")
 
 ccmxpf_lnkhist <-
     tbl(pg, sql("SELECT * FROM crsp.ccmxpf_lnkhist"))
@@ -58,18 +59,20 @@ all_ncusip_matches <-
     anti_join(same_cusip, by=c("gvkey", "iid", "datadate")) %>%
     union(same_cusip)
 
+dbExecute(pg, "DROP TABLE IF EXISTS ncusips")
+
 all_ncusips <-
     gvkey_cusip %>%
     select(gvkey, iid, datadate, cusip) %>%
-    left_join(all_ncusip_matches %>% select(-cusip)) %>%
-    compute(name="ncusips", temporary=FALSE,
+    left_join(all_ncusip_matches %>% select(-cusip),
+              by = c("gvkey", "iid", "datadate")) %>%
+    compute(name="ncusips", temporary=FALSE, replace=FALSE,
             indexes=c("gvkey", "ncusip"))
 
-dbGetQuery(pg$con, "GRANT SELECT ON TABLE ncusips TO wrds")
-dbGetQuery(pg$con, "DROP TABLE IF EXISTS comp.ncusips")
-dbGetQuery(pg$con, "ALTER TABLE ncusips SET SCHEMA comp")
+rs <- dbExecute(pg, "ALTER TABLE ncusips OWNER TO comp")
+rs <- dbExecute(pg, "GRANT SELECT ON TABLE ncusips TO comp_access")
 
 comment <- 'Created using create_ncusips.R'
 sql <- paste0("COMMENT ON TABLE comp.ncusips IS '",
               comment, " ON ", Sys.time() , "'")
-rs <- dbGetQuery(pg$con, sql)
+rs <- dbExecute(pg, sql)
