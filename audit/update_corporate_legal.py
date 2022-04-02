@@ -5,7 +5,7 @@ engine = make_engine()
 
 # Legal Case And Legal Parties
 updated = wrds_update("auditlegal", "audit", 
-                      drop="closest: match: prior: ",
+                      drop="closest: match: prior: web_summ:",
                       col_types = { "legal_party_key":"integer",
                                     "auditor_key":"integer",
                                     "gov_key":"integer",
