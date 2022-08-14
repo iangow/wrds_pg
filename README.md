@@ -15,7 +15,7 @@ Some natural questions you might ask are:
 There are at least two reasons:
 
 1. **Merging with non-WRDS data.** 
-There is no mechanism to get large amounts of data from outside WRDS onto the WRDS database (but see the `db_to_pg` function in the [`farr` package](https://github.com/iangow/farr) for one approach).
+There is no mechanism to get large amounts of data from outside WRDS onto the WRDS database (but see the `copy_inline` function in the [`dbplyr` package](https://dbplyr.tidyverse.org) for one approach).
 Almost any project you will work on will include data from other sources. 
 Having your own database, along with a mechanism for easily getting WRDS data into it (as provided by the `wrds2pg` Python library) means you can just merge on your own hardware.
 2. **Ability to store intermediate results.**
