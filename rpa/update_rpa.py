@@ -12,7 +12,7 @@ updated = wrds_update("rpa_entity_mappings", "rpa")
 
 def update_equities(year):
     updated = wrds_update("rpa_djpr_equities_" + str(year), "rpa",
-                          col_types = {"timestamp_utc": "timestamp", 
+                          col_types = {"timestamp_utc": "timestamp",
                                        "event_start_date_utc": "timestamp", 
                                        "event_end_date_utc": "timestamp", 
                                        "reporting_start_date_utc": "timestamp",
@@ -37,7 +37,7 @@ if any(updated):
     cols = [ column.name for column in metadata.tables['rpa.rpa_djpr_equities_' + str(max(avail_years))].columns]
     sql_parts = [get_sql(year, cols) for year in avail_years]
 
-    sql = "CREATE VIEW rpa_djpr_equities AS\n" + 'UNION ALL\n'.join(sql_parts)
+    sql = "CREATE VIEW rpa.rpa_djpr_equities AS\n" + 'UNION ALL\n'.join(sql_parts)
 
     conn = engine.connect()
     trans = conn.begin()
