@@ -1,18 +1,28 @@
-#!/usr/bin/env python3
+---
+title: "Untitled"
+format: html
+jupyter: python3
+---
+
+```{python}
 import psycopg2 as pg
 import pandas as pd
 from pandas.io.sql import read_sql
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 import os
-import re
-import json
 
 host = os.getenv("PGHOST")
 dbname = os.getenv("PGDATABASE")
 
 engine = create_engine("postgresql://" + host + "/" + dbname)
 conn = engine.connect()
+```
 
+```{python}
+pd.set_option('display.width', 150)
+```
+
+```{python}
 sql = r"""SELECT DISTINCT itemdesc
     FROM risk.vavoteresults AS a
     -- INNER JOIN risk.issrec
@@ -24,8 +34,15 @@ sql = r"""SELECT DISTINCT itemdesc
 """
 
 df = read_sql(sql, con=conn)
+```
 
+```{python}
+itemdesc = 'Elect Director Jeffrey M. Leiden M.D.,Ph.D.'
+```
 
+```{python}
+import re
+import json
 
 def extract_name(itemdesc):
     itemdesc_orig = itemdesc
@@ -221,21 +238,44 @@ def extract_name(itemdesc):
                 'last_name' : None, 
                 'suffix' : None, 
                 'prefix' : None})
-extract_name('Elect Director Jeffrey M. Leiden M.D.,Ph.D.')
+```
 
+```{python}
+extract_name('Elect Director Jeffrey M. Leiden M.D.,Ph.D.')
+```
+
+```{python}
 temp = df.copy()[['itemdesc']]
+temp
+```
+
+```{python}
 temp['clean_name'] = temp['itemdesc'].map(extract_name)
 temp[['itemdesc', 'clean_name']][:10] 
+```
 
+```{python}
 def expand_json(df, col):
     return pd.concat([df.drop([col], axis=1),
                       df[col].map(lambda x: json.loads(x)).apply(pd.Series)], axis=1)
 
 df = expand_json(temp, 'clean_name')
-df[ df['first_name'] == 'Ian'][['itemdesc', 'first_name', 'last_name']]
+```
 
+```{python}
+df[ df['first_name'] == 'Ian'][['itemdesc', 'first_name', 'last_name']]
+```
+
+```{python}
+df[ (df['first_name'].values == None) & (df['last_name'].values == None)][['itemdesc', 'first_name', 'last_name']]
+```
+```{python}
 res = df.to_sql("director_names", engine, schema="risk", 
                 if_exists="replace", index=False)
+```
+
+```{python}
+from sqlalchemy import text
 
 def process_sql(sql, engine):
 
@@ -250,9 +290,10 @@ def process_sql(sql, engine):
         raise
 
     return True
+```
 
+```{python}
 process_sql("ALTER TABLE risk.director_names OWNER TO risk", engine)
 process_sql("GRANT SELECT ON risk.director_names TO risk_access", engine)
-
-engine.dispose()
+```
 
