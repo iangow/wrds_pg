@@ -45,6 +45,8 @@ wrds_update("split_guidance", "ibes")
 wrds_update("stop_epsus", "ibes")
 wrds_update("exc_epsus", "ibes")
 wrds_update("actpsum_epsus", "ibes")
+wrds_update("actpsum_epsint", "ibes")
+wrds_update("statsum_epsint", "ibes")
 
 engine.dispose()
 
