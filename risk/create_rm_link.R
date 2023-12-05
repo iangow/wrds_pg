@@ -1,6 +1,12 @@
+options(gargle_oauth_email = TRUE)
+
 library(dplyr)
 library(DBI)
-
+library(googlesheets4)
+options(
+    gargle_oauth_cache = ".secrets",
+    gargle_oauth_email = TRUE
+)
 pg <- dbConnect(RPostgres::Postgres())
 
 rs <- dbExecute(pg, "SET search_path TO risk")
@@ -19,8 +25,6 @@ cusip_permnos <-
     select(ncusip, permno) %>%
     distinct() %>%
     rename(cusip = ncusip)
-
-library(googlesheets4)
 
 gs <- as_sheets_id("1quUwIqc8jsxpsSgMrO2Ig9UBpaFrdQP357bx1u0i-Og")
 
