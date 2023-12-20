@@ -6,13 +6,11 @@ def get_wrds_tables(schema, wrds_id):
 
     from sqlalchemy import MetaData
 
-    wrds_url = "postgresql://%s@wrds-pgdata.wharton.upenn.edu:9737/wrds"
-
-    wrds_engine = create_engine(wrds_url % wrds_id,
+    wrds_engine = create_engine("postgresql://%s@wrds-pgdata.wharton.upenn.edu:9737/wrds" % wrds_id,
                                 connect_args = {'sslmode':'require'})
-
-    metadata = MetaData(wrds_engine, schema=schema)
-    metadata.reflect(schema=schema)
+    metadata = MetaData()
+    
+    metadata.reflect(bind=wrds_engine, schema=schema)
 
     table_list = [key.name for key in metadata.tables.values()]
     wrds_engine.dispose()
