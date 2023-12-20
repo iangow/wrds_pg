@@ -9,12 +9,12 @@ wrds_update("actpsumu_epsus", "ibes")
 wrds_update("actu_epsus", "ibes")
 updated = wrds_update("detu_epsus", "ibes")
 if updated:
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON ibes.detu_epsus (ticker, revdats)")
+     process_sql("CREATE INDEX ON ibes.detu_epsus (ticker, revdats)", engine=engine)
     
 updated = wrds_update("det_xepsus", "ibes")
 if updated:
-    engine.execute("CREATE INDEX ON ibes.det_xepsus (ticker, revdats)")
+    process_sql("CREATE INDEX ON ibes.det_xepsus (ticker, revdats)", 
+    engine=engine)
 
 wrds_update("curr", "ibes")    
 wrds_update("det_epsus", "ibes")
@@ -25,19 +25,17 @@ wrds_update("surpsum", "ibes")
 
 updated = wrds_update("surpsumu", "ibes")
 if updated:
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON ibes.surpsumu (ticker)")
+    process_sql("CREATE INDEX ON ibes.surpsumu (ticker)", engine=engine)
 
 wrds_update("statsum_epsus", "ibes")
 updated = wrds_update("statsumu_epsus", "ibes")
 if updated:
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON ibes.statsumu_epsus (ticker, statpers)")
+    process_sql("CREATE INDEX ON ibes.statsumu_epsus (ticker, statpers)", engine=engine)
 
 wrds_update("det_guidance", "ibes")
 if updated:
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON ibes.det_guidance (anndats);")
+    process_sql("CREATE INDEX ON ibes.det_guidance (anndats);", engine=engine)
+
     
 wrds_update("det_guidance_ext", "ibes")
 wrds_update("id_guidance", "ibes")
