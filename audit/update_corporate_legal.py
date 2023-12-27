@@ -2,9 +2,9 @@
 from wrds2pg import wrds_update, make_engine
 
 engine = make_engine()
-
+'''
 # Legal Case And Legal Parties
-updated = wrds_update("auditlegal", "audit", 
+updated = wrds_update("feed14_company_legal_party_feed", "audit", 
                       drop="closest: match: prior: web_summ:",
                       col_types = { "legal_party_key":"integer",
                                     "auditor_key":"integer",
@@ -167,7 +167,7 @@ updated = wrds_update("ipo", "audit",
                       drop="closest: match: prior: ")
 
 # Bankruptcy Notification
-updated = wrds_update("bankrupt", "audit",
+updated = wrds_update("feed21_bankruptcy_notification", "audit",
                       drop="closest: match: prior: ")
 
 # Comment Letter
@@ -177,11 +177,11 @@ updated = wrds_update("commlett", "audit",
                             "cl_text cl_frmt_text_html")
 
 # Comment Letter Conversations
-updated = wrds_update("commlettconv", "audit", 
+updated = wrds_update("feed26_comment_letter_conversati", "audit", 
                       drop="closest: ")
 
 # Comment Threading
-updated = wrds_update("commlettthreads", "audit", 
+updated = wrds_update("feed40_comment_letter_threads", "audit", 
                       drop="match: closest: prior: " +
                            "question_text_formatted question_text_html " + 
                            "answer_text_formatted answer_text_html")
@@ -235,8 +235,9 @@ updated = wrds_update("taxfootnt", "audit",
                                     "file_date": "date"},
                         drop="closest: match: prior: period_ended_str")
 
+'''
 # Shareholder Activism
-updated = wrds_update("sholderact", "audit", 
+updated = wrds_update("feed31_shareholder_activism", "audit", 
                         drop="closest: match: prior: " +
                              "iss_file_date_str rep_file_date_str",
                         col_types = {'active_share_key':'integer'})
@@ -262,14 +263,14 @@ if updated:
                      (col, col))
 
 # Form D
-updated = wrds_update("formd", "audit", 
+updated = wrds_update("feed37_form_d", "audit", 
                       drop = "primary_issuer_pre_nam_lis " +
                                "primary_issuer_edg_pre_nam_lis",
                       col_types = {"form_d_key": "integer", 
                                       "is_primary": "boolean"})
 
 # Form D Most Recent Report
-updated = wrds_update("formdmro", "audit",
+updated = wrds_update("feed38_form_d_most_recent_offeri", "audit",
                       drop = "primary_issuer_pre_nam_lis " +
                                "primary_issuer_edg_pre_nam_lis",
                       col_types = {"form_d_key": "integer", 
