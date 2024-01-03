@@ -7,5 +7,4 @@ updated = wrds_update("feed55_auditor_ratification", "audit",
                       col_types = { "auditor_ratification_fkey":"integer",
                                     "share_class_fkey":"integer",
                                     "auditor_fkey":"integer",
-                                    "pcaob_registration_number":"integer"},
-                      force = True)
+                                    "pcaob_registration_number":"integer"})

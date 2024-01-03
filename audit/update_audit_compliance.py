@@ -97,7 +97,7 @@ updated = wrds_update("feed01_auditors", "audit",
                       col_types = {"auditor_key": "integer",
                                    "pcaob_reg_num": "integer",
                                    "pcaob_app_num": "integer",
-                                  "aud_loc_key": "integer", 
+                                   "aud_loc_key": "integer", 
                                    "eventdate_aud_fkey": "integer", 
                                    "auditor_pcaob_reg": "boolean"})
 
@@ -115,8 +115,6 @@ updated = wrds_update("feed02_auditor_changes", "audit",
                                    "engaged_auditor_pcaob": "boolean"}, 
                       drop="match: prior: closest: dismiss_name " + 
                             "engaged_auditor_name eventdate_aud_name")
-#if updated:
-#    iss_col_to_bool(engine, "audit", "feed02_auditor_changes")
 
 # Audit Fees
 updated = wrds_update("feed03_audit_fees", "audit", 
@@ -141,7 +139,7 @@ updated = wrds_update("feed04_audit_fees_restated", "audit",
                                    "is_benefit_plan":"boolean"})
 
 # Audit Opinions
-updated = wrds_update("auditopin", "audit",
+updated = wrds_update("feed05_audit_opinions", "audit",
                       drop="match: prior: closest:", 
                       col_types = {"audit_op_key": "integer", 
                                    "auditor_fkey": "integer",
@@ -152,18 +150,20 @@ updated = wrds_update("auditopin", "audit",
                                    "fiscal_year_of_op": "integer"})
 
 updated = wrds_update("feed34_revised_audit_opinions", "audit",
-                      drop="match: prior: closest:", 
+                      drop="match: prior: closest:",
                       col_types = {"audit_op_key": "integer", 
+                                   "eventdate_aud_fkey": "integer",
+                                   "integrated_audit": "boolean",
                                    "auditor_fkey": "integer",
                                    "auditor_affil_fkey": "integer",
                                    "is_nth_add_op": "integer",
                                    "going_concern": "boolean",
                                    "op_aud_pcaob": "boolean",
+                                   "file_accepted": "timestamp",
                                    "eventdate_aud_fkey": "integer",
                                    "fiscal_year_of_op": "integer"})
 
-# opinion_text1 <chr>, opinion_text2 <chr>, opinion_text3?
-updated = wrds_update("benefit", "audit", 
+updated = wrds_update("feed06_benefit_plan_opinions", "audit", 
                       drop="match: prior: closest:",
                       col_types = {"benefit_plan_key": "integer", 
                                    "auditor_fkey": "integer",
@@ -174,41 +174,52 @@ updated = wrds_update("benefit", "audit",
                                    "eventdate_aud_fkey": "integer",
                                    "fiscal_year_of_op": "integer"})
 
-updated = wrds_update("auditors", "audit", 
+updated = wrds_update("feed07_current_auditor", "audit", 
                        col_types = {"auditor_key": "integer"}) 
 
 # Non-reliance restatements
 updated = wrds_update("feed09_nonreliance_restatements", "audit", 
-                        drop="prior: match: closest: disc_text:",
+                        drop="prior: match: closest: ",
                         col_types = {"res_accounting": "boolean",
-                                    "res_fraud": "boolean", 
-                                    "res_cler_err": "boolean",
-                                    "res_adverse": "boolean", 
-                                    "res_improves": "boolean", 
-                                    "res_other": "boolean",
-                                    "res_sec_invest": "boolean",
-                                    "res_begin_aud_fkey": "integer", 
-                                    "res_notif_key": "integer", 
-                                    "current_aud_fkey": "integer", 
-                                    "res_begin_aud_fkey": "integer", 
-                                    "res_end_aud_fkey": "integer", 
-                                    "file_date_aud_fkey": "integer"})
-
+                                     "res_fraud": "boolean", 
+                                     "res_cler_err": "boolean",
+                                     "res_adverse": "boolean", 
+                                     "res_improves": "boolean", 
+                                     "res_other": "boolean",
+                                     "res_sec_invest": "boolean",
+                                     "res_begin_aud_fkey": "integer", 
+                                     "res_notif_key": "integer", 
+                                     "current_aud_fkey": "integer", 
+                                     "res_begin_aud_fkey": "integer", 
+                                     "res_end_aud_fkey": "integer",
+                                     "file_accepted": "timestamp",
+                                     "file_date_aud_fkey": "integer"})
 if updated:
-    list_cols = ["res_acc_res_fkey_list", "res_fraud_res_fkey_list",
-                "res_cler_err_fkey_list", "res_period_aud_fkey", "res_other_rescat_fkey"]
+    list_cols = ["res_acc_res_fkey_list", "res_fraud_res_fkey_list", 
+                 "res_cler_err_fkey_list", "res_period_aud_fkey",
+                 "res_other_rescat_fkey"]
     for col in list_cols:
-        engine.execute("""
-            ALTER TABLE audit.auditnonreli
+        process_sql("""
+            ALTER TABLE audit.feed09_nonreliance_restatements
             ALTER COLUMN %s TYPE integer[] USING 
-                array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ % (col, col))
+                array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ % (col, col),
+                   engine)
                     
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON audit.auditnonreli (res_notif_key)")
+    list_cols = ["res_acc_res_title_list", "res_fraud_res_title_list", 
+                 "res_clerr_err_title_list", "res_period_aud_names",
+                 "res_other_rescat_title"]
+    for col in list_cols:
+        process_sql("""
+            ALTER TABLE audit.feed09_nonreliance_restatements
+            ALTER COLUMN %s TYPE text[] USING 
+                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col),
+                   engine)
+    
+    process_sql("CREATE INDEX ON audit.feed09_nonreliance_restatements (res_notif_key)", engine)
  
-# SOX 302 Disclosure Controls   
+# SOX 302 Disclosure Controls
 updated = wrds_update("auditsox302", "audit",
-                      drop="prior: match: closest: ic_dc_text:", 
+                      drop="prior: match: closest: ic_dc_text:",
                       col_types = {"ic_dc_key": "integer", 
                                     "is_effective": "integer",
                                     "material_weakness": "boolean",
@@ -219,12 +230,17 @@ updated = wrds_update("auditsox302", "audit",
                                     "noteff_other": "integer",
                                     "eventdate_aud_fkey": "integer"})
 
+updated = wrds_update("auditsox302", "audit", 
+                      keep="ic_dc_key ic_dc_text:",
+                      alt_table_name="auditsox302_text",
+                      col_types = {"ic_dc_key": "integer"})
+                      
 if updated:
     list_cols = ["noteff_acc_reas_keys", "noteff_finfraud_keys", 
                     "noteff_reas_keys", "noteff_other_reas_keys"]
     for col in list_cols:
         engine.execute("""
-            ALTER TABLE audit.auditsox302
+            ALTER TABLE audit.feed09_nonreliance_restatements
             ALTER COLUMN %s TYPE integer[] USING 
                 array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ % (col, col))
                     
@@ -232,34 +248,31 @@ if updated:
                     "noteff_reas_phr", "noteff_other_reas_phr"]
     for col in list_cols:
         engine.execute("""
-            ALTER TABLE audit.auditsox302
+            ALTER TABLE audit.feed09_nonreliance_restatements
             ALTER COLUMN %s TYPE text[] USING 
                 array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col))
     
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON audit.auditsox302 (ic_dc_key)")
+    engine.execute("CREATE INDEX ON audit.feed09_nonreliance_restatements (ic_dc_key)")
 
 
-updated = wrds_update("auditsox302", "audit", 
-                      keep="ic_dc_key ic_dc_text:",
-                      alt_table_name="auditsox302_text",
-                      col_types = {"ic_dc_key": "integer"})
+
 
 # SOX 404 Internal Controls
-updated = wrds_update("auditsox404", "audit",
+updated = wrds_update("feed11_sox_404_internal_controls", "audit",
                       drop="prior: match: closest: ic_text:",
                         col_types = {"ic_op_fkey": "integer",
                                      "auditor_fkey": "integer", 
                                      "eventdate_aud_fkey": "integer"})
 
-updated = wrds_update("auditsox404", "audit", 
+updated = wrds_update("feed11_sox_404_internal_controls", "audit", 
                       keep="ic_op_fkey ic_text1",
-                      alt_table_name="auditsox404_text1",
+                      alt_table_name="feed11_sox_404_internal_controls_text1",
                       col_types = {"ic_op_fkey": "integer"})
-updated = wrds_update("auditsox404", "audit", 
+updated = wrds_update("feed11_sox_404_internal_controls", "audit", 
                       keep="ic_op_fkey ic_text2",
-                      alt_table_name="auditsox404_text2",
+                      alt_table_name="feed11_sox_404_internal_controls_text2",
                       col_types = {"ic_op_fkey": "integer"})
+
 # Accelerated Filer
 updated = wrds_update("feed16_accelerated_filer", "audit",
                       drop="prior: match: closest:",
@@ -271,12 +284,16 @@ updated = wrds_update("feed16_accelerated_filer", "audit",
                                    "hst_is_voluntary_filer": "integer", 
                                    "hst_is_small_report": "integer",   
                                    "did_not_disc": 'boolean',
-                                   "eventdate_aud_fkey": "integer"})                     
+                                   "file_accepted": "timestamp",
+                                   "eventdate_aud_fkey": "integer"})                  
 
 # Director and officer changes
-updated = wrds_update("feed17_director_and_officer_chan", "audit", 
+updated = wrds_update("feed17_director_and_officer_chan", "audit",
                         drop="match: prior: closest: do_change_text:",
                         col_types = {"do_off_pers_key": "integer",
+                                     "do_change_key": "integer",
+                                     "eventdate_aud_fkey": "integer",
+                                     "file_accepted": "timestamp",
                                      "interim": 'boolean',
                                      "do_off_remains": 'boolean',
                                      "retain_other_pos": 'boolean',
@@ -300,33 +317,24 @@ updated = wrds_update("feed17_director_and_officer_chan", "audit",
                                      'is_exec_vp': 'boolean'})
 
 if updated:                     
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON audit.diroffichange (do_off_pers_key)")
-'''
-updated = wrds_update("feed17_director_and_officer_chan", "audit", 
-                      keep="ftp_file_fkey do_change_text1",
-                      alt_table_name="diroffichange_text1")
+    process_sql("CREATE INDEX ON audit.feed17_director_and_officer_chan (do_off_pers_key)",
+                engine)
 
-updated = wrds_update("feed17_director_and_officer_chan", "audit", 
-                      keep="ftp_file_fkey do_change_text2",
-                      alt_table_name="diroffichange_text2")
+# wrds_update("feed17_director_and_officer_chan", "audit", 
+#                     keep="ftp_file_fkey do_change_text",
+#                     alt_table_name="feed17_director_and_office_text1")
 
-updated = wrds_update("feed17_director_and_officer_chan", "audit", 
-                      keep="ftp_file_fkey do_change_text3",
-                      alt_table_name="diroffichange_text3")
-'''
 # Non-timely Filer Information And Analysis
-# Partially working; need to add part4_3_text* columns
-updated = wrds_update("nt", "audit", 
-                      drop="match: closest: prior: part4_3_text:",
-                      col_types = {"nt_notify_key": "integer"})
-updated = wrds_update("nt", "audit", keep="nt_notify_key part4_3_text1",
-                      alt_table_name = "nt_text1",
-                      col_types = {"nt_notify_key": "integer"})
-updated = wrds_update("nt", "audit", keep="nt_notify_key part4_3_text2",
-                      alt_table_name = "nt_text2",
-                      col_types = {"nt_notify_key": "integer"})                      
-updated = wrds_update("nt", "audit", keep="nt_notify_key part4_3_text3",
-                      alt_table_name = "nt_text3",
-                      col_types = {"nt_notify_key": "integer"})
+updated = wrds_update("feed20_nt", "audit",
+                      drop="match: closest: prior: ",
+                      col_types = {"nt_notify_key": "integer",
+                                   "ac_file_accepted": "timestamp",
+                                   "eventdate_aud_fkey": "integer",
+                                   "aud_at_file_date":"integer",
+                                   "part2_c_check": "boolean", 
+                                   "part2_b_check": "boolean",
+                                   "part2_a_check": "boolean",
+                                   "part4_3_check": "boolean",
+                                   "file_accepted": "timestamp",
+                                   "ten_k_trans_report": "boolean"})
 engine.dispose()
