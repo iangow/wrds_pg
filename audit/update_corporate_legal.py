@@ -131,12 +131,14 @@ updated = wrds_update("feed14_company_legal_party_feed", "audit",
 # Mergers and Acquisitions
 updated = wrds_update("feed18_merger_acquisition", "audit",
                       col_types = {"ma_party_key": "integer",
-                                    "party_co_fkey": "integer",
-                                    "party_aud_fkey": "integer",
-                                    "deal_confirmed": "boolean",
-                                    "m_a_key": "integer",
-                                    "ma_transaction_type_fkey": "integer",
-                                    "eventdate_aud_fkey": "integer"},
+                                   "party_co_fkey": "integer",
+                                   "party_aud_fkey": "integer",
+                                   "trans_val_est": "boolean",
+                                   "is_canceled": "boolean",
+                                   "deal_confirmed": "boolean",
+                                   "m_a_key": "integer",
+                                   "ma_transaction_type_fkey": "integer",
+                                   "eventdate_aud_fkey": "integer"},
                       drop="closest: match: prior: ")
 
 if updated:
@@ -176,11 +178,11 @@ updated = wrds_update("feed21_bankruptcy_notification", "audit",
                                    "file_accepted": "timestamp",
                                    "eventdate_aud_fkey": "integer"})
 
-# Comment Letter
-updated = wrds_update("commlett", "audit", 
+# Comment Letters
+updated = wrds_update("commlett", "audit",
                       col_types = {"pub_doc_count":"text",
-                      "cl_con_id": "integer"},
-                      drop="closest: ")
+                                   "cl_con_id": "integer"},
+                      drop="closest: cl_text cl_frmt_text_html ")
 if updated:
     list_cols = ["iss_accrl_disc_text","iss_dcic_text", "iss_etifgaap_text",
                   "iss_evnt_disc_text", "iss_fedsec_text", "iss_finguide_text", 
@@ -195,10 +197,11 @@ if updated:
                   "iss_sec_text"]
     for col in list_cols:
         print("Fixing column %s" % col)
-        engine.execute("""
+        process_sql("""
             ALTER TABLE audit.commlett
             ALTER COLUMN %s TYPE text[] USING 
-                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col))
+                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col),
+                   engine)
 
     list_cols = ["iss_accrl_disc_keys", "iss_dcic_keys", "iss_etifgaap_keys",
                   "iss_evnt_disc_keys", "iss_fedsec_keys", "iss_finguide_keys", 
@@ -213,11 +216,11 @@ if updated:
                   "iss_sec_keys"]
     for col in list_cols:
         print("Fixing column %s" % col)
-        engine.execute("""
+        process_sql("""
             ALTER TABLE audit.commlett
             ALTER COLUMN %s TYPE integer[] USING 
                 array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ %
-                    (col, col)) 
+                    (col, col), engine) 
 
 
 # Comment Letter Conversations
