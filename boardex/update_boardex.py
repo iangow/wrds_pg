@@ -14,13 +14,12 @@ def get_wrds_tables(schema, wrds_id):
     wrds_engine = create_engine("postgresql://%s@wrds-pgdata.wharton.upenn.edu:9737/wrds" % wrds_id,
                                 connect_args = {'sslmode':'require'})
 
-    metadata = MetaData(wrds_engine, schema=schema)
-    metadata.reflect(schema=schema)
-
+    metadata = MetaData(schema)
+    metadata.reflect(wrds_engine)
     table_list = [key.name for key in metadata.tables.values()]
     wrds_engine.dispose()
     return table_list
-
+    
 def update_schema(schema, wrds_id):
 
     table_list = get_wrds_tables(schema, wrds_id)
