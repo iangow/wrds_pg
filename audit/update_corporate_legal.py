@@ -224,17 +224,62 @@ if updated:
 
 
 # Comment Letter Conversations
-updated = wrds_update("feed26_comment_letter_conversati", "audit", 
-                      drop="closest: ")
+updated = wrds_update("feed26_comment_letter_conversati", "audit",
+                      drop = "closest:",
+                      col_types = {'cl_con_id': 'integer', 
+                                   'con_time_span': 'integer'})
+
+if updated:
+    list_cols = ["list_ref_ftp_fkey",  "list_form_dates", "list_of_taxon", 
+                 "list_of_ciks", "list_ppl_add_to", 
+                 "list_ppl_sent_letter", 
+                 "list_ppl_copied", "list_cl_ftp_fkeys"]
+    
+    for col in list_cols:
+        process_sql("""
+            ALTER TABLE audit.feed26_comment_letter_conversati
+            ALTER COLUMN %s TYPE text[] USING 
+                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ %
+                     (col, col), engine)
 
 # Comment Threading
-updated = wrds_update("feed40_comment_letter_threads", "audit", 
-                      drop="match: closest: prior: " +
+updated = wrds_update("feed40_comment_letter_threads", "audit",
+                      force=True,
+                      drop="match: closest: prior: " + 
                            "question_text_formatted question_text_html " + 
-                           "answer_text_formatted answer_text_html")
+                           "answer_text_formatted answer_text_html",
+                      col_types = {'comment_response_key': 'integer', 
+                                   'ques_cl_comment_fkey': 'integer', 
+                                   'eventdate_aud_fkey': 'integer'})
+
+if updated:
+    list_cols = ["question_issue_key_list", "question_issue_text_list", 
+                 "question_fasb_key_list", "question_fasb_text_list", 
+                 "answer_issue_key_list", "answer_issue_text_list",
+                 "answer_fasb_key_list", "answer_fasb_text_list"]
+    
+    for col in list_cols:
+        process_sql("""
+            ALTER TABLE audit.feed40_comment_letter_threads
+            ALTER COLUMN %s TYPE text[] USING 
+                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ %
+                     (col, col), engine)
 
 # Transfer Agents
-updated = wrds_update("feed41_transfer_agents", "audit")
+updated = wrds_update("feed41_transfer_agents", "audit",
+                      drop="match: closest: prior:",
+                      col_types={"transfer_agent_company_fkey": "integer",
+                                 "company_to_transfer_agent_key":"integer",
+                                 "filed_for_company_fkey": "integer",
+                                 "mr_transfer_agent_file_date":"date",
+                                 "mr_transfer_age_reg_fil_dat": "date",
+                                 "shareholder_company_fkey": "integer",
+                                 "shareholder_info_key": "integer",
+                                 "mr_transfer_age_der_fil_dat": "date",
+                                 "shareholder_class_fkey": "integer",
+                                 "transfer_agent_ult_par_com_fke": "integer",
+                                 "shareholder_market_fkey": "integer",
+                                 "eventdate_aud_fkey": "integer"})
 
 # Tax Footnotes
 updated = wrds_update("feed32_tax_footnotes", "audit", 
@@ -277,16 +322,24 @@ if updated:
                      (col, col), engine)
 
 # Form D
-updated = wrds_update("feed37_form_d", "audit", 
+updated = wrds_update("feed37_form_d", "audit",
+                      force=True,
                       drop = "primary_issuer_pre_nam_lis " +
                                "primary_issuer_edg_pre_nam_lis",
-                      col_types = {"form_d_key": "integer", 
-                                      "is_primary": "boolean"})
+                      col_types = {"form_d_key": "integer",
+                                   "is_business_com_tra": "boolean",
+                                   "file_accepted":"timestamp",
+                                   "is_primary": "boolean"})
 
 # Form D Most Recent Report
 updated = wrds_update("feed38_form_d_most_recent_offeri", "audit",
-                      drop = "primary_issuer_pre_nam_lis " +
+                         drop = "primary_issuer_pre_nam_lis " +
                                "primary_issuer_edg_pre_nam_lis",
-                      col_types = {"form_d_key": "integer", 
-                                      "is_primary": "boolean"})
+                       col_types={"form_d_key": "integer",
+                                "file_accepted":"timestamp",
+                                "has_non_accredited_investors": "boolean",
+                                "is_primary": "boolean",
+                                "is_business_com_tra": "boolean",
+                                "authorized_representative": "boolean",
+                               "primary_issuer_company_fkey": "integer"})
 
