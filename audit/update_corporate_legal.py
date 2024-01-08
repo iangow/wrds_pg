@@ -327,6 +327,7 @@ updated = wrds_update("feed37_form_d", "audit",
                       drop = "primary_issuer_pre_nam_lis " +
                                "primary_issuer_edg_pre_nam_lis",
                       col_types = {"form_d_key": "integer",
+                                   "authorized_representative": "boolean",
                                    "is_business_com_tra": "boolean",
                                    "file_accepted":"timestamp",
                                    "is_primary": "boolean"})

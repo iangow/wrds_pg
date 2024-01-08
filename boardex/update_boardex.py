@@ -42,6 +42,6 @@ def update_schema(schema, wrds_id):
         wrds_update(table_name=table, schema="boardex",
                     wrds_id=wrds_id, fix_missing = fix_missing)
 
-schemas = ["boardex_na", "boardex_uk","boardex_row", "boardex_eur"]
+schemas = ["boardex_na", "boardex_uk", "boardex_row", "boardex_eur"]
 for schema in schemas:
     update_schema(schema, wrds_id)
