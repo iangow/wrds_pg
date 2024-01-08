@@ -40,12 +40,13 @@ if tfz_idx or tfz_dly_ft:
         INNER JOIN crsp.tfz_dly_ft
         USING (kytreasnox))
         """
-    engine.execute(sql)
-    engine.execute("ALTER TABLE crsp.tfz_ft OWNER TO crsp")
-    engine.execute("GRANT SELECT ON crsp.tfz_ft TO crsp_access")
+    process_sql(sql, engine)
+    process_sql("ALTER TABLE crsp.tfz_ft OWNER TO crsp", engine)
+    process_sql("GRANT SELECT ON crsp.tfz_ft TO crsp_access", engine)
     # Add comments
-    sql = "Created using update_crsp.py ON " + strftime("%Y-%m-%d %H:%M:%S", gmtime())
-    set_table_comment("tfz_ft", "crsp", sql, engine)
+    now = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    comment = f"Created using update_crsp.py ON {now}." 
+    set_table_comment("tfz_ft", "crsp", comment, engine)
 
 mse = wrds_update("mse", "crsp", fix_missing=True)
 
@@ -53,10 +54,10 @@ mse = wrds_update("mse", "crsp", fix_missing=True)
 msf = wrds_update("msf", "crsp", fix_missing=True,
                   col_types = {'permno':'integer', 'permco':'integer'})
 if msf:
-    engine.execute("CREATE INDEX ON crsp.msf (permno, date)")
-    engine.execute("CREATE INDEX ON crsp.msf (permno)")
-    engine.execute("CREATE INDEX ON crsp.msf (permco)")
-    engine.execute("CREATE INDEX ON crsp.msf (date)")
+    process_sql("CREATE INDEX ON crsp.msf (date)", engine)
+    process_sql("CREATE INDEX ON crsp.msf (permno, date)", engine)
+    process_sql("CREATE INDEX ON crsp.msf (permno)", engine)
+    process_sql("CREATE INDEX ON crsp.msf (permco)", engine)
 
 msi = wrds_update("msi", "crsp")
 
@@ -87,10 +88,10 @@ if ermport1 or msf or msi or msedelist:
 dsf = wrds_update("dsf", "crsp", fix_missing=True,
                   col_types = {'permno':'integer', 'permco': 'integer'})
 if dsf:
-    engine.execute("SET maintenance_work_mem='1999MB'")
-    engine.execute("CREATE INDEX ON crsp.dsf (permno, date)")
-    engine.execute("CREATE INDEX ON crsp.dsf (permco)")
-    engine.execute("CREATE INDEX ON crsp.dsf (permno)")
+    process_sql("SET maintenance_work_mem='1999MB'", engine)
+    process_sql("CREATE INDEX ON crsp.dsf (permno, date)", engine)
+    process_sql("CREATE INDEX ON crsp.dsf (permco)", engine)
+    process_sql("CREATE INDEX ON crsp.dsf (permno)", engine)
 
 dsi = wrds_update("dsi", "crsp")
 if dsi:
