@@ -333,13 +333,15 @@ updated = wrds_update("feed37_form_d", "audit",
 
 # Form D Most Recent Report
 updated = wrds_update("feed38_form_d_most_recent_offeri", "audit",
-                         drop = "primary_issuer_pre_nam_lis " +
+                      drop = "primary_issuer_pre_nam_lis " +
                                "primary_issuer_edg_pre_nam_lis",
-                       col_types={"form_d_key": "integer",
-                                "file_accepted":"timestamp",
-                                "has_non_accredited_investors": "boolean",
-                                "is_primary": "boolean",
-                                "is_business_com_tra": "boolean",
-                                "authorized_representative": "boolean",
-                               "primary_issuer_company_fkey": "integer"})
+                      col_types = {"form_d_key": "integer", 
+                                   "file_accepted": "timestamp",
+                                   "primary_issuer_company_fkey": "integer",
+                                   "has_non_accredited_investors": "boolean",
+                                   "authorized_representative": "boolean",
+                                   "gross_proceeds_use_est": "boolean",
+                                   "is_business_com_tra": "boolean",
+                                   "total_offering_is_indefinite": "boolean",
+                                   "is_primary": "boolean"})
 
