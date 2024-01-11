@@ -119,35 +119,41 @@ updated = wrds_update("feed02_auditor_changes", "audit",
 # Audit Fees
 updated = wrds_update("feed03_audit_fees", "audit", 
                       drop="match: prior: closest: auditor_name eventdate_aud_name", 
-                      col_types = {"eventdate_aud_fkey":"integer", 
+                      col_types = {"eventdate_aud_fkey":"integer",
+                                   "file_accepted": "timestamptz",
                                    "auditor_fkey":"integer", 
                                    "audit_gig_key":"integer",
                                    "fiscal_year":"integer",
                                    "restatement":"boolean",
                                    "fees_pcaob_reg":"boolean",
-                                   "is_benefit_plan":"boolean"})
+                                   "is_benefit_plan":"boolean"},
+                                   tz = "America/New_York")
                
 # Audit Fees with Restatements
 updated = wrds_update("feed04_audit_fees_restated", "audit", 
                       drop="match: prior: closest: auditor_name eventdate_aud_name", 
                       col_types = {"eventdate_aud_fkey":"integer", 
+                                   "file_accepted": "timestamptz",
                                    "auditor_fkey":"integer", 
                                    "audit_gig_key":"integer",
                                    "fiscal_year":"integer",
                                    "restatement":"boolean",
                                    "fees_pcaob_reg":"boolean",
-                                   "is_benefit_plan":"boolean"})
+                                   "is_benefit_plan":"boolean"},
+                                   tz = "America/New_York")
 
 # Audit Opinions
 updated = wrds_update("feed05_audit_opinions", "audit",
                       drop="match: prior: closest:", 
                       col_types = {"audit_op_key": "integer", 
                                    "auditor_fkey": "integer",
+                                   "file_accepted": "timestamptz",
                                    "auditor_affil_fkey": "integer",
                                    "going_concern": "boolean",
                                    "op_aud_pcaob": "boolean",
                                    "eventdate_aud_fkey": "integer",
-                                   "fiscal_year_of_op": "integer"})
+                                   "fiscal_year_of_op": "integer"},
+                      tz = "America/New_York")
 
 updated = wrds_update("feed34_revised_audit_opinions", "audit",
                       drop="match: prior: closest:",
@@ -159,9 +165,10 @@ updated = wrds_update("feed34_revised_audit_opinions", "audit",
                                    "is_nth_add_op": "integer",
                                    "going_concern": "boolean",
                                    "op_aud_pcaob": "boolean",
-                                   "file_accepted": "timestamp",
+                                   "file_accepted": "timestamptz",
                                    "eventdate_aud_fkey": "integer",
-                                   "fiscal_year_of_op": "integer"})
+                                   "fiscal_year_of_op": "integer"},
+                      tz = "America/New_York")
 
 updated = wrds_update("feed06_benefit_plan_opinions", "audit", 
                       drop="match: prior: closest:",
