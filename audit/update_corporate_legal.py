@@ -244,7 +244,6 @@ if updated:
 
 # Comment Threading
 updated = wrds_update("feed40_comment_letter_threads", "audit",
-                      force=True,
                       drop="match: closest: prior: " + 
                            "question_text_formatted question_text_html " + 
                            "answer_text_formatted answer_text_html",
@@ -323,7 +322,6 @@ if updated:
 
 # Form D
 updated = wrds_update("feed37_form_d", "audit",
-                      force=True,
                       drop = "primary_issuer_pre_nam_lis " +
                                "primary_issuer_edg_pre_nam_lis",
                       col_types = {"form_d_key": "integer",
