@@ -199,8 +199,9 @@ updated = wrds_update("feed09_nonreliance_restatements", "audit",
                                      "current_aud_fkey": "integer", 
                                      "res_begin_aud_fkey": "integer", 
                                      "res_end_aud_fkey": "integer",
-                                     "file_accepted": "timestamp",
-                                     "file_date_aud_fkey": "integer"})
+                                     "file_accepted": "timestamptz",
+                                     "file_date_aud_fkey": "integer"},
+                      tz = "America/New_York")
 if updated:
     list_cols = ["res_acc_res_fkey_list", "res_fraud_res_fkey_list", 
                  "res_cler_err_fkey_list", "res_period_aud_fkey",
@@ -291,8 +292,9 @@ updated = wrds_update("feed16_accelerated_filer", "audit",
                                    "hst_is_voluntary_filer": "integer", 
                                    "hst_is_small_report": "integer",   
                                    "did_not_disc": 'boolean',
-                                   "file_accepted": "timestamp",
-                                   "eventdate_aud_fkey": "integer"})                  
+                                   "file_accepted": "timestamptz",
+                                   "eventdate_aud_fkey": "integer"},
+                      tz = "America/New_York")
 
 # Director and officer changes
 updated = wrds_update("feed17_director_and_officer_chan", "audit",
@@ -300,7 +302,7 @@ updated = wrds_update("feed17_director_and_officer_chan", "audit",
                         col_types = {"do_off_pers_key": "integer",
                                      "do_change_key": "integer",
                                      "eventdate_aud_fkey": "integer",
-                                     "file_accepted": "timestamp",
+                                     "file_accepted": "timestamptz",
                                      "interim": 'boolean',
                                      "do_off_remains": 'boolean',
                                      "retain_other_pos": 'boolean',
@@ -321,7 +323,8 @@ updated = wrds_update("feed17_director_and_officer_chan", "audit",
                                      'is_president': 'boolean', 
                                      'is_ceo': 'boolean', 
                                      'is_cfo': 'boolean', 
-                                     'is_exec_vp': 'boolean'})
+                                     'is_exec_vp': 'boolean'},
+                     tz = "America/New_York")
 
 if updated:                     
     process_sql("CREATE INDEX ON audit.feed17_director_and_officer_chan (do_off_pers_key)",
@@ -335,13 +338,14 @@ if updated:
 updated = wrds_update("feed20_nt", "audit",
                       drop="match: closest: prior: ",
                       col_types = {"nt_notify_key": "integer",
-                                   "ac_file_accepted": "timestamp",
+                                   "ac_file_accepted": "timestamptz",
                                    "eventdate_aud_fkey": "integer",
                                    "aud_at_file_date":"integer",
                                    "part2_c_check": "boolean", 
                                    "part2_b_check": "boolean",
                                    "part2_a_check": "boolean",
                                    "part4_3_check": "boolean",
-                                   "file_accepted": "timestamp",
-                                   "ten_k_trans_report": "boolean"})
+                                   "file_accepted": "timestamptz",
+                                   "ten_k_trans_report": "boolean"},
+                     tz = "America/New_York")
 engine.dispose()
