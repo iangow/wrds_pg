@@ -2,7 +2,6 @@
 from wrds2pg import wrds_update
 
 updated = wrds_update("amend", "tfn")
-#updated = wrds_update("avgreturns", "tfn")
 updated = wrds_update("avgreturns", "tfn", col_types = {"buycount": "double precision"})
 updated = wrds_update("company", "tfn", fix_cr=True)
 updated = wrds_update("form144", "tfn")
