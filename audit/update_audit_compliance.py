@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update, make_engine
+from wrds2pg import wrds_update, make_engine, process_sql
 from sqlalchemy import Table, MetaData, Boolean
 
 engine = make_engine()
@@ -105,16 +105,23 @@ updated = wrds_update("feed01_auditors", "audit",
 updated = wrds_update("feed02_auditor_changes", "audit", 
                       col_types = {"auditor_change_key": "integer",
                                    "dismiss_key": "integer",
+                                   "file_accepted": "timestamptz",
                                    "engaged_auditor_key": "integer",
-                                  "dismissed_gc": "boolean", 
+                                   "dismissed_gc": "boolean", 
                                    "dismissed_disagree": "boolean", 
                                    "auditor_resigned": "boolean",
                                    "dismiss_pcaob_reg": "boolean",
                                    "merger": "boolean",
                                    "is_benefit_plan": "boolean",
+                                   "aud_letter_disagree": "boolean", 
+                                   "aud_letter_no_comm": "boolean",
+                                   "aud_letter_agree": "boolean",
+                                   "aud_co_disagree": "boolean",
                                    "engaged_auditor_pcaob": "boolean"}, 
                       drop="match: prior: closest: dismiss_name " + 
-                            "engaged_auditor_name eventdate_aud_name")
+                           "engaged_auditor_name eventdate_aud_name",
+                      tz = "America/New_York",
+                      ts_strs = ["file_accepted"])
 
 # Audit Fees
 updated = wrds_update("feed03_audit_fees", "audit", 
@@ -127,7 +134,8 @@ updated = wrds_update("feed03_audit_fees", "audit",
                                    "restatement":"boolean",
                                    "fees_pcaob_reg":"boolean",
                                    "is_benefit_plan":"boolean"},
-                                   tz = "America/New_York")
+                      tz = "America/New_York",
+                      ts_strs = ["file_accepted"])
                
 # Audit Fees with Restatements
 updated = wrds_update("feed04_audit_fees_restated", "audit", 
@@ -140,7 +148,8 @@ updated = wrds_update("feed04_audit_fees_restated", "audit",
                                    "restatement":"boolean",
                                    "fees_pcaob_reg":"boolean",
                                    "is_benefit_plan":"boolean"},
-                                   tz = "America/New_York")
+                      tz = "America/New_York",
+                      ts_strs = ["file_accepted"])
 
 # Audit Opinions
 updated = wrds_update("feed05_audit_opinions", "audit",
@@ -153,7 +162,8 @@ updated = wrds_update("feed05_audit_opinions", "audit",
                                    "op_aud_pcaob": "boolean",
                                    "eventdate_aud_fkey": "integer",
                                    "fiscal_year_of_op": "integer"},
-                      tz = "America/New_York")
+                      tz = "America/New_York",
+                      ts_strs = ["file_accepted"])
 
 updated = wrds_update("feed34_revised_audit_opinions", "audit",
                       drop="match: prior: closest:",
@@ -168,7 +178,8 @@ updated = wrds_update("feed34_revised_audit_opinions", "audit",
                                    "file_accepted": "timestamptz",
                                    "eventdate_aud_fkey": "integer",
                                    "fiscal_year_of_op": "integer"},
-                      tz = "America/New_York")
+                      tz = "America/New_York",
+                      ts_strs = ["file_accepted"])
 
 updated = wrds_update("feed06_benefit_plan_opinions", "audit", 
                       drop="match: prior: closest:",
@@ -201,7 +212,9 @@ updated = wrds_update("feed09_nonreliance_restatements", "audit",
                                      "res_end_aud_fkey": "integer",
                                      "file_accepted": "timestamptz",
                                      "file_date_aud_fkey": "integer"},
-                      tz = "America/New_York")
+                      tz = "America/New_York",
+                      ts_strs = ["file_accepted"])
+
 if updated:
     list_cols = ["res_acc_res_fkey_list", "res_fraud_res_fkey_list", 
                  "res_cler_err_fkey_list", "res_period_aud_fkey",
@@ -247,23 +260,22 @@ if updated:
     list_cols = ["noteff_acc_reas_keys", "noteff_finfraud_keys", 
                     "noteff_reas_keys", "noteff_other_reas_keys"]
     for col in list_cols:
-        engine.execute("""
+        process_sql("""
             ALTER TABLE audit.feed09_nonreliance_restatements
             ALTER COLUMN %s TYPE integer[] USING 
-                array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ % (col, col))
+                array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ % (col, col),
+                   engine)
                     
     list_cols = ["noteff_acc_reas_phr", "noteff_finfraud_phr", 
                     "noteff_reas_phr", "noteff_other_reas_phr"]
     for col in list_cols:
-        engine.execute("""
+        process_sql("""
             ALTER TABLE audit.feed09_nonreliance_restatements
             ALTER COLUMN %s TYPE text[] USING 
-                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col))
+                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col),
+                   engine)
     
-    engine.execute("CREATE INDEX ON audit.feed09_nonreliance_restatements (ic_dc_key)")
-
-
-
+    process_sql("CREATE INDEX ON audit.feed09_nonreliance_restatements (ic_dc_key)", engine)
 
 # SOX 404 Internal Controls
 updated = wrds_update("feed11_sox_404_internal_controls", "audit",
@@ -294,7 +306,8 @@ updated = wrds_update("feed16_accelerated_filer", "audit",
                                    "did_not_disc": 'boolean',
                                    "file_accepted": "timestamptz",
                                    "eventdate_aud_fkey": "integer"},
-                      tz = "America/New_York")
+                      tz = "America/New_York",
+                      ts_strs = ["file_accepted"])
 
 # Director and officer changes
 updated = wrds_update("feed17_director_and_officer_chan", "audit",
@@ -324,7 +337,8 @@ updated = wrds_update("feed17_director_and_officer_chan", "audit",
                                      'is_ceo': 'boolean', 
                                      'is_cfo': 'boolean', 
                                      'is_exec_vp': 'boolean'},
-                     tz = "America/New_York")
+                      tz = "America/New_York",
+                      ts_strs = ["file_accepted"])
 
 if updated:                     
     process_sql("CREATE INDEX ON audit.feed17_director_and_officer_chan (do_off_pers_key)",
@@ -347,5 +361,6 @@ updated = wrds_update("feed20_nt", "audit",
                                    "part4_3_check": "boolean",
                                    "file_accepted": "timestamptz",
                                    "ten_k_trans_report": "boolean"},
-                     tz = "America/New_York")
+                      tz = "America/New_York",
+                      ts_strs = ["file_accepted"])
 engine.dispose()
