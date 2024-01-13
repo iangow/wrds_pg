@@ -67,7 +67,7 @@ ermport1 = wrds_update("ermport1", "crsp", fix_missing=True,
                         col_types = {'permno':'integer', 'capn':'integer'})
 
 if msi:
-    engine.execute("CREATE INDEX ON crsp.msi (date)")
+    process_sql("CREATE INDEX ON crsp.msi (date)", engine)
 
 if ermport1 or msf or msi or msedelist:
     run_file_sql("crsp/crsp_make_mrets.sql", engine)
@@ -95,7 +95,7 @@ if dsf:
 
 dsi = wrds_update("dsi", "crsp")
 if dsi:
-    engine.execute("CREATE INDEX ON crsp.dsi (date)")
+    process_sql("CREATE INDEX ON crsp.dsi (date)", engine)
     run_file_sql("crsp/make_trading_dates.sql", engine)
     # Add comments here
     sql1 = "COMMENT ON TABLE crsp.trading_dates IS " + \
@@ -118,13 +118,13 @@ if dsi:
 dsedelist = wrds_update("dsedelist", "crsp", fix_missing=True,
                         col_types = {'permno':'integer', 'permco': 'integer'})
 if dsedelist:
-    engine.execute("CREATE INDEX ON crsp.dsedelist (permno)")
+    process_sql("CREATE INDEX ON crsp.dsedelist (permno)", engine)
 
 erdport1 = wrds_update("erdport1", "crsp", fix_missing = True,
                        col_types = {'permno':'integer', 'capn': 'integer'})
 
 if erdport1:
-    engine.execute("CREATE INDEX ON crsp.erdport1 (permno, date)")
+    process_sql("CREATE INDEX ON crsp.erdport1 (permno, date)", engine)
     
 if erdport1 or dsf or dsi or dsedelist:
     run_file_sql("crsp/crsp_make_rets.sql", engine)
@@ -146,28 +146,28 @@ ccmxpf_linktable = wrds_update("ccmxpf_linktable", "crsp", fix_missing=True,
                                              'lpermco': 'integer',
                                              'usedflag': 'integer'})
 if ccmxpf_linktable:
-    engine.execute("CREATE INDEX ON crsp.ccmxpf_linktable (lpermno)")
-    engine.execute("CREATE INDEX ON crsp.ccmxpf_linktable (lpermno)")
-    engine.execute("CREATE INDEX ON crsp.ccmxpf_linktable (gvkey)")
+    process_sql("CREATE INDEX ON crsp.ccmxpf_linktable (lpermno)", engine)
+    process_sql("CREATE INDEX ON crsp.ccmxpf_linktable (lpermno)", engine)
+    process_sql("CREATE INDEX ON crsp.ccmxpf_linktable (gvkey)", engine)
     
 ccmxpf_lnkhist = wrds_update("ccmxpf_lnkhist", "crsp", fix_missing=True,
                                  col_types = {'lpermno':'integer', 
                                               'lpermco': 'integer'})
 if ccmxpf_lnkhist:
-    engine.execute("CREATE INDEX ON crsp.ccmxpf_lnkhist (gvkey)")
-    engine.execute("CREATE INDEX ON crsp.ccmxpf_lnkhist (lpermno)")
+    process_sql("CREATE INDEX ON crsp.ccmxpf_lnkhist (gvkey)", engine)
+    process_sql("CREATE INDEX ON crsp.ccmxpf_lnkhist (lpermno)", engine)
 
 dsedist = wrds_update("dsedist", "crsp", fix_missing=True,
                       col_types = {'permno':'integer',
                                    'permco':'integer'})
 if dsedist:
-    engine.execute("CREATE INDEX ON crsp.dsedist (permno)")
+    process_sql("CREATE INDEX ON crsp.dsedist (permno)", engine)
 
 dse = wrds_update("dse", "crsp", fix_missing=True,
                       col_types = {'permno':'integer',
                                    'permco':'integer'})
 if dse:
-    engine.execute("CREATE INDEX ON crsp.dse (permno)")
+    process_sql("CREATE INDEX ON crsp.dse (permno)", engine)
 
 stocknames = wrds_update("stocknames", "crsp",
                           col_types = {'permno':'integer', 
@@ -177,7 +177,7 @@ dseexchdates = wrds_update("dseexchdates", "crsp",
                            col_types = {'permno':'integer', 
                                         'permco': 'integer'})
 if dseexchdates:
-    engine.execute("CREATE INDEX ON crsp.dseexchdates (permno)")
+    process_sql("CREATE INDEX ON crsp.dseexchdates (permno)", engine=engine)
 
 # Update other data sets
 wrds_update("msp500list", "crsp")
