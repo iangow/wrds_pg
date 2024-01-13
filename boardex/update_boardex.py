@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-from wrds2pg import get_modified_str
-from wrds2pg import wrds_update, make_engine, get_wrds_tables
+from wrds2pg import wrds_update, get_wrds_tables
 
 import re
 from os import getenv
-from sqlalchemy import create_engine
 wrds_id = getenv("WRDS_ID")
     
 def update_schema(schema, wrds_id):

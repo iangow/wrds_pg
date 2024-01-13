@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from wrds2pg import wrds_update, wrds_id, get_wrds_tables
-from sqlalchemy import create_engine
 
 table_list = get_wrds_tables("ciq_transcripts", wrds_id)
 
