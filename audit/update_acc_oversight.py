@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update, make_engine
+from wrds2pg import wrds_update
 
 # Auditor Changes
 updated = wrds_update("feed55_auditor_ratification", "audit", 
