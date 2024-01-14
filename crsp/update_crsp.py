@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from sqlalchemy import create_engine
-
-from wrds2pg import wrds_update, get_process, wrds_process_to_pg, \
-    run_file_sql, make_engine, wrds_id, set_table_comment
+from sqlalchemy import create_engine 
+from wrds2pg import wrds_update, get_process, wrds_process_to_pg
+from wrds2pg import run_file_sql, make_engine, wrds_id, set_table_comment
+from wrds2pg import process_sql
 from time import gmtime, strftime
 
 engine = make_engine()
@@ -104,16 +104,8 @@ if dsi:
     sql2 = "COMMENT ON TABLE crsp.anncdates IS " + \
             "'Created using update_crsp.py ON " + \
             strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
-    connection = engine.connect()
-    trans = connection.begin()
-
-    try:
-        res = connection.execute(sql1)
-        res = connection.execute(sql2)
-        trans.commit()
-    except:
-        trans.rollback()
-        raise
+    process_sql(sql1, engine)
+    process_sql(sql2, engine)
 
 dsedelist = wrds_update("dsedelist", "crsp", fix_missing=True,
                         col_types = {'permno':'integer', 'permco': 'integer'})
@@ -131,15 +123,7 @@ if erdport1 or dsf or dsi or dsedelist:
     #### Add comments here
     sql = "COMMENT ON TABLE crsp.rets IS 'Created using update_crsp.py ON " + \
             strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "'"
-    connection = engine.connect()
-    trans = connection.begin()
-
-    try:
-        res = connection.execute(sql)
-        trans.commit()
-    except:
-        trans.rollback()
-        raise
+    process_sql(sql, engine)
 
 ccmxpf_linktable = wrds_update("ccmxpf_linktable", "crsp", fix_missing=True,
                                 col_types = {'lpermno':'integer', 
