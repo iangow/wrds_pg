@@ -5,4 +5,5 @@ tr_esg_tables = get_wrds_tables("tr_esg", wrds_id)
 
 for table in tr_esg_tables:
     wrds_update(table, "tresg",
-                col_types = {"orgpermid": "bigint"})
+                col_types = {"orgpermid": "bigint"},
+                fix_cr = table=="esgsourcedata")
