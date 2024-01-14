@@ -31,7 +31,6 @@ if updated:
 
 wrds_update("det_guidance", "ibes")
 if updated:
-    engine.execute("SET maintenance_work_mem='1999MB'")
     process_sql("CREATE INDEX ON ibes.det_guidance (anndats)",
                 engine=engine)
     

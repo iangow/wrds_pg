@@ -143,14 +143,14 @@ wrds_update("co_adesind", "comp")
 
 updated = wrds_update("g_secd", "comp")
 if updated:
-    process_sql("CREATE INDEX ON comp.g_secd (gvkey)", engine=engine)
+    process_sql("CREATE INDEX ON comp.g_secd (gvkey)", engine)
 
 updated = wrds_update("g_secm", "comp")
 if updated:
-    engine.execute("CREATE INDEX ON comp.g_secm (gvkey)")
+    process_sql("CREATE INDEX ON comp.g_secm (gvkey)", engine)
 
 updated = wrds_update("secd", "comp")
 if updated:
-    process_sql("CREATE INDEX ON comp.secd (gvkey, datadate)", engine=engine)
+    process_sql("CREATE INDEX ON comp.secd (gvkey, datadate)", engine)
 
 engine.dispose()
