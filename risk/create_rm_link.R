@@ -3,10 +3,8 @@ options(gargle_oauth_email = TRUE)
 library(dplyr)
 library(DBI)
 library(googlesheets4)
-options(
-    gargle_oauth_cache = ".secrets",
-    gargle_oauth_email = TRUE
-)
+drive_deauth()
+
 pg <- dbConnect(RPostgres::Postgres())
 
 rs <- dbExecute(pg, "SET search_path TO risk")

@@ -1,8 +1,6 @@
 library(googlesheets4)
-options(
-  gargle_oauth_cache = ".secrets",
-  gargle_oauth_email = TRUE
-)
+drive_deauth()
+
 # Get corrected data on board-related activism from Google Sheets document ----
 library(DBI)
 gs <- as_sheets_id("0AuGYuDecQAVTdEc5WmhEWVY1ZWF1cjlxVFJEaHRzUFE")

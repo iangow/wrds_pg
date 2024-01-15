@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update, make_engine
+from wrds2pg import wrds_update, make_engine, process_sql
 
 update = wrds_update("vavoteresults", "risk",
                      col_types = {'companyid':'integer', 
-                                   'meetingid':'integer',
-                                   'itemonagendaid':'integer',
-                                   'seqnumber':'integer'})
+                                  'meetingid':'integer',
+                                  'itemonagendaid':'integer',
+                                  'seqnumber':'integer'})
 if update:
     engine = make_engine()
     sql = """
@@ -48,14 +48,15 @@ wrds_update("globalvoteresults", "risk")
 wrds_update("gset", "risk")
 wrds_update("votes", "risk")
 wrds_update("rmgovernance", "risk", 
-                      col_types={'company_id':'integer'})
+            col_types={'company_id':'integer'})
 wrds_update("directors", "risk",
-                      col_types={'annrev': 'float8',
-                                 'year_term_ends': 'float8',
-                                 'voting': 'float8',
-                                 'votecref':'float8',
-                                 'outside_public_boards':'text'})
+            sas_encoding = "wlatin1", encoding="latin1",
+            col_types={'annrev': 'float8',
+                       'year_term_ends': 'float8',
+                       'voting': 'float8',
+                       'votecref':'float8',
+                       'outside_public_boards':'text'})
 wrds_update("votes", "risk")
 wrds_update("rmdirectors", "risk", 
-                      col_types={'company_id':'integer',
-                                 'pcnt_ctrl_votingpower':'float8'})
+            col_types={'company_id':'integer',
+                       'pcnt_ctrl_votingpower':'float8'})
