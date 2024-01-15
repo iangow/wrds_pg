@@ -7,8 +7,7 @@ updated = wrds_update("avgreturns", "tfn",
 updated = wrds_update("company", "tfn", fix_cr=True)
 updated = wrds_update("form144", "tfn")
 updated = wrds_update("header", "tfn")
-updated = wrds_update("idfhist", "tfn",
-                      encoding="wlatin1", sas_encoding="wlatin1")
+updated = wrds_update("idfhist", "tfn", sas_encoding="wlatin1")
 updated = wrds_update("idfnames", "tfn")
 updated = wrds_update("rule10b5", "tfn")
 updated = wrds_update("table1", "tfn", fix_cr=True)

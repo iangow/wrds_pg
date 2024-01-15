@@ -50,7 +50,7 @@ wrds_update("votes", "risk")
 wrds_update("rmgovernance", "risk", 
             col_types={'company_id':'integer'})
 wrds_update("directors", "risk",
-            sas_encoding = "wlatin1", encoding="latin1",
+            sas_encoding = "wlatin1", 
             col_types={'annrev': 'float8',
                        'year_term_ends': 'float8',
                        'voting': 'float8',
