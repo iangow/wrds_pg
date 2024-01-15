@@ -118,7 +118,7 @@ updated = wrds_update("feed13_legal_case_feed", "audit",
                                  'magistrate': 'boolean',
                                  'gender': 'integer'})
 
-updated = wrds_update("feed14_company_legal_party_feed", "audit", force=True,
+updated = wrds_update("feed14_company_legal_party_feed", "audit",
                       drop="closest: match: prior: web_summ:",
                       col_types = { "legal_party_key":"integer",
                                     "auditor_key":"integer",
