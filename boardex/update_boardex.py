@@ -7,7 +7,7 @@ wrds_id = getenv("WRDS_ID")
     
 def update_schema(schema, wrds_id):
 
-    table_list = get_wrds_tables(schema, wrds_id)
+    table_list = get_wrds_tables(schema, wrds_id, views=True)
 
     regex_list = ["wrds_company_networks", "company_profile_sr_mgrs",
                   "wrds_dir_profile_emp", "dir_profile_emp",
@@ -24,9 +24,7 @@ def update_schema(schema, wrds_id):
             continue
 
         fix_missing = re.search(regex, table) is not None
-        wrds_update(table_name=table, schema="boardex",
-                    wrds_id=wrds_id, fix_missing = fix_missing)
+        wrds_update(table_name=table, schema=schema,
+                    wrds_id=wrds_id, fix_missing=fix_missing)
 
-schemas = ["boardex_na", "boardex_uk", "boardex_row", "boardex_eur"]
-for schema in schemas:
-    update_schema(schema, wrds_id)
+update_schema("boardex", wrds_id)
