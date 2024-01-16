@@ -1,9 +1,8 @@
-options(gargle_oauth_email = TRUE)
-
 library(dplyr)
 library(DBI)
 library(googlesheets4)
-drive_deauth()
+
+gs4_deauth()
 
 pg <- dbConnect(RPostgres::Postgres())
 

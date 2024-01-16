@@ -1,5 +1,5 @@
 library(googlesheets4)
-drive_deauth()
+gs4_deauth()
 
 # Get corrected data on board-related activism from Google Sheets document ----
 library(DBI)
