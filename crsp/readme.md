@@ -1,6 +1,6 @@
 # CRSP
 
-Data found in the `crsp` data library on WRDS (`/wrds/crsp/sasdata/` on SAS server)
+Data found in the `crsp` data library on WRDS (`/wrds/crsp/sasdata/` on the WRDS SAS server)
 
 ## Introduction
 
@@ -9,7 +9,7 @@ As discussed [here](http://www.crsp.org/about-crsp), "since 1960, CRSP has provi
 ## Additional tables
 
 Most of the tables maintained in the `crsp` schema are imported from WRDS using fairly straightforward application of the `wrds_udpate` function from the `wrds2pg` package.
-However, there are some additional table that the code in this directory produces:
+However, there are some additional tables that the code in this directory produces:
 
 - `crsp.rets`: Daily stock returns compounded with delisting returns. 
 This purpose of this table is to dramatically speed up calculation of event returns, but creation of this table take some time.
