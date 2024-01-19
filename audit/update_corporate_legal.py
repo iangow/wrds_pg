@@ -120,8 +120,8 @@ updated = wrds_update("feed13_legal_case_feed", "audit",
 
 updated = wrds_update("feed14_company_legal_party_feed", "audit",
                       drop="closest: match: prior: web_summ:",
-                      col_types = { "legal_party_key":"integer",
-                                    "auditor_key":"integer",
+                      col_types={"legal_party_key":"integer",
+                                 "auditor_key":"integer",
                                     "gov_key":"integer",
                                     "law_firm_key":"integer",
                                     "legal_case_key":"integer",
@@ -251,15 +251,15 @@ updated = wrds_update("feed14_company_legal_party_feed", "audit",
 
 # Mergers and Acquisitions
 updated = wrds_update("feed18_merger_acquisition", "audit",
-                      col_types = {"ma_party_key": "integer",
-                                   "party_co_fkey": "integer",
-                                   "party_aud_fkey": "integer",
-                                   "trans_val_est": "boolean",
-                                   "is_canceled": "boolean",
-                                   "deal_confirmed": "boolean",
-                                   "m_a_key": "integer",
-                                   "ma_transaction_type_fkey": "integer",
-                                   "eventdate_aud_fkey": "integer"},
+                      col_types={"ma_party_key": "integer",
+                                 "party_co_fkey": "integer",
+                                 "party_aud_fkey": "integer",
+                                 "trans_val_est": "boolean",
+                                 "is_canceled": "boolean",
+                                 "deal_confirmed": "boolean",
+                                 "m_a_key": "integer",
+                                 "ma_transaction_type_fkey": "integer",
+                                 "eventdate_aud_fkey": "integer"},
                       drop="closest: match: prior: ")
 
 if updated:
@@ -287,13 +287,13 @@ if updated:
 # IPO
 updated = wrds_update("ipo", "audit",
                       drop="closest: match: prior: ", 
-                      col_types = {"ipo_info_key": "integer",
+                      col_types={"ipo_info_key": "integer",
                                    "auditor_fkey_at_ipo": "integer",
                                    "eventdate_aud_fkey": "integer"})
 # Bankruptcy Notification
 updated = wrds_update("feed21_bankruptcy_notification", "audit",
                       drop="closest: match: prior: ", 
-                      col_types = {"bank_key": "integer",
+                      col_types={"bank_key": "integer",
                                    "bankruptcy_type": "integer",
                                    "law_court_fkey": "integer",
                                    "file_accepted": "timestamp",
@@ -301,7 +301,7 @@ updated = wrds_update("feed21_bankruptcy_notification", "audit",
 
 # Comment Letters
 updated = wrds_update("commlett", "audit",
-                      col_types = {"pub_doc_count":"text",
+                      col_types={"pub_doc_count":"text",
                                    "cl_con_id": "integer"},
                       drop="closest: cl_text cl_frmt_text_html ")
 if updated:
@@ -347,7 +347,7 @@ if updated:
 # Comment Letter Conversations
 updated = wrds_update("feed26_comment_letter_conversati", "audit",
                       drop = "closest:",
-                      col_types = {'cl_con_id': 'integer', 
+                      col_types={'cl_con_id': 'integer', 
                                    'con_time_span': 'integer'})
 
 if updated:
@@ -368,7 +368,7 @@ updated = wrds_update("feed40_comment_letter_threads", "audit",
                       drop="match: closest: prior: " + 
                            "question_text_formatted question_text_html " + 
                            "answer_text_formatted answer_text_html",
-                      col_types = {'comment_response_key': 'integer', 
+                      col_types={'comment_response_key': 'integer', 
                                    'ques_cl_comment_fkey': 'integer', 
                                    'eventdate_aud_fkey': 'integer'})
 
@@ -403,17 +403,17 @@ updated = wrds_update("feed41_transfer_agents", "audit",
 
 # Tax Footnotes
 updated = wrds_update("feed32_tax_footnotes", "audit", 
-                        col_types = {"tax_footnote_key": "integer",
-                                    "times_restated": "integer",
-                                    "res_notif_fkey": "integer",
-                                    "eventdate_aud_fkey": "integer",
-                                    "file_date": "date"},
+                        col_types={"tax_footnote_key": "integer",
+                                   "times_restated": "integer",
+                                   "res_notif_fkey": "integer",
+                                   "eventdate_aud_fkey": "integer",
+                                   "file_date": "date"},
                         drop="closest: match: prior: period_ended_str")
 
 # Shareholder Activism
 updated = wrds_update("feed31_shareholder_activism", "audit",
                       drop="closest: match: prior: ",
-                      col_types = {'active_share_key':'integer',
+                      col_types={'active_share_key':'integer',
                                    'active_share_rep_fkey': 'integer',
                                    'iss_file_accepted': 'timestamp',
                                    'rep_file_acc': 'timestamp',
@@ -445,7 +445,7 @@ if updated:
 updated = wrds_update("feed37_form_d", "audit",
                       drop = "primary_issuer_pre_nam_lis " +
                                "primary_issuer_edg_pre_nam_lis",
-                      col_types = {"form_d_key": "integer",
+                      col_types={"form_d_key": "integer",
                                    "authorized_representative": "boolean",
                                    "is_business_com_tra": "boolean",
                                    "file_accepted":"timestamp",
@@ -455,7 +455,7 @@ updated = wrds_update("feed37_form_d", "audit",
 updated = wrds_update("feed38_form_d_most_recent_offeri", "audit",
                       drop = "primary_issuer_pre_nam_lis " +
                                "primary_issuer_edg_pre_nam_lis",
-                      col_types = {"form_d_key": "integer", 
+                      col_types={"form_d_key": "integer", 
                                    "file_accepted": "timestamp",
                                    "primary_issuer_company_fkey": "integer",
                                    "has_non_accredited_investors": "boolean",
