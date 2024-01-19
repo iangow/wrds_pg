@@ -2,12 +2,10 @@
 from wrds2pg import wrds_update, get_wrds_tables
 
 import re
-from os import getenv
-wrds_id = getenv("WRDS_ID")
     
-def update_schema(schema, wrds_id):
+def update_schema(schema):
 
-    table_list = get_wrds_tables(schema, wrds_id, views=True)
+    table_list = get_wrds_tables(schema, views=True)
 
     regex_list = ["wrds_company_networks", "company_profile_sr_mgrs",
                   "wrds_dir_profile_emp", "dir_profile_emp",
@@ -25,6 +23,6 @@ def update_schema(schema, wrds_id):
 
         fix_missing = re.search(regex, table) is not None
         wrds_update(table_name=table, schema=schema,
-                    wrds_id=wrds_id, fix_missing=fix_missing)
+                    fix_missing=fix_missing)
 
-update_schema("boardex", wrds_id)
+update_schema("boardex")
