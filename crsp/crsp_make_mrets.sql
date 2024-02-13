@@ -1,6 +1,4 @@
 -- Create a table that integrates basic returns with delisting returns
-SET work_mem='1999MB';
-
 DROP TABLE IF EXISTS crsp.mrets CASCADE;
 
 CREATE TABLE crsp.mrets AS
@@ -31,10 +29,6 @@ ALTER TABLE crsp.mrets OWNER TO crsp;
 GRANT SELECT ON TABLE crsp.mrets TO crsp_access;
 
 -- Create an index/key on PERMNO, DATE
-RESET work_mem;
-
-SET maintenance_work_mem='6GB';
 CREATE INDEX ON crsp.mrets (permno, date);
 
-ANALYZE crsp.mrets;
 
