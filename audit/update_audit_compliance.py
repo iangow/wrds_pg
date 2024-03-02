@@ -28,8 +28,7 @@ updated = wrds_update("feed02_auditor_changes", "audit",
                                    "aud_letter_no_comm": "boolean",
                                    "aud_letter_agree": "boolean",
                                    "aud_co_disagree": "boolean",
-                                   "engaged_auditor_pcaob": "boolean",
-                                   "file_accepted": "timestamp"}, 
+                                   "engaged_auditor_pcaob": "boolean"}, 
                       drop="match: prior: closest: dismiss_name " + 
                            "engaged_auditor_name eventdate_aud_name",
                       tz="America/New_York")
@@ -44,8 +43,7 @@ updated = wrds_update("feed03_audit_fees", "audit",
                                    "fiscal_year": "integer",
                                    "restatement":"boolean",
                                    "fees_pcaob_reg":"boolean",
-                                   "is_benefit_plan":"boolean",
-                                   "file_accepted": "timestamp"},
+                                   "is_benefit_plan":"boolean"},
                       tz="America/New_York")
                
 # Audit Fees with Restatements
@@ -58,8 +56,7 @@ updated = wrds_update("feed04_audit_fees_restated", "audit",
                                    "fiscal_year": "integer",
                                    "restatement":"boolean",
                                    "fees_pcaob_reg":"boolean",
-                                   "is_benefit_plan":"boolean",
-                                   "file_accepted": "timestamp"},
+                                   "is_benefit_plan":"boolean"},
                       tz="America/New_York")
 
 # Audit Opinions
@@ -72,8 +69,7 @@ updated = wrds_update("feed05_audit_opinions", "audit",
                                    "going_concern": "boolean",
                                    "op_aud_pcaob": "boolean",
                                    "eventdate_aud_fkey": "integer",
-                                   "fiscal_year_of_op": "integer",
-                                   "file_accepted": "timestamp"},
+                                   "fiscal_year_of_op": "integer"},
                       tz="America/New_York")
 
 updated = wrds_update("feed34_revised_audit_opinions", "audit",
@@ -88,8 +84,7 @@ updated = wrds_update("feed34_revised_audit_opinions", "audit",
                                    "op_aud_pcaob": "boolean",
                                    "file_accepted": "timestamptz",
                                    "eventdate_aud_fkey": "integer",
-                                   "fiscal_year_of_op": "integer",
-                                   "file_accepted": "timestamp"},
+                                   "fiscal_year_of_op": "integer"},
                       tz="America/New_York")
 
 updated = wrds_update("feed06_benefit_plan_opinions", "audit", 
@@ -122,8 +117,7 @@ updated = wrds_update("feed09_nonreliance_restatements", "audit",
                                      "res_begin_aud_fkey": "integer", 
                                      "res_end_aud_fkey": "integer",
                                      "file_accepted": "timestamptz",
-                                     "file_date_aud_fkey": "integer",
-                                   "file_accepted": "timestamp"},
+                                     "file_date_aud_fkey": "integer"},
                       tz="America/New_York")
 
 if updated:
@@ -216,8 +210,7 @@ updated = wrds_update("feed16_accelerated_filer", "audit",
                                    "hst_is_small_report": "integer",   
                                    "did_not_disc": 'boolean',
                                    "file_accepted": "timestamptz",
-                                   "eventdate_aud_fkey": "integer",
-                                   "file_accepted": "timestamp"},
+                                   "eventdate_aud_fkey": "integer"},
                       tz="America/New_York")
 
 # Director and officer changes
@@ -247,8 +240,7 @@ updated = wrds_update("feed17_director_and_officer_chan", "audit",
                                      'is_president': 'boolean', 
                                      'is_ceo': 'boolean', 
                                      'is_cfo': 'boolean', 
-                                     'is_exec_vp': 'boolean',
-                                     "file_accepted": "timestamp"},
+                                     'is_exec_vp': 'boolean'},
                       tz="America/New_York")
 
 if updated:                     
@@ -271,7 +263,6 @@ updated = wrds_update("feed20_nt", "audit",
                                    "part2_a_check": "boolean",
                                    "part4_3_check": "boolean",
                                    "file_accepted": "timestamptz",
-                                   "ten_k_trans_report": "boolean",
-                                   "file_accepted": "timestamp"},
+                                   "ten_k_trans_report": "boolean"},
                       tz="America/New_York")
 engine.dispose()
