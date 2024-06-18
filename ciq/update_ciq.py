@@ -17,6 +17,7 @@ if updated:
 
 updated = wrds_update("ciqfininstance", "ciq")
 if updated:
+    process_sql("CREATE INDEX ON ciq.ciqfininstance (financialinstanceid)", engine=engine)
     process_sql("CREATE INDEX ON ciq.ciqfininstance (financialperiodid)", engine=engine)
     process_sql("ANALYZE ciq.ciqfininstance", engine=engine)
     
@@ -30,5 +31,10 @@ updated = wrds_update("ciqgvkeyiid", "ciq")
 if updated:
     process_sql("CREATE INDEX ON ciq.ciqgvkeyiid (relatedcompanyid)", engine=engine)
     process_sql("ANALYZE ciq.ciqgvkeyiid", engine=engine)
+
+updated = wrds_update("ciqfininstancetocollection", "ciq")
+if updated:
+    process_sql("CREATE INDEX ON ciq.ciqfininstancetocollection (financialcollectionid)", engine=engine)
+    process_sql("CREATE INDEX ON ciq.ciqfininstancetocollection (financialinstanceid)", engine=engine)
 
 engine.dispose()
