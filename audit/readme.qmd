@@ -32,8 +32,8 @@ This comprises 14 tables (table names listed in parentheses):
 - Audit Opinions (`feed05_audit_opinions`)
 - Current Auditors (`feed07_current_auditor`)
 - Non-Reliance Restatements (`feed09_nonreliance_restatements`)
-- SOX 302 Disclosure Controls (`auditsox302`): To be renamed `feed10_sox_302_disclosure_contro`?
-- SOX 404 Internal Controls (`auditsox302`): To be renamed `feed11_sox_404_internal_controls`?
+- SOX 302 Disclosure Controls (`feed10_sox_302_disclosure_contro`)
+- SOX 404 Internal Controls (`feed11_sox_404_internal_controls`)
 - Accelerated Filer (`feed16_accelerated_filer`)
 - Director and Officer Changes (`feed17_director_and_officer_chan`)
 - Non-timely Filer Information And Analysis (`feed20_nt`)
@@ -80,11 +80,9 @@ In addition to the data being split across a number of columns, the textual data
 For this reason, often the textual data is placed in a separate table from the other data (and in some cases, a number of separate tables).
 For example, the variables `do_change_text1`, `do_change_text2`, and `do_change_text3` are found in tables `diroffichange_text1`, `diroffichange_text2`, and `diroffichange_text3` respectively along with the primary key variable for the original table (`do_off_pers_key` in the case of `diroffichange`).
 
-Separate text tables are provided for the following tables:
+Separate text tables are provided for the following table:
 
-- `auditsox302`: `auditsox302_text`
-- `auditsox404`: `auditsox404_text1`, `auditsox404_text2`
-- `feed17_director_and_officer_chan`: Text field is currently omitted (see below).
+- `feed17_director_and_officer_chan`
 
 ### Omission of auditor names from some tables
 
@@ -107,16 +105,12 @@ library(DBI)
 pg <- dbConnect(RPostgres::Postgres(), bigint="integer")
 rs <- dbExecute(pg, "SET search_path TO audit")
 
-auditsox404 <- tbl(pg, "auditsox404")
-auditsox404_text1 <- tbl(pg, "auditsox404_text1")
-auditsox404_text2 <- tbl(pg, "auditsox404_text2")
+feed17 <- tbl(pg, "feed17_director_and_officer_chan")
+feed17_text <- tbl(pg, "feed17_director_and_officer_chan_text")
 
-auditsox404_text <-
-    auditsox404_text1 |>
-    inner_join(auditsox404_text2,by = "ic_op_fkey") |>
-    mutate(ic_op_text = trimws(paste(coalesce(ic_text1, ""),
-                                     coalesce(ic_text2, "")))) |>
-    select(ic_op_fkey, ic_op_text)
+feed17_w_text <-
+    feed17 |>
+    inner_join(feed17_text)
 
 auditsox404_text
 ```

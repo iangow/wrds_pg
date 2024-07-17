@@ -1,5 +1,6 @@
 # Audit Analytics
 
+
 Data found in `audit` data library on WRDS (`/wrds/audit/sasdata/` on
 SAS server)
 
@@ -40,10 +41,8 @@ This comprises 14 tables (table names listed in parentheses):
 - Audit Opinions (`feed05_audit_opinions`)
 - Current Auditors (`feed07_current_auditor`)
 - Non-Reliance Restatements (`feed09_nonreliance_restatements`)
-- SOX 302 Disclosure Controls (`auditsox302`): To be renamed
-  `feed10_sox_302_disclosure_contro`?
-- SOX 404 Internal Controls (`auditsox302`): To be renamed
-  `feed11_sox_404_internal_controls`?
+- SOX 302 Disclosure Controls (`feed10_sox_302_disclosure_contro`)
+- SOX 404 Internal Controls (`feed11_sox_404_internal_controls`)
 - Accelerated Filer (`feed16_accelerated_filer`)
 - Director and Officer Changes (`feed17_director_and_officer_chan`)
 - Non-timely Filer Information And Analysis (`feed20_nt`)
@@ -132,48 +131,6 @@ many tables. Simply join the table with `auditors` using `auditor_key`
 to recover this variable.
 
 ## Sample code
-
-### Merge tables and combine textual variables for `feed11_sox_404_internal_controls`
-
-Here is some code illustrating how to merge the tables and combine the
-textual variables (in this case, for `auditsox404` data).
-
-``` r
-library(dplyr, warn.conflicts = FALSE)
-library(DBI)
-
-pg <- dbConnect(RPostgres::Postgres(), bigint="integer")
-rs <- dbExecute(pg, "SET search_path TO audit")
-
-auditsox404 <- tbl(pg, "auditsox404")
-auditsox404_text1 <- tbl(pg, "auditsox404_text1")
-auditsox404_text2 <- tbl(pg, "auditsox404_text2")
-
-auditsox404_text <-
-    auditsox404_text1 |>
-    inner_join(auditsox404_text2,by = "ic_op_fkey") |>
-    mutate(ic_op_text = trimws(paste(coalesce(ic_text1, ""),
-                                     coalesce(ic_text2, "")))) |>
-    select(ic_op_fkey, ic_op_text)
-
-auditsox404_text
-```
-
-    # Source:   SQL [?? x 2]
-    # Database: postgres  [igow@/tmp:5432/igow]
-       ic_op_fkey ic_op_text                                                        
-            <int> <chr>                                                             
-     1     132433 "REPORT OF INDEPENDENT REGISTERED PUBLIC ACCOUNTING FIRM  The Boa…
-     2     144022 "The Board of Directors and Shareholders  Arrow Electronics, Inc.…
-     3     119508 "MANAGEMENTâ€™S REPORT ON INTERNAL CONTROL OVER FINANCIAL REPORTI…
-     4     166216 "Report of Independent Registered Public Accounting Firm  To the …
-     5     177185 "Report of Independent Registered Public Accounting Firm  To the …
-     6     119507 "REPORT OF INDEPENDENT REGISTERED PUBLIC ACCOUNTING FIRM  To the …
-     7     197806 "Management's Report on Internal Control Over Financial Reporting…
-     8     197805 "Report of Independent Registered Public Accounting Firm  To the …
-     9     208786 "Report of Independent Registered Public Accounting Firm  To the …
-    10      56033 "Managementâ€™s Report on Internal Control over Financial Reporti…
-    # ℹ more rows
 
 ### Combine textual variables for `feed17_director_and_officer_chan`
 

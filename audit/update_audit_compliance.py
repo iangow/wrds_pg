@@ -142,25 +142,7 @@ if updated:
                    engine)
     
     process_sql("CREATE INDEX ON audit.feed09_nonreliance_restatements (res_notif_key)", engine)
- 
-# SOX 302 Disclosure Controls
-updated = wrds_update("auditsox302", "audit",
-                      drop="prior: match: closest: ic_dc_text:",
-                      col_types={"ic_dc_key": "integer", 
-                                    "is_effective": "integer",
-                                    "material_weakness": "boolean",
-                                    "sig_deficiency": "boolean",
-                                    "noteff_acc_rule": "integer",
-                                    "noteff_fin_fraud": "integer",
-                                    "notefferrors": "integer",
-                                    "noteff_other": "integer",
-                                    "eventdate_aud_fkey": "integer"})
 
-updated = wrds_update("auditsox302", "audit", 
-                      keep="ic_dc_key ic_dc_text:",
-                      alt_table_name="auditsox302_text",
-                      col_types={"ic_dc_key": "integer"})
-                      
 if updated:
     list_cols = ["noteff_acc_reas_keys", "noteff_finfraud_keys", 
                     "noteff_reas_keys", "noteff_other_reas_keys"]
@@ -182,17 +164,30 @@ if updated:
     
     process_sql("CREATE INDEX ON audit.feed09_nonreliance_restatements (ic_dc_key)", engine)
 
+# SOX 302 Disclosure Controls
+wrds_update("feed10_sox_302_disclosure_contro", "audit",
+            drop="prior: match: closest: ic_dc_text:",
+            col_types={"ic_dc_key": "integer", 
+                       "is_effective": "integer",
+                       "material_weakness": "boolean",
+                       "sig_deficiency": "boolean",
+                       "noteff_acc_rule": "integer",
+                       "noteff_fin_fraud": "integer",
+                       "notefferrors": "integer",
+                       "noteff_other": "integer",
+                       "eventdate_aud_fkey": "integer"})
+
+wrds_update("feed10_sox_302_disclosure_contro", "audit", 
+            keep="ic_dc_key ic_dc_text:",
+            alt_table_name="feed10_sox_302_disclosure_contro_text",
+            col_types={"ic_dc_key": "integer"})
+                     
 # SOX 404 Internal Controls
 updated = wrds_update("feed11_sox_404_internal_controls", "audit",
                       drop="prior: match: closest: ic_text:",
                         col_types={"ic_op_fkey": "integer",
                                      "auditor_fkey": "integer", 
                                      "eventdate_aud_fkey": "integer"})
-
-#updated = wrds_update("feed11_sox_404_internal_controls", "audit", 
-#                      keep="ic_op_fkey ic_text",
-#                      alt_table_name="feed11_sox_404_internal_controls_text",
-#                      col_types={"ic_op_fkey": "integer"})
 
 # Accelerated Filer
 updated = wrds_update("feed16_accelerated_filer", "audit",
@@ -242,10 +237,6 @@ updated = wrds_update("feed17_director_and_officer_chan", "audit",
 if updated:                     
     process_sql("CREATE INDEX ON audit.feed17_director_and_officer_chan (do_off_pers_key)",
                 engine)
-
-# wrds_update("feed17_director_and_officer_chan", "audit", 
-#                     keep="ftp_file_fkey do_change_text",
-#                     alt_table_name="feed17_director_and_office_text1")
 
 # Non-timely Filer Information And Analysis
 updated = wrds_update("feed20_nt", "audit",
