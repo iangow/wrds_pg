@@ -189,14 +189,10 @@ updated = wrds_update("feed11_sox_404_internal_controls", "audit",
                                      "auditor_fkey": "integer", 
                                      "eventdate_aud_fkey": "integer"})
 
-updated = wrds_update("feed11_sox_404_internal_controls", "audit", 
-                      keep="ic_op_fkey ic_text1",
-                      alt_table_name="feed11_sox_404_internal_controls_text1",
-                      col_types={"ic_op_fkey": "integer"})
-updated = wrds_update("feed11_sox_404_internal_controls", "audit", 
-                      keep="ic_op_fkey ic_text2",
-                      alt_table_name="feed11_sox_404_internal_controls_text2",
-                      col_types={"ic_op_fkey": "integer"})
+#updated = wrds_update("feed11_sox_404_internal_controls", "audit", 
+#                      keep="ic_op_fkey ic_text",
+#                      alt_table_name="feed11_sox_404_internal_controls_text",
+#                      col_types={"ic_op_fkey": "integer"})
 
 # Accelerated Filer
 updated = wrds_update("feed16_accelerated_filer", "audit",
@@ -255,14 +251,14 @@ if updated:
 updated = wrds_update("feed20_nt", "audit",
                       drop="match: closest: prior: ",
                       col_types={"nt_notify_key": "integer",
-                                   "ac_file_accepted": "timestamptz",
-                                   "eventdate_aud_fkey": "integer",
-                                   "aud_at_file_date": "integer",
-                                   "part2_c_check": "boolean", 
-                                   "part2_b_check": "boolean",
-                                   "part2_a_check": "boolean",
-                                   "part4_3_check": "boolean",
-                                   "file_accepted": "timestamptz",
-                                   "ten_k_trans_report": "boolean"},
+                                 "ac_file_accepted": "timestamptz",
+                                 "eventdate_aud_fkey": "integer",
+                                 "aud_at_file_date": "integer",
+                                 "part2_c_check": "boolean", 
+                                 "part2_b_check": "boolean",
+                                 "part2_a_check": "boolean",
+                                 "part4_3_check": "boolean",
+                                 "file_accepted": "timestamptz",
+                                 "ten_k_trans_report": "boolean"},
                       tz="America/New_York")
 engine.dispose()

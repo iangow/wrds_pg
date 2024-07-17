@@ -285,7 +285,7 @@ if updated:
                      (col, col), engine)
 
 # IPO
-updated = wrds_update("ipo", "audit",
+updated = wrds_update("feed19_ipo", "audit",
                       drop="closest: match: prior: ", 
                       col_types={"ipo_info_key": "integer",
                                    "auditor_fkey_at_ipo": "integer",
@@ -300,7 +300,7 @@ updated = wrds_update("feed21_bankruptcy_notification", "audit",
                                    "eventdate_aud_fkey": "integer"})
 
 # Comment Letters
-updated = wrds_update("commlett", "audit",
+updated = wrds_update("feed25_comment_letters", "audit",
                       col_types={"pub_doc_count":"text",
                                    "cl_con_id": "integer"},
                       drop="closest: cl_text cl_frmt_text_html ")
@@ -319,7 +319,7 @@ if updated:
     for col in list_cols:
         print("Fixing column %s" % col)
         process_sql("""
-            ALTER TABLE audit.commlett
+            ALTER TABLE audit.feed25_comment_letters
             ALTER COLUMN %s TYPE text[] USING 
                 array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col),
                    engine)
@@ -338,7 +338,7 @@ if updated:
     for col in list_cols:
         print("Fixing column %s" % col)
         process_sql("""
-            ALTER TABLE audit.commlett
+            ALTER TABLE audit.feed25_comment_letters
             ALTER COLUMN %s TYPE integer[] USING 
                 array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ %
                     (col, col), engine) 
@@ -464,4 +464,3 @@ updated = wrds_update("feed38_form_d_most_recent_offeri", "audit",
                                    "is_business_com_tra": "boolean",
                                    "total_offering_is_indefinite": "boolean",
                                    "is_primary": "boolean"})
-
