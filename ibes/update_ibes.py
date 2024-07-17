@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update, run_file_sql, make_engine
+from wrds2pg import wrds_update, process_sql, make_engine
 
 engine = make_engine()
 
@@ -26,6 +26,8 @@ updated = wrds_update("surpsumu", "ibes")
 if updated:
     process_sql("CREATE INDEX ON ibes.surpsumu (ticker)", engine=engine)
 
+wrds_update("actsum_epsint", "ibes")
+wrds_update("actsum_xepsint", "ibes")
 wrds_update("statsum_epsus", "ibes")
 updated = wrds_update("statsumu_epsus", "ibes")
 if updated:
@@ -43,7 +45,9 @@ wrds_update("stop_epsus", "ibes")
 wrds_update("exc_epsus", "ibes")
 wrds_update("actpsum_epsus", "ibes")
 wrds_update("actpsum_epsint", "ibes")
+wrds_update("actpsum_xepsint", "ibes")
 wrds_update("statsum_epsint", "ibes")
+wrds_update("statsum_xepsint", "ibes")
 
 engine.dispose()
 
