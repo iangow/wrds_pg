@@ -119,7 +119,7 @@ updated = wrds_update("feed13_legal_case_feed", "audit",
                                  'gender': 'integer'})
 
 updated = wrds_update("feed14_company_legal_party_feed", "audit",
-                      drop="closest: match: prior: web_summ:",
+                      drop="closest: match: prior: ",
                       col_types={"legal_party_key":"integer",
                                  "auditor_key":"integer",
                                     "gov_key":"integer",
@@ -385,31 +385,6 @@ if updated:
                 array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ %
                      (col, col), engine)
 
-# Transfer Agents
-updated = wrds_update("feed41_transfer_agents", "audit",
-                      drop="match: closest: prior:",
-                      col_types={"transfer_agent_company_fkey": "integer",
-                                 "company_to_transfer_agent_key":"integer",
-                                 "filed_for_company_fkey": "integer",
-                                 "mr_transfer_agent_file_date":"date",
-                                 "mr_transfer_age_reg_fil_dat": "date",
-                                 "shareholder_company_fkey": "integer",
-                                 "shareholder_info_key": "integer",
-                                 "mr_transfer_age_der_fil_dat": "date",
-                                 "shareholder_class_fkey": "integer",
-                                 "transfer_agent_ult_par_com_fke": "integer",
-                                 "shareholder_market_fkey": "integer",
-                                 "eventdate_aud_fkey": "integer"})
-
-# Tax Footnotes
-updated = wrds_update("feed32_tax_footnotes", "audit", 
-                        col_types={"tax_footnote_key": "integer",
-                                   "times_restated": "integer",
-                                   "res_notif_fkey": "integer",
-                                   "eventdate_aud_fkey": "integer",
-                                   "file_date": "date"},
-                        drop="closest: match: prior: period_ended_str")
-
 # Shareholder Activism
 updated = wrds_update("feed31_shareholder_activism", "audit",
                       drop="closest: match: prior: ",
@@ -464,3 +439,19 @@ updated = wrds_update("feed38_form_d_most_recent_offeri", "audit",
                                    "is_business_com_tra": "boolean",
                                    "total_offering_is_indefinite": "boolean",
                                    "is_primary": "boolean"})
+                                   
+# Transfer Agents
+updated = wrds_update("feed41_transfer_agents", "audit",
+                      drop="match: closest: prior:",
+                      col_types={"transfer_agent_company_fkey": "integer",
+                                 "company_to_transfer_agent_key":"integer",
+                                 "filed_for_company_fkey": "integer",
+                                 "mr_transfer_agent_file_date":"date",
+                                 "mr_transfer_age_reg_fil_dat": "date",
+                                 "shareholder_company_fkey": "integer",
+                                 "shareholder_info_key": "integer",
+                                 "mr_transfer_age_der_fil_dat": "date",
+                                 "shareholder_class_fkey": "integer",
+                                 "transfer_agent_ult_par_com_fke": "integer",
+                                 "shareholder_market_fkey": "integer",
+                                 "eventdate_aud_fkey": "integer"})

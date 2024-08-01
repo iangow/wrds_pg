@@ -59,34 +59,6 @@ updated = wrds_update("feed04_audit_fees_restated", "audit",
                                    "is_benefit_plan":"boolean"},
                       tz="America/New_York")
 
-# Audit Opinions
-updated = wrds_update("feed05_audit_opinions", "audit",
-                      drop="match: prior: closest:", 
-                      col_types={"audit_op_key": "integer", 
-                                   "auditor_fkey": "integer",
-                                   "file_accepted": "timestamptz",
-                                   "auditor_affil_fkey": "integer",
-                                   "going_concern": "boolean",
-                                   "op_aud_pcaob": "boolean",
-                                   "eventdate_aud_fkey": "integer",
-                                   "fiscal_year_of_op": "integer"},
-                      tz="America/New_York")
-
-updated = wrds_update("feed34_revised_audit_opinions", "audit",
-                      drop="match: prior: closest:",
-                      col_types={"audit_op_key": "integer", 
-                                   "eventdate_aud_fkey": "integer",
-                                   "integrated_audit": "boolean",
-                                   "auditor_fkey": "integer",
-                                   "auditor_affil_fkey": "integer",
-                                   "is_nth_add_op": "integer",
-                                   "going_concern": "boolean",
-                                   "op_aud_pcaob": "boolean",
-                                   "file_accepted": "timestamptz",
-                                   "eventdate_aud_fkey": "integer",
-                                   "fiscal_year_of_op": "integer"},
-                      tz="America/New_York")
-
 updated = wrds_update("feed06_benefit_plan_opinions", "audit", 
                       drop="match: prior: closest:",
                       col_types={"benefit_plan_key": "integer", 
@@ -98,71 +70,11 @@ updated = wrds_update("feed06_benefit_plan_opinions", "audit",
                                    "eventdate_aud_fkey": "integer",
                                    "fiscal_year_of_op": "integer"})
 
-updated = wrds_update("feed07_current_auditor", "audit", 
-                       col_types={"auditor_key": "integer"}) 
+wrds_update("feed07_current_auditor", "audit", 
+            col_types={"auditor_key": "integer"}) 
 
-# Non-reliance restatements
-updated = wrds_update("feed09_nonreliance_restatements", "audit", 
-                        drop="prior: match: closest: ",
-                        col_types={"res_accounting": "boolean",
-                                     "res_fraud": "boolean", 
-                                     "res_cler_err": "boolean",
-                                     "res_adverse": "boolean", 
-                                     "res_improves": "boolean", 
-                                     "res_other": "boolean",
-                                     "res_sec_invest": "boolean",
-                                     "res_begin_aud_fkey": "integer", 
-                                     "res_notif_key": "integer", 
-                                     "current_aud_fkey": "integer", 
-                                     "res_begin_aud_fkey": "integer", 
-                                     "res_end_aud_fkey": "integer",
-                                     "file_accepted": "timestamptz",
-                                     "file_date_aud_fkey": "integer"},
-                      tz="America/New_York")
-
-if updated:
-    list_cols = ["res_acc_res_fkey_list", "res_fraud_res_fkey_list", 
-                 "res_cler_err_fkey_list", "res_period_aud_fkey",
-                 "res_other_rescat_fkey"]
-    for col in list_cols:
-        process_sql("""
-            ALTER TABLE audit.feed09_nonreliance_restatements
-            ALTER COLUMN %s TYPE integer[] USING 
-                array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ % (col, col),
-                   engine)
-                    
-    list_cols = ["res_acc_res_title_list", "res_fraud_res_title_list", 
-                 "res_clerr_err_title_list", "res_period_aud_names",
-                 "res_other_rescat_title"]
-    for col in list_cols:
-        process_sql("""
-            ALTER TABLE audit.feed09_nonreliance_restatements
-            ALTER COLUMN %s TYPE text[] USING 
-                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col),
-                   engine)
-    
-    process_sql("CREATE INDEX ON audit.feed09_nonreliance_restatements (res_notif_key)", engine)
-
-if updated:
-    list_cols = ["noteff_acc_reas_keys", "noteff_finfraud_keys", 
-                    "noteff_reas_keys", "noteff_other_reas_keys"]
-    for col in list_cols:
-        process_sql("""
-            ALTER TABLE audit.feed09_nonreliance_restatements
-            ALTER COLUMN %s TYPE integer[] USING 
-                array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ % (col, col),
-                    engine)
-                    
-    list_cols = ["noteff_acc_reas_phr", "noteff_finfraud_phr", 
-                    "noteff_reas_phr", "noteff_other_reas_phr"]
-    for col in list_cols:
-        process_sql("""
-            ALTER TABLE audit.feed09_nonreliance_restatements
-            ALTER COLUMN %s TYPE text[] USING 
-                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col),
-                    engine)
-    
-    process_sql("CREATE INDEX ON audit.feed09_nonreliance_restatements (ic_dc_key)", engine)
+wrds_update("feed08_auditor_during", "audit", 
+            col_types={"auditor_fkey": "integer"}) 
 
 # SOX 302 Disclosure Controls
 wrds_update("feed10_sox_302_disclosure_contro", "audit",
@@ -177,10 +89,10 @@ wrds_update("feed10_sox_302_disclosure_contro", "audit",
                        "noteff_other": "integer",
                        "eventdate_aud_fkey": "integer"})
 
-wrds_update("feed10_sox_302_disclosure_contro", "audit", 
-            keep="ic_dc_key ic_dc_text:",
-            alt_table_name="feed10_sox_302_disclosure_contro_text",
-            col_types={"ic_dc_key": "integer"})
+#wrds_update("feed10_sox_302_disclosure_contro", "audit", 
+#            keep="ic_dc_key ic_dc_text:",
+#            alt_table_name="feed10_sox_302_disclosure_contro_text",
+#            col_types={"ic_dc_key": "integer"})
                      
 # SOX 404 Internal Controls
 updated = wrds_update("feed11_sox_404_internal_controls", "audit",
@@ -253,3 +165,18 @@ updated = wrds_update("feed20_nt", "audit",
                                  "ten_k_trans_report": "boolean"},
                       tz="America/New_York")
 engine.dispose()
+
+updated = wrds_update("feed34_revised_audit_opinions", "audit",
+                      drop="match: prior: closest:",
+                      col_types={"audit_op_key": "integer", 
+                                   "eventdate_aud_fkey": "integer",
+                                   "integrated_audit": "boolean",
+                                   "auditor_fkey": "integer",
+                                   "auditor_affil_fkey": "integer",
+                                   "is_nth_add_op": "integer",
+                                   "going_concern": "boolean",
+                                   "op_aud_pcaob": "boolean",
+                                   "file_accepted": "timestamptz",
+                                   "eventdate_aud_fkey": "integer",
+                                   "fiscal_year_of_op": "integer"},
+                      tz="America/New_York")
