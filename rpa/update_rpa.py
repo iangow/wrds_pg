@@ -18,7 +18,8 @@ def update_equities(year):
                                        "event_start_date_utc": "timestamptz", 
                                        "event_end_date_utc": "timestamptz", 
                                        "reporting_start_date_utc": "timestamptz",
-                                       "reporting_end_date_utc": "timestamptz"})
+                                       "reporting_end_date_utc": "timestamptz"},
+                          timezone = "UTC")
     if updated:
         process_sql("CREATE INDEX ON rpa.rpa_djpr_equities_" + str(year) + " (rp_entity_id, timestamp_utc)",
                     engine)
