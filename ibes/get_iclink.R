@@ -59,6 +59,9 @@ get_iclink <- function() {
 # Now get the data from WRDS
 system.time(iclink <- get_iclink())
 
+pq_file <- file.path(Sys.getenv("DATA_DIR"), "ibes", "ic_link.parquet")
+
+arrow::write_parquet(iclink, sink = pq_file)
 pg <- dbConnect(RPostgres::Postgres())
 rs <- dbExecute(pg, "SET search_path TO ibes")
 
