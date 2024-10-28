@@ -9,6 +9,7 @@ engine = make_engine()
 now = datetime.datetime.now()
 avail_years = range(2000, now.year+1)
 
+updated = wrds_update("rpa_company_mappings", "rpa")
 updated = wrds_update("rpa_entity_mappings", "rpa")
 
 def update_equities(year):
