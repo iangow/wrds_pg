@@ -1,6 +1,7 @@
 library(haven)
 library(DBI)
 library(dplyr, warn.conflicts = FALSE)
+library(arrow)
 
 convertToInteger <- function(vec) {
   # This is a small function that converts numeric vectors to
