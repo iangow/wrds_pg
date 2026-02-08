@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-from sqlalchemy import create_engine 
-from wrds2pg import wrds_update, get_process, wrds_process_to_pg
-from wrds2pg import run_file_sql, make_engine, wrds_id, set_table_comment
+from wrds2pg import wrds_update
+from wrds2pg import run_file_sql, make_engine, set_table_comment
 from wrds2pg import process_sql
 from time import gmtime, strftime
 
