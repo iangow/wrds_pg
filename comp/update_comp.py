@@ -56,7 +56,7 @@ def main() -> None:
 
     update("co_filedate")
 
-    updated = update("secd")
+    updated = update("secd", col_types = {"cshoc": "float8"})
     index_if_updated(updated, create_index("comp", "secd", "gvkey, datadate"), engine=engine)
 
     updated = update("idx_index")
