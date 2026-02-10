@@ -103,7 +103,7 @@ def main() -> None:
     updated = update("g_secm")
     index_if_updated(updated, create_index("comp", "g_secm", "gvkey"), engine=engine)
 
-    updated = update("g_secd")
+    updated = update("g_secd", col_types = {"cshoc": "float8"})
     index_if_updated(updated, create_index("comp", "g_secd", "gvkey"), engine=engine)
 
     updated = update("g_funda", fix_missing=True)
