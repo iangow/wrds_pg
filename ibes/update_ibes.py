@@ -3,7 +3,8 @@ from wrds2pg import wrds_update, process_sql, make_engine
 
 engine = make_engine()
 
-wrds_update("act_epsus", "ibes")
+wrds_update_pq("act_epsus", "ibes", col_types = {"acttims": "string", "anntims": "string"})
+wrds_update("act_xepsus", "ibes")
 wrds_update("actpsumu_epsus", "ibes")
 wrds_update("actu_epsus", "ibes")
 updated = wrds_update("detu_epsus", "ibes")
