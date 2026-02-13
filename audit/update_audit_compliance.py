@@ -1,5 +1,63 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update, make_engine, process_sql
+import re
+
+from db2pq import wrds_update_pg
+from db2pq.postgres.comments import get_pg_conn
+from db2pq.postgres.update import resolve_uri
+
+try:
+    from audit.update_acc_oversight_db2pq import resolve_drop_columns
+except ModuleNotFoundError:
+    from update_acc_oversight_db2pq import resolve_drop_columns
+
+
+def _parse_drop_spec(drop):
+    if drop is None:
+        return (), []
+    if not isinstance(drop, str):
+        return (), list(drop)
+
+    prefixes = []
+    explicit = []
+    tokens = [p for p in re.split(r"[\s,]+", drop.strip()) if p]
+    for token in tokens:
+        if token.endswith(":"):
+            prefix = token[:-1]
+            if prefix:
+                prefixes.append(prefix)
+        else:
+            explicit.append(token)
+    return tuple(prefixes), explicit
+
+
+def wrds_update(table_name, schema, *, drop=None, tz=None, **kwargs):
+    prefix_drop, explicit_drop = _parse_drop_spec(drop)
+    resolved_drop = None
+    if drop is not None:
+        resolved_drop = resolve_drop_columns(
+            table_name=table_name,
+            schema=schema,
+            wrds_schema=kwargs.get("wrds_schema"),
+            wrds_id=kwargs.get("wrds_id"),
+            prefix_drop=prefix_drop,
+            explicit_drop=explicit_drop,
+        )
+    return wrds_update_pg(
+        table_name=table_name,
+        schema=schema,
+        drop=resolved_drop or None,
+        **kwargs,
+    )
+
+
+def make_engine():
+    return get_pg_conn(resolve_uri())
+
+
+def process_sql(sql, engine):
+    with engine.cursor() as cur:
+        cur.execute(sql)
+    engine.commit()
 
 engine = make_engine()
 
@@ -164,7 +222,7 @@ updated = wrds_update("feed20_nt", "audit",
                                  "file_accepted": "timestamptz",
                                  "ten_k_trans_report": "boolean"},
                       tz="America/New_York")
-engine.dispose()
+engine.close()
 
 updated = wrds_update("feed34_revised_audit_opinions", "audit",
                       drop="match: prior: closest:",
