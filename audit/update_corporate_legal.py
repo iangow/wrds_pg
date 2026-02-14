@@ -1,53 +1,7 @@
 #!/usr/bin/env python3
-import re
-
-from db2pq import wrds_update_pg
+from db2pq import wrds_update_pg as wrds_update
 from db2pq.postgres.comments import get_pg_conn
 from db2pq.postgres.update import resolve_uri
-
-try:
-    from audit.update_acc_oversight_db2pq import resolve_drop_columns
-except ModuleNotFoundError:
-    from update_acc_oversight_db2pq import resolve_drop_columns
-
-
-def _parse_drop_spec(drop):
-    if drop is None:
-        return (), []
-    if not isinstance(drop, str):
-        return (), list(drop)
-
-    prefixes = []
-    explicit = []
-    tokens = [p for p in re.split(r"[\s,]+", drop.strip()) if p]
-    for token in tokens:
-        if token.endswith(":"):
-            prefix = token[:-1]
-            if prefix:
-                prefixes.append(prefix)
-        else:
-            explicit.append(token)
-    return tuple(prefixes), explicit
-
-
-def wrds_update(table_name, schema, *, drop=None, tz=None, **kwargs):
-    prefix_drop, explicit_drop = _parse_drop_spec(drop)
-    resolved_drop = None
-    if drop is not None:
-        resolved_drop = resolve_drop_columns(
-            table_name=table_name,
-            schema=schema,
-            wrds_schema=kwargs.get("wrds_schema"),
-            wrds_id=kwargs.get("wrds_id"),
-            prefix_drop=prefix_drop,
-            explicit_drop=explicit_drop,
-        )
-    return wrds_update_pg(
-        table_name=table_name,
-        schema=schema,
-        drop=resolved_drop or None,
-        **kwargs,
-    )
 
 
 def make_engine():
@@ -177,7 +131,7 @@ updated = wrds_update("feed13_legal_case_feed", "audit",
                                  'gender': 'integer'})
 
 updated = wrds_update("feed14_company_legal_party_feed", "audit",
-                      drop="closest: match: prior: ",
+                      drop="^(closest|match|prior)",
                       col_types={"legal_party_key":"integer",
                                  "auditor_key":"integer",
                                     "gov_key":"integer",
@@ -318,7 +272,7 @@ updated = wrds_update("feed18_merger_acquisition", "audit",
                                  "m_a_key": "integer",
                                  "ma_transaction_type_fkey": "integer",
                                  "eventdate_aud_fkey": "integer"},
-                      drop="closest: match: prior: ")
+                      drop="^(closest|match|prior)")
 
 if updated:
     col = "file_date_list"
@@ -344,13 +298,13 @@ if updated:
 
 # IPO
 updated = wrds_update("feed19_ipo", "audit",
-                      drop="closest: match: prior: ", 
+                      drop="^(closest|match|prior)", 
                       col_types={"ipo_info_key": "integer",
                                    "auditor_fkey_at_ipo": "integer",
                                    "eventdate_aud_fkey": "integer"})
 # Bankruptcy Notification
 updated = wrds_update("feed21_bankruptcy_notification", "audit",
-                      drop="closest: match: prior: ", 
+                      drop="^(closest|match|prior)", 
                       col_types={"bank_key": "integer",
                                    "bankruptcy_type": "integer",
                                    "law_court_fkey": "integer",
@@ -361,7 +315,7 @@ updated = wrds_update("feed21_bankruptcy_notification", "audit",
 updated = wrds_update("feed25_comment_letters", "audit",
                       col_types={"pub_doc_count":"text",
                                    "cl_con_id": "integer"},
-                      drop="closest: cl_text cl_frmt_text_html ")
+                      drop="^(closest|cl_text|cl_frmt_text_html)")
 if updated:
     list_cols = ["iss_accrl_disc_text","iss_dcic_text", "iss_etifgaap_text",
                   "iss_evnt_disc_text", "iss_fedsec_text", "iss_finguide_text", 
@@ -404,7 +358,7 @@ if updated:
 
 # Comment Letter Conversations
 updated = wrds_update("feed26_comment_letter_conversati", "audit",
-                      drop = "closest:",
+                      drop="^closest",
                       col_types={'cl_con_id': 'integer', 
                                    'con_time_span': 'integer'})
 
@@ -423,9 +377,7 @@ if updated:
 
 # Comment Threading
 updated = wrds_update("feed40_comment_letter_threads", "audit",
-                      drop="match: closest: prior: " + 
-                           "question_text_formatted question_text_html " + 
-                           "answer_text_formatted answer_text_html",
+                      drop="^(match|closest|prior|question_text_formatted|question_text_html|answer_text_formatted|answer_text_html)",
                       col_types={'comment_response_key': 'integer', 
                                    'ques_cl_comment_fkey': 'integer', 
                                    'eventdate_aud_fkey': 'integer'})
@@ -445,7 +397,7 @@ if updated:
 
 # Shareholder Activism
 updated = wrds_update("feed31_shareholder_activism", "audit",
-                      drop="closest: match: prior: ",
+                      drop="^(closest|match|prior)",
                       col_types={'active_share_key':'integer',
                                    'active_share_rep_fkey': 'integer',
                                    'iss_file_accepted': 'timestamp',
@@ -476,8 +428,7 @@ if updated:
 
 # Form D
 updated = wrds_update("feed37_form_d", "audit",
-                      drop = "primary_issuer_pre_nam_lis " +
-                               "primary_issuer_edg_pre_nam_lis",
+                      drop="^(primary_issuer_pre_nam_lis|primary_issuer_edg_pre_nam_lis)",
                       col_types={"form_d_key": "integer",
                                    "authorized_representative": "boolean",
                                    "is_business_com_tra": "boolean",
@@ -486,8 +437,7 @@ updated = wrds_update("feed37_form_d", "audit",
 
 # Form D Most Recent Report
 updated = wrds_update("feed38_form_d_most_recent_offeri", "audit",
-                      drop = "primary_issuer_pre_nam_lis " +
-                               "primary_issuer_edg_pre_nam_lis",
+                      drop="^(primary_issuer_pre_nam_lis|primary_issuer_edg_pre_nam_lis)",
                       col_types={"form_d_key": "integer", 
                                    "file_accepted": "timestamp",
                                    "primary_issuer_company_fkey": "integer",
@@ -500,7 +450,7 @@ updated = wrds_update("feed38_form_d_most_recent_offeri", "audit",
                                    
 # Transfer Agents
 updated = wrds_update("feed41_transfer_agents", "audit",
-                      drop="match: closest: prior:",
+                      drop="^(match|closest|prior)",
                       col_types={"transfer_agent_company_fkey": "integer",
                                  "company_to_transfer_agent_key":"integer",
                                  "filed_for_company_fkey": "integer",

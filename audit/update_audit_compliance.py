@@ -1,53 +1,11 @@
 #!/usr/bin/env python3
-import re
-
 from db2pq import wrds_update_pg
 from db2pq.postgres.comments import get_pg_conn
 from db2pq.postgres.update import resolve_uri
 
-try:
-    from audit.update_acc_oversight_db2pq import resolve_drop_columns
-except ModuleNotFoundError:
-    from update_acc_oversight_db2pq import resolve_drop_columns
 
-
-def _parse_drop_spec(drop):
-    if drop is None:
-        return (), []
-    if not isinstance(drop, str):
-        return (), list(drop)
-
-    prefixes = []
-    explicit = []
-    tokens = [p for p in re.split(r"[\s,]+", drop.strip()) if p]
-    for token in tokens:
-        if token.endswith(":"):
-            prefix = token[:-1]
-            if prefix:
-                prefixes.append(prefix)
-        else:
-            explicit.append(token)
-    return tuple(prefixes), explicit
-
-
-def wrds_update(table_name, schema, *, drop=None, tz=None, **kwargs):
-    prefix_drop, explicit_drop = _parse_drop_spec(drop)
-    resolved_drop = None
-    if drop is not None:
-        resolved_drop = resolve_drop_columns(
-            table_name=table_name,
-            schema=schema,
-            wrds_schema=kwargs.get("wrds_schema"),
-            wrds_id=kwargs.get("wrds_id"),
-            prefix_drop=prefix_drop,
-            explicit_drop=explicit_drop,
-        )
-    return wrds_update_pg(
-        table_name=table_name,
-        schema=schema,
-        drop=resolved_drop or None,
-        **kwargs,
-    )
+def wrds_update(table_name, schema, *, tz=None, **kwargs):
+    return wrds_update_pg(table_name=table_name, schema=schema, **kwargs)
 
 
 def make_engine():
@@ -87,13 +45,12 @@ updated = wrds_update("feed02_auditor_changes", "audit",
                                    "aud_letter_agree": "boolean",
                                    "aud_co_disagree": "boolean",
                                    "engaged_auditor_pcaob": "boolean"}, 
-                      drop="match: prior: closest: dismiss_name " + 
-                           "engaged_auditor_name eventdate_aud_name",
+                      drop="^(match|prior|closest|dismiss_name|engaged_auditor_name|eventdate_aud_name)",
                       tz="America/New_York")
 
 # Audit Fees
 updated = wrds_update("feed03_audit_fees", "audit", 
-                      drop="match: prior: closest: auditor_name eventdate_aud_name", 
+                      drop="^(match|prior|closest|auditor_name|eventdate_aud_name)", 
                       col_types={"eventdate_aud_fkey": "integer",
                                    "file_accepted": "timestamptz",
                                    "auditor_fkey": "integer", 
@@ -106,7 +63,7 @@ updated = wrds_update("feed03_audit_fees", "audit",
                
 # Audit Fees with Restatements
 updated = wrds_update("feed04_audit_fees_restated", "audit", 
-                      drop="match: prior: closest: auditor_name eventdate_aud_name", 
+                      drop="^(match|prior|closest|auditor_name|eventdate_aud_name)", 
                       col_types={"eventdate_aud_fkey": "integer", 
                                    "file_accepted": "timestamptz",
                                    "auditor_fkey": "integer", 
@@ -118,7 +75,7 @@ updated = wrds_update("feed04_audit_fees_restated", "audit",
                       tz="America/New_York")
 
 updated = wrds_update("feed06_benefit_plan_opinions", "audit", 
-                      drop="match: prior: closest:",
+                      drop="^(match|prior|closest)",
                       col_types={"benefit_plan_key": "integer", 
                                    "auditor_fkey": "integer",
                                    "auditor_affil_fkey": "integer",
@@ -136,7 +93,7 @@ wrds_update("feed08_auditor_during", "audit",
 
 # SOX 302 Disclosure Controls
 wrds_update("feed10_sox_302_disclosure_contro", "audit",
-            drop="prior: match: closest: ic_dc_text:",
+            drop="^(prior|match|closest|ic_dc_text)",
             col_types={"ic_dc_key": "integer", 
                        "is_effective": "integer",
                        "material_weakness": "boolean",
@@ -154,14 +111,14 @@ wrds_update("feed10_sox_302_disclosure_contro", "audit",
                      
 # SOX 404 Internal Controls
 updated = wrds_update("feed11_sox_404_internal_controls", "audit",
-                      drop="prior: match: closest: ic_text:",
+                      drop="^(prior|match|closest|ic_text)",
                         col_types={"ic_op_fkey": "integer",
                                      "auditor_fkey": "integer", 
                                      "eventdate_aud_fkey": "integer"})
 
 # Accelerated Filer
 updated = wrds_update("feed16_accelerated_filer", "audit",
-                      drop="prior: match: closest:",
+                      drop="^(prior|match|closest)",
                       col_types={"accel_filer_key": "integer",
                                    "hst_season_issuer": "integer",   
                                    "hst_is_shell_co": "integer",                      
@@ -176,7 +133,7 @@ updated = wrds_update("feed16_accelerated_filer", "audit",
 
 # Director and officer changes
 updated = wrds_update("feed17_director_and_officer_chan", "audit",
-                        drop="match: prior: closest: do_change_text:",
+                        drop="^(match|prior|closest|do_change_text)",
                         col_types={"do_off_pers_key": "integer",
                                      "do_change_key": "integer",
                                      "eventdate_aud_fkey": "integer",
@@ -210,7 +167,7 @@ if updated:
 
 # Non-timely Filer Information And Analysis
 updated = wrds_update("feed20_nt", "audit",
-                      drop="match: closest: prior: ",
+                      drop="^(match|closest|prior)",
                       col_types={"nt_notify_key": "integer",
                                  "ac_file_accepted": "timestamptz",
                                  "eventdate_aud_fkey": "integer",
@@ -225,7 +182,7 @@ updated = wrds_update("feed20_nt", "audit",
 engine.close()
 
 updated = wrds_update("feed34_revised_audit_opinions", "audit",
-                      drop="match: prior: closest:",
+                      drop="^(match|prior|closest)",
                       col_types={"audit_op_key": "integer", 
                                    "eventdate_aud_fkey": "integer",
                                    "integrated_audit": "boolean",
