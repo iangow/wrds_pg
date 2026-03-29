@@ -274,28 +274,6 @@ updated = wrds_update("feed18_merger_acquisition", "audit",
                                  "eventdate_aud_fkey": "integer"},
                       drop="^(closest|match|prior)")
 
-if updated:
-    col = "file_date_list"
-    process_sql("""
-            ALTER TABLE audit.feed18_merger_acquisition
-            ALTER COLUMN %s TYPE date[] USING
-                array_remove(string_to_array(%s, '|', ''), NULL)::date[] """ %
-                     (col, col), engine)
-
-    for col in ["ftp_file_fkey_list", "form_fkey_list"]:
-        process_sql("""
-            ALTER TABLE audit.feed18_merger_acquisition
-            ALTER COLUMN %s TYPE text[] USING
-                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ %
-                     (col, col), engine)
-
-    col = "m_a_filings_keys_list"
-    process_sql("""
-        ALTER TABLE audit.feed18_merger_acquisition
-        ALTER COLUMN %s TYPE integer[] USING
-            array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ %
-                     (col, col), engine)
-
 # IPO
 updated = wrds_update("feed19_ipo", "audit",
                       drop="^(closest|match|prior)",
@@ -315,45 +293,7 @@ updated = wrds_update("feed21_bankruptcy_notification", "audit",
 updated = wrds_update("feed25_comment_letters", "audit",
                       col_types={"pub_doc_count":"text",
                                    "cl_con_id": "integer"},
-                      drop="^(closest|cl_text|cl_frmt_text_html)")
-if updated:
-    list_cols = ["iss_accrl_disc_text","iss_dcic_text", "iss_etifgaap_text",
-                  "iss_evnt_disc_text", "iss_fedsec_text", "iss_finguide_text",
-                  "iss_fsp_text", "iss_ftb_text", "iss_ias_text", "iss_ifric_text",
-                  "iss_ifrs_text", "iss_legmat_text", "iss_man_disc_text",
-                  "iss_othrdisc_text", "iss_regstatem_text", "iss_regma_text",
-                  "iss_regsksec_text", "iss_regsx_text", "iss_riskfact_text",
-                  "iss_sabguide_text", "iss_sfas_stand_text", "iss_sic_ref_text",
-                  "iss_sop_text", "iss_tendoff_text", "iss_wholet_text",
-                  "iss_fasb_acc_stds_updt_text", "iss_fasb_concpt_stmt_text",
-                  "iss_pcaob_rules_text", "iss_regab_text", "iss_secrts_act_text",
-                  "iss_sec_text"]
-    for col in list_cols:
-        print("Fixing column %s" % col)
-        process_sql("""
-            ALTER TABLE audit.feed25_comment_letters
-            ALTER COLUMN %s TYPE text[] USING
-                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ % (col, col),
-                   engine)
-
-    list_cols = ["iss_accrl_disc_keys", "iss_dcic_keys", "iss_etifgaap_keys",
-                  "iss_evnt_disc_keys", "iss_fedsec_keys", "iss_finguide_keys",
-                  "iss_fsp_keys", "iss_ftb_keys", "iss_ias_keys", "iss_ifric_keys",
-                  "iss_ifrs_keys", "iss_legmat_keys", "iss_man_disc_keys",
-                  "iss_othrdisc_keys", "iss_regstatem_keys", "iss_regma_keys",
-                  "iss_regsksec_keys", "iss_regsx_keys", "iss_riskfact_keys",
-                  "iss_sabguide_keys", "iss_sfas_stand_keys", "iss_sic_ref_keys",
-                  "iss_sop_keys", "iss_tendoff_keys", "iss_wholet_keys",
-                  "iss_fasb_acc_stds_updt_keys", "iss_fasb_concpt_stmt_keys",
-                  "iss_pcaob_rules_keys", "iss_regab_keys", "iss_secrts_act_keys",
-                  "iss_sec_keys"]
-    for col in list_cols:
-        print("Fixing column %s" % col)
-        process_sql("""
-            ALTER TABLE audit.feed25_comment_letters
-            ALTER COLUMN %s TYPE integer[] USING
-                array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ %
-                    (col, col), engine)
+                      drop="^closest")
 
 
 # Comment Letter Conversations
@@ -362,38 +302,12 @@ updated = wrds_update("feed26_comment_letter_conversati", "audit",
                       col_types={'cl_con_id': 'integer',
                                    'con_time_span': 'integer'})
 
-if updated:
-    list_cols = ["list_ref_ftp_fkey",  "list_form_dates", "list_of_taxon",
-                 "list_of_ciks", "list_ppl_add_to",
-                 "list_ppl_sent_letter",
-                 "list_ppl_copied", "list_cl_ftp_fkeys"]
-
-    for col in list_cols:
-        process_sql("""
-            ALTER TABLE audit.feed26_comment_letter_conversati
-            ALTER COLUMN %s TYPE text[] USING
-                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ %
-                     (col, col), engine)
-
 # Comment Threading
 updated = wrds_update("feed40_comment_letter_threads", "audit",
-                      drop="^(match|closest|prior|question_text_formatted|question_text_html|answer_text_formatted|answer_text_html)",
+                      drop="^(match|closest|prior)",
                       col_types={'comment_response_key': 'integer',
                                    'ques_cl_comment_fkey': 'integer',
                                    'eventdate_aud_fkey': 'integer'})
-
-if updated:
-    list_cols = ["question_issue_key_list", "question_issue_text_list",
-                 "question_fasb_key_list", "question_fasb_text_list",
-                 "answer_issue_key_list", "answer_issue_text_list",
-                 "answer_fasb_key_list", "answer_fasb_text_list"]
-
-    for col in list_cols:
-        process_sql("""
-            ALTER TABLE audit.feed40_comment_letter_threads
-            ALTER COLUMN %s TYPE text[] USING
-                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ %
-                     (col, col), engine)
 
 # Shareholder Activism
 updated = wrds_update("feed31_shareholder_activism", "audit",
@@ -405,30 +319,9 @@ updated = wrds_update("feed31_shareholder_activism", "audit",
                                    'dispute_management': 'boolean',
                                    'eventdate_aud_fkey': 'integer'})
 
-if updated:
-    list_cols = ["agree_keys", "concerns_keys", "control_keys", "disc_keys",
-                 "dispute_keys", "other_keys", "support_keys"]
-
-    for col in list_cols:
-        process_sql("""
-            ALTER TABLE audit.feed31_shareholder_activism
-            ALTER COLUMN %s TYPE integer[] USING
-                array_remove(string_to_array(%s, '|', ''), NULL)::integer[] """ %
-                    (col, col), engine)
-
-    list_cols = ["agree_text", "concerns_text", "control_text", "disctext",
-                 "dispute_text", "other_text", "support_text"]
-
-    for col in list_cols:
-        process_sql("""
-            ALTER TABLE audit.feed31_shareholder_activism
-            ALTER COLUMN %s TYPE text[] USING
-                array_remove(string_to_array(%s, '|', ''), NULL)::text[] """ %
-                     (col, col), engine)
-
 # Form D
 updated = wrds_update("feed37_form_d", "audit",
-                      drop="^(primary_issuer_pre_nam_lis|primary_issuer_edg_pre_nam_lis)",
+                      drop=None,
                       col_types={"form_d_key": "integer",
                                    "authorized_representative": "boolean",
                                    "is_business_com_tra": "boolean",
@@ -437,7 +330,7 @@ updated = wrds_update("feed37_form_d", "audit",
 
 # Form D Most Recent Report
 updated = wrds_update("feed38_form_d_most_recent_offeri", "audit",
-                      drop="^(primary_issuer_pre_nam_lis|primary_issuer_edg_pre_nam_lis)",
+                      drop=None,
                       col_types={"form_d_key": "integer",
                                    "file_accepted": "timestamp",
                                    "primary_issuer_company_fkey": "integer",

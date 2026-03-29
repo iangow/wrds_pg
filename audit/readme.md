@@ -1,8 +1,8 @@
 # Audit Analytics
 
 
-Data found in `audit` data library on WRDS (`/wrds/audit/sasdata/` on
-SAS server)
+Data comes from the WRDS PostgreSQL `audit` schema and is imported here
+using `db2pq`.
 
 ## Introduction
 
@@ -12,7 +12,7 @@ Audit Analytics provides detailed data on over 150,000 active audits and
 more than 10,000 accounting firms.” Please refer to the [Manuals and
 Overviews](https://wrds-www.wharton.upenn.edu/pages/support/manuals-and-overviews/audit-analytics/)
 or download a [zip
-file](https://github.com/mccgr/wrds_pg/blob/master/audit/AuditAnalyticsManuals.zip?raw=true)
+file](https://github.com/iangow/wrds_pg/blob/master/audit/AuditAnalyticsManuals.zip?raw=true)
 to view the data structures and variable definitions of Audit Analytics
 via WRDS.
 
@@ -26,8 +26,8 @@ Audit Analytics comprises five sets of data:
 4.  Other Independent Audit
 5.  Canada (SEDAR)
 
-The University of Melbourne currently has subscriptions to the first two
-sets of data
+At the University of Melbourne I had access only to the first three sets
+of data.
 
 ### Audit and Compliance
 
@@ -65,7 +65,7 @@ This comprises 12 tables (table names listed in parentheses):
 - Comment Threading (`feed40_comment_letter_threads`)
 - Transfer Agents (`feed41_transfer_agents`)
 
-In each case, the MCCGR database includes a table with the same name,
+In each case, the local database includes a table with the same name,
 but in general, we do not include *all* variables provided in the WRDS
 version of the table. A detailed discussion of the changes we make is
 given in the next section.
@@ -93,33 +93,20 @@ primary source for Audit Analytics data). Also, the meaning of the terms
 data are very poorly documented on WRDS. So, we simply omit these
 variables when importing the data.
 
-### Special handling of textual variables
+### Textual variables
 
 Several tables include fields with the text (or portions of the text) of
-the underlying SEC filings. Presumably due to constraints on field size
-in SAS, these text variables are split into a number of columns. For
-example, the text in filings related to rows in `diroffichange` is found
-in `do_change_text1`, `do_change_text2`, and `do_change_text3`. It is
-likely that by pasting `do_change_text1`, `do_change_text2`, and
-`do_change_text3` back together, one gets the original text that was fed
-to WRDS by Audit Analytics.
+the underlying SEC filings. Some of these fields are still awkwardly
+structured in WRDS, and there are historical reasons for odd naming and
+layout in the local scripts, but the current workflow imports directly
+from WRDS PostgreSQL rather than from WRDS SAS files.
 
-In addition to the data being split across a number of columns, the
-textual data often causes problems in importing tables. For this reason,
-often the textual data is placed in a separate table from the other data
-(and in some cases, a number of separate tables). For example, the
-variables `do_change_text1`, `do_change_text2`, and `do_change_text3`
-are found in tables `diroffichange_text1`, `diroffichange_text2`, and
-`diroffichange_text3` respectively along with the primary key variable
-for the original table (`do_off_pers_key` in the case of
-`diroffichange`).
-
-Separate text tables are provided for the following tables:
-
-- `auditsox302`: `auditsox302_text`
-- `auditsox404`: `auditsox404_text1`, `auditsox404_text2`
-- `feed17_director_and_officer_chan`: Text field is currently omitted
-  (see below).
+At this point, the local PostgreSQL tables generally retain WRDS’s
+PostgreSQL representation for these columns. In particular, this
+repository no longer converts pipe-delimited text fields into PostgreSQL
+arrays during import. The goal is to keep the imported tables close to
+WRDS’s PostgreSQL structure while still omitting clearly redundant or
+poorly documented variables.
 
 ### Omission of auditor names from some tables
 
@@ -132,7 +119,134 @@ to recover this variable.
 
 ## Sample code
 
-### Combine textual variables for `feed17_director_and_officer_chan`
+### Convert pipe-delimited text on the fly
 
-The `feed17_director_and_officer_chan` text variables currently do not
-work due to the text column being too wide.
+Some Audit Analytics columns are easier to work with as arrays even
+though they are stored in WRDS PostgreSQL as delimiter-separated text.
+Rather than reshaping them at import time, you can do the conversion in
+queries when needed.
+
+For text values:
+
+``` sql
+SELECT
+    t.comment_response_key,
+    u.ord,
+    u.question_issue_text,
+    NULLIF(u.question_issue_key, '')::integer AS question_issue_key
+FROM audit.feed40_comment_letter_threads AS t
+CROSS JOIN LATERAL UNNEST(
+    regexp_split_to_array(
+        regexp_replace(t.question_issue_text_list, '(^\|+|\|+$)', '', 'g'),
+        '\|+'
+    ),
+    regexp_split_to_array(
+        regexp_replace(t.question_issue_key_list, '(^\|+|\|+$)', '', 'g'),
+        '\|+'
+    )
+) WITH ORDINALITY AS u(question_issue_text, question_issue_key, ord);
+```
+
+| comment_response_key | ord | question_issue_text | question_issue_key |
+|---:|---:|:---|---:|
+| 498056 | 1 | EITF 00-21 issues | 664 |
+| 498212 | 1 | Regulation S-X, Article 8 issues | 2832 |
+| 498212 | 2 | Regulation S-X, Rule 8-02 issues | 2844 |
+| 88516 | 1 | EITF 03-1 issues | 1025 |
+| 88522 | 1 | FIN 46 (R) issues | 552 |
+| 88522 | 2 | EITF 01-8 issues | 2863 |
+| 88524 | 1 | SFAS 71 issues | 479 |
+| 59425 | 1 | Regulation S-K, Item 101 issues | 763 |
+| 59425 | 2 | Regulation S-K, Item 101(c) issues | 764 |
+| 59427 | 1 | Regulation S-K, Item 303 issues | 773 |
+
+Displaying records 1 - 10
+
+If you want to check whether two delimited fields behave like parallel
+lists, compare their lengths first:
+
+``` sql
+SELECT
+    comment_response_key,
+    cardinality(
+        regexp_split_to_array(
+            regexp_replace(question_issue_text_list, '(^\|+|\|+$)', '', 'g'),
+            '\|+'
+        )
+    ) AS n_text,
+    cardinality(
+        regexp_split_to_array(
+            regexp_replace(question_issue_key_list, '(^\|+|\|+$)', '', 'g'),
+            '\|+'
+        )
+    ) AS n_key
+FROM audit.feed40_comment_letter_threads
+WHERE question_issue_text_list IS NOT NULL
+   OR question_issue_key_list IS NOT NULL;
+```
+
+| comment_response_key | n_text | n_key |
+|---------------------:|-------:|------:|
+|                53810 |      2 |     2 |
+|                53811 |      2 |     2 |
+|                53813 |      1 |     1 |
+|                53815 |      1 |     1 |
+|                53819 |      1 |     1 |
+|                53821 |      2 |     2 |
+|                53822 |      2 |     2 |
+|                53827 |      2 |     2 |
+|                53159 |      1 |     1 |
+|               214975 |      2 |     2 |
+
+Displaying records 1 - 10
+
+For integer identifiers:
+
+``` sql
+SELECT
+    cl_con_id,
+    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr
+FROM audit.feed25_comment_letters
+WHERE iss_sec_keys IS NOT NULL;
+```
+
+| cl_con_id | iss_sec_keys_arr |
+|----------:|:-----------------|
+|     11143 | {2699,2701,2783} |
+|     91130 | {3337}           |
+|     95802 | {3337}           |
+|     72439 | {2525,2526}      |
+|    125767 | {2526}           |
+|    125767 | {2526}           |
+|    187602 | {2526}           |
+|    187602 | {2526}           |
+|    115753 | {2095,3271}      |
+|      2534 | {2526}           |
+
+Displaying records 1 - 10
+
+If you want to ignore empty strings explicitly, use:
+
+``` sql
+SELECT
+    cl_con_id,
+    iss_sec_keys AS iss_sec_keys_raw,
+    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr
+FROM audit.feed25_comment_letters
+WHERE iss_sec_keys IS NOT NULL;
+```
+
+| cl_con_id | iss_sec_keys_raw | iss_sec_keys_arr |
+|----------:|:-----------------|:-----------------|
+|     11531 | \|2249\|         | {2249}           |
+|     11531 | \|2249\|         | {2249}           |
+|     82083 | \|2268\|         | {2268}           |
+|     82083 | \|2589\|         | {2589}           |
+|     82083 | \|2589\|         | {2589}           |
+|     82083 | \|2268\|         | {2268}           |
+|     32976 | \|2534\|         | {2534}           |
+|     32976 | \|2534\|         | {2534}           |
+|     60870 | \|2526\|2068\|   | {2526,2068}      |
+|     60870 | \|2526\|2068\|   | {2526,2068}      |
+
+Displaying records 1 - 10

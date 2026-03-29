@@ -60,11 +60,15 @@ def main() -> None:
 
     updated = update("idx_index")
 
+    update("idx_daily")
+
     updated = update("io_qbuysell")
     index_if_updated(updated, create_index("comp", "io_qbuysell", "gvkey, datadate"))
 
     updated = update("names")
     index_if_updated(updated, create_index("comp", "names", "gvkey"))
+
+    update("names_ix")
 
     secm_updated = update("secm", col_types={"cshom": "float8"})
     index_if_updated(secm_updated, create_index("comp", "secm", "gvkey, datadate"))
@@ -93,6 +97,8 @@ def main() -> None:
     update("r_giccd")
     update("r_auditors")
     update("r_datacode")
+    update("r_ex_codes")
+    update("security")
 
     # ----------------------------------------
     # Global ("g_*") tables

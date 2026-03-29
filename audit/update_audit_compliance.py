@@ -46,12 +46,12 @@ updated = wrds_update("feed02_auditor_changes", "audit",
                                    "aud_letter_agree": "boolean",
                                    "aud_co_disagree": "boolean",
                                    "engaged_auditor_pcaob": "boolean"},
-                      drop="^(match|prior|closest|dismiss_name|engaged_auditor_name|eventdate_aud_name)",
+                      drop="^(match|prior|closest)",
                       tz="America/New_York")
 
 # Audit Fees
 updated = wrds_update("feed03_audit_fees", "audit",
-                      drop="^(match|prior|closest|auditor_name|eventdate_aud_name)",
+                      drop="^(match|prior|closest)",
                       col_types={"eventdate_aud_fkey": "integer",
                                    "file_accepted": "timestamptz",
                                    "auditor_fkey": "integer",
@@ -64,7 +64,7 @@ updated = wrds_update("feed03_audit_fees", "audit",
 
 # Audit Fees with Restatements
 updated = wrds_update("feed04_audit_fees_restated", "audit",
-                      drop="^(match|prior|closest|auditor_name|eventdate_aud_name)",
+                      drop="^(match|prior|closest)",
                       col_types={"eventdate_aud_fkey": "integer",
                                    "file_accepted": "timestamptz",
                                    "auditor_fkey": "integer",
@@ -94,7 +94,7 @@ wrds_update("feed08_auditor_during", "audit",
 
 # SOX 302 Disclosure Controls
 wrds_update("feed10_sox_302_disclosure_contro", "audit",
-            drop="^(prior|match|closest|ic_dc_text)",
+            drop="^(prior|match|closest)",
             col_types={"ic_dc_key": "integer",
                        "is_effective": "integer",
                        "material_weakness": "boolean",
@@ -112,7 +112,7 @@ wrds_update("feed10_sox_302_disclosure_contro", "audit",
 
 # SOX 404 Internal Controls
 updated = wrds_update("feed11_sox_404_internal_controls", "audit",
-                      drop="^(prior|match|closest|ic_text)",
+                      drop="^(prior|match|closest)",
                       col_types={"ic_op_fkey": "integer",
                                  "auditor_fkey": "integer",
                                  "eventdate_aud_fkey": "integer"})
@@ -134,7 +134,7 @@ updated = wrds_update("feed16_accelerated_filer", "audit",
 
 # Director and officer changes
 updated = wrds_update("feed17_director_and_officer_chan", "audit",
-                      drop="^(match|prior|closest|do_change_text)",
+                      drop="^(match|prior|closest)",
                       col_types={"do_off_pers_key": "integer",
                                  "do_change_key": "integer",
                                  "eventdate_aud_fkey": "integer",
@@ -196,3 +196,6 @@ updated = wrds_update("feed34_revised_audit_opinions", "audit",
                                  "eventdate_aud_fkey": "integer",
                                  "fiscal_year_of_op": "integer"},
                       tz="America/New_York")
+
+wrds_update("feed39_financial_restatements", "audit",
+            drop="^(match|closest|prior)")

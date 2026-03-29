@@ -14,7 +14,7 @@ wrds_update_pg("feed56_accounting_estimates_chan", "audit",
                col_types={"accounting_estimates_cha_fke": "integer"})
 
 wrds_update_pg("feed65_impairments", "audit",
-               drop="^(match|prior|closest|material_impairment_text|mtrial_impairment_text_html)",
+               drop="^(match|prior|closest)",
                col_types={"mtrl_imprmnt_fct_key": "integer",
                           "mtrl_imprmnt_key": "integer",
                           "quantitative_taxonomy_fkey": "integer",
@@ -22,11 +22,11 @@ wrds_update_pg("feed65_impairments", "audit",
                           "is_range": "boolean",
                           "is_final": "boolean"})
 
-#wrds_update_pg("feed74_aqrm", "audit",
-#               drop="^(match|prior|closest)",
-#               col_types={"flag_year": "integer",
-#                          "fye_of_opinion": "integer",
-#                          "ideal_fye_of_opinion": "integer"})
+wrds_update_pg("feed74_aqrm", "audit",
+               drop="^(match|prior|closest)",
+               col_types={"flag_year": "integer",
+                          "fye_of_opinion": "integer",
+                          "ideal_fye_of_opinion": "integer"})
 
 wrds_update_pg("feed78_critical_audit_matters", "audit",
             col_types={"audit_opinion_fkey": "integer",
@@ -34,13 +34,13 @@ wrds_update_pg("feed78_critical_audit_matters", "audit",
                        "critical_audit_matter_key": "integer",
                        "critical_audit_matter_topic_fkey": "integer"})
 
-# wrds_update_pg("feed85_cybersecurity", "audit",
-#                col_types={"cybersecurity_breach_key": "integer",
-#                           "number_of_records_lost": "integer"},
-#                drop="^(match|prior|closest)")
+wrds_update_pg("feed85_cybersecurity", "audit",
+               col_types={"cybersecurity_breach_key": "integer",
+                          "number_of_records_lost": "bigint"},
+               drop="^(match|prior|closest)")
 
-# wrds_update_pg("feed86_audit_firm_events", "audit",
-#                drop="^(match|prior|closest)")
+wrds_update_pg("feed86_audit_firm_events", "audit",
+               drop="^(match|prior|closest)")
 
 wrds_update_pg("feed89_pcaob_report", "audit",
             col_types={"auditor_report_key": "integer",

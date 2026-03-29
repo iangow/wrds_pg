@@ -19,6 +19,16 @@ if updated:
     process_sql("CREATE INDEX ON ciq.ciqfininstance (financialinstanceid)")
     process_sql("CREATE INDEX ON ciq.ciqfininstance (financialperiodid)")
     process_sql("ANALYZE ciq.ciqfininstance")
+
+updated = wrds_update_pg(
+    "ciqfincollection",
+    "ciq",
+    col_types={"financialinstanceid": "integer", "financialcollectionid": "integer"},
+)
+if updated:
+    process_sql("CREATE INDEX ON ciq.ciqfincollection (financialinstanceid)")
+    process_sql("CREATE INDEX ON ciq.ciqfincollection (financialcollectionid)")
+    process_sql("ANALYZE ciq.ciqfincollection")
     
 updated = wrds_update_pg("ciqfinperiod", "ciq")
 if updated:
@@ -35,3 +45,12 @@ updated = wrds_update_pg("ciqfininstancetocollection", "ciq")
 if updated:
     process_sql("CREATE INDEX ON ciq.ciqfininstancetocollection (financialcollectionid)")
     process_sql("CREATE INDEX ON ciq.ciqfininstancetocollection (financialinstanceid)")
+
+updated = wrds_update_pg(
+    "wrds_ciqsymbol",
+    "ciq",
+    col_types={"companyid": "integer", "symbolid": "integer", "objectid": "integer"},
+)
+if updated:
+    process_sql("CREATE INDEX ON ciq.wrds_ciqsymbol (companyid)")
+    process_sql("CREATE INDEX ON ciq.wrds_ciqsymbol (symbolid)")
