@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update
+# from db2pq import wrds_update_pg
 
-updated = wrds_update("history", "kld", fix_missing=True)
-updated = wrds_update("kldnames", "kld", fix_missing=True)
+# wrds_update_pg("history", "kld")
+# wrds_update_pg("kldnames", "kld")

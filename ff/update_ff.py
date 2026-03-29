@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update, get_wrds_tables
+from db2pg import wrds_update_pg, wrds_get_tables
 
-ff_tables = get_wrds_tables("ff_all")
+ff_tables = wrds_get_tables("ff_all")
 
 for table in ff_tables:
-    wrds_update(table, "ff")
+    wrds_update_pg(table, "ff")

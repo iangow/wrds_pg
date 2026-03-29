@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update
+from db2pq import wrds_update_pg
 
-updated = wrds_update("issuer", "cusipm")
-updated = wrds_update("issue", "cusipm")
+wrds_update_pg("issuer", "cusipm")
+wrds_update_pg("issue", "cusipm")

@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update, make_engine, process_sql
+from db2pq import wrds_update_pg, process_sql
 
-update = wrds_update("vavoteresults", "risk",
-                     col_types = {'companyid':'integer', 
-                                  'meetingid':'integer',
-                                  'itemonagendaid':'integer',
-                                  'seqnumber':'integer'})
+update = wrds_update_pg("vavoteresults", "risk",
+                        col_types = {'companyid':'integer', 
+                                     'meetingid':'integer',
+                                     'itemonagendaid':'integer',
+                                     'seqnumber':'integer'})
 if update:
-    engine = make_engine()
     sql = """
         UPDATE risk.vavoteresults
             SET voterequirement = 0.6667 WHERE voterequirement=66.67;
@@ -42,21 +41,20 @@ if update:
             SET (votedfor, voteresult)=(70548942, 'Pass')
             WHERE itemonagendaid=6049746;
     """
-    process_sql(sql, engine)
+    process_sql(sql)
 
-wrds_update("globalvoteresults", "risk")
-wrds_update("gset", "risk")
-wrds_update("votes", "risk")
-wrds_update("rmgovernance", "risk", 
-            col_types={'company_id':'integer'})
-wrds_update("directors", "risk",
-            sas_encoding = "wlatin1", 
-            col_types={'annrev': 'float8',
-                       'year_term_ends': 'float8',
-                       'voting': 'float8',
-                       'votecref':'float8',
-                       'outside_public_boards':'text'})
-wrds_update("votes", "risk")
-wrds_update("rmdirectors", "risk", 
-            col_types={'company_id':'integer',
-                       'pcnt_ctrl_votingpower':'float8'})
+wrds_update_pg("globalvoteresults", "risk")
+wrds_update_pg("gset", "risk")
+wrds_update_pg("votes", "risk")
+wrds_update_pg("rmgovernance", "risk", 
+               col_types={'company_id':'integer'})
+wrds_update_pg("directors", "risk",
+               col_types={'annrev': 'float8',
+                          'year_term_ends': 'float8',
+                          'voting': 'float8',
+                          'votecref':'float8',
+                          'outside_public_boards':'text'})
+wrds_update_pg("votes", "risk")
+wrds_update_pg("rmdirectors", "risk", 
+               col_types={'company_id':'integer',
+                          'pcnt_ctrl_votingpower':'float8'})

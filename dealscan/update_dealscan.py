@@ -1,3 +1,3 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update
-wrds_update("dealscan", "dealscan")
+from db2pq import wrds_update_pg
+wrds_update_pg("dealscan", "dealscan")

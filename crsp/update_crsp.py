@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 from datetime import datetime, timezone
 
-from wrds2pg import (
-    make_engine, process_sql, run_file_sql, 
-    set_table_comment, wrds_update
-)
-
+from db2pq import wrds_update_pg as wrds_update, process_sql, set_table_comment
 def utc_timestamp() -> str:
     """Return an ISO-ish UTC timestamp string."""
     return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
@@ -15,14 +11,13 @@ def comment_created_by(script_name: str) -> str:
     return f"Created using {script_name} on {utc_timestamp()} (UTC)."
 
 
-def create_indexes(engine, statements: list[str]) -> None:
+def create_indexes(statements: list[str]) -> None:
     for stmt in statements:
-        process_sql(stmt, engine)
+        process_sql(stmt)
 
 
 def main() -> None:
     script_name = "update_crsp.py"
-    engine = make_engine()
 
     # --- Treasury yield table crsp.tfz_ft ---
     
@@ -69,23 +64,21 @@ def main() -> None:
         INNER JOIN crsp.tfz_dly_ft
         USING (kytreasnox);
         """
-        process_sql(sql, engine)
-        process_sql("ALTER TABLE crsp.tfz_ft OWNER TO crsp", engine)
-        process_sql("GRANT SELECT ON crsp.tfz_ft TO crsp_access", engine)
-        set_table_comment("tfz_ft", "crsp", comment_created_by(script_name), engine)
+        process_sql(sql)
+        process_sql("ALTER TABLE crsp.tfz_ft OWNER TO crsp")
+        process_sql("GRANT SELECT ON crsp.tfz_ft TO crsp_access")
+        set_table_comment("tfz_ft", "crsp", comment_created_by(script_name))
 
     # --- Monthly data ---
-    wrds_update("mse", "crsp", fix_missing=True)
+    wrds_update("mse", "crsp")
 
     msf = wrds_update(
         "msf",
         "crsp",
-        fix_missing=True,
         col_types={"permno": "integer", "permco": "integer"},
     )
     if msf:
         create_indexes(
-            engine,
             [
                 "CREATE INDEX ON crsp.msf (date)",
                 "CREATE INDEX ON crsp.msf (permno, date)",
@@ -96,14 +89,13 @@ def main() -> None:
 
     msi = wrds_update("msi", "crsp")
     if msi:
-        create_indexes(engine, ["CREATE INDEX ON crsp.msi (date)"])
+        create_indexes(["CREATE INDEX ON crsp.msi (date)"])
 
-    msedelist = wrds_update("msedelist", "crsp", fix_missing=True)
+    msedelist = wrds_update("msedelist", "crsp")
 
     ermport1 = wrds_update(
         "ermport1",
         "crsp",
-        fix_missing=True,
         col_types={"permno": "integer", "capn": "integer"},
     )
 
@@ -111,13 +103,11 @@ def main() -> None:
     dsf = wrds_update(
         "dsf",
         "crsp",
-        fix_missing=True,
         col_types={"permno": "integer", "permco": "integer"},
     )
     if dsf:
-        process_sql("SET maintenance_work_mem='1999MB'", engine)
+        process_sql("SET maintenance_work_mem='1999MB'")
         create_indexes(
-            engine,
             [
                 "CREATE INDEX ON crsp.dsf (permno, date)",
                 "CREATE INDEX ON crsp.dsf (permco)",
@@ -130,32 +120,28 @@ def main() -> None:
     dsedelist = wrds_update(
         "dsedelist",
         "crsp",
-        fix_missing=True,
         col_types={"permno": "integer", "permco": "integer"},
     )
     if dsedelist:
-        create_indexes(engine, ["CREATE INDEX ON crsp.dsedelist (permno)"])
+        create_indexes(["CREATE INDEX ON crsp.dsedelist (permno)"])
 
     erdport1 = wrds_update(
         "erdport1",
         "crsp",
-        fix_missing=True,
         col_types={"permno": "integer", "capn": "integer"},
     )
     if erdport1:
-        create_indexes(engine, ["CREATE INDEX ON crsp.erdport1 (permno, date)"])
+        create_indexes(["CREATE INDEX ON crsp.erdport1 (permno, date)"])
 
     ccmxpf_linktable = wrds_update(
         "ccmxpf_linktable",
         "crsp",
-        fix_missing=True,
         col_types={"lpermno": "integer",
                    "lpermco": "integer", 
                    "usedflag": "integer"},
     )
     if ccmxpf_linktable:
         create_indexes(
-            engine,
             [
                 "CREATE INDEX ON crsp.ccmxpf_linktable (lpermno)",
                 "CREATE INDEX ON crsp.ccmxpf_linktable (gvkey)",
@@ -165,12 +151,10 @@ def main() -> None:
     ccmxpf_lnkhist = wrds_update(
         "ccmxpf_lnkhist",
         "crsp",
-        fix_missing=True,
         col_types={"lpermno": "integer", "lpermco": "integer"},
     )
     if ccmxpf_lnkhist:
         create_indexes(
-            engine,
             [
                 "CREATE INDEX ON crsp.ccmxpf_lnkhist (gvkey)",
                 "CREATE INDEX ON crsp.ccmxpf_lnkhist (lpermno)",
@@ -180,20 +164,18 @@ def main() -> None:
     dsedist = wrds_update(
         "dsedist",
         "crsp",
-        fix_missing=True,
         col_types={"permno": "integer", "permco": "integer"},
     )
     if dsedist:
-        create_indexes(engine, ["CREATE INDEX ON crsp.dsedist (permno)"])
+        create_indexes(["CREATE INDEX ON crsp.dsedist (permno)"])
 
     dse = wrds_update(
         "dse",
         "crsp",
-        fix_missing=True,
         col_types={"permno": "integer", "permco": "integer"},
     )
     if dse:
-        create_indexes(engine, ["CREATE INDEX ON crsp.dse (permno)"])
+        create_indexes(["CREATE INDEX ON crsp.dse (permno)"])
 
     wrds_update("stocknames", "crsp",
                 col_types={"permno": "integer",
@@ -205,11 +187,11 @@ def main() -> None:
         col_types={"permno": "integer", "permco": "integer"},
     )
     if dseexchdates:
-        create_indexes(engine, ["CREATE INDEX ON crsp.dseexchdates (permno)"])
+        create_indexes(["CREATE INDEX ON crsp.dseexchdates (permno)"])
 
     # --- Other data sets ---
     wrds_update("msp500list", "crsp")
-    wrds_update("ccmxpf_lnkused", "crsp", fix_missing=True)
+    wrds_update("ccmxpf_lnkused", "crsp")
 
     for tbl in [
         "dsp500",
@@ -223,10 +205,7 @@ def main() -> None:
     ]:
         wrds_update(tbl, "crsp")
 
-    wrds_update("comphist", "crsp", fix_missing=True)
-
-    engine.dispose()
-
+    wrds_update("comphist", "crsp")
 
 if __name__ == "__main__":
     main()

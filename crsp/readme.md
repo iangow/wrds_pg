@@ -15,6 +15,12 @@ This directory contains scripts for building and maintaining the local `crsp` Po
 - `eomonth.sql`: Defines `eomonth()` SQL functions used by monthly return logic.
   - This is still part of the active workflow if queries/functions depend on `eomonth()`.
 
+- `tfz_ft`: The table `crsp.tfz_ft` is available through the WRDS web interface,
+but does not exist as a separate SAS file or PostgreSQL table.
+According to WRDS, the web query joins `crsp.tfz_idx` with either `crsp.tfz_dly_ft`
+or `crsp.tfz_mth_ft` on `kytreasnox`. `update_crsp.py` rebuilds the daily version
+locally to mirror that behavior.
+
 ## Legacy SQL scripts (usually not run)
 
 - `crsp_make_rets.sql`: Builds `crsp.rets` (daily returns combined with delisting returns), then indexes and grants.

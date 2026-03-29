@@ -1,56 +1,50 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update, process_sql, make_engine
+from db2pq import wrds_update_pg, process_sql
 
-engine = make_engine()
-
-wrds_update_pq("act_epsus", "ibes", col_types = {"acttims": "string", "anntims": "string"})
-wrds_update("act_xepsus", "ibes")
-wrds_update("actpsumu_epsus", "ibes")
-wrds_update("actu_epsus", "ibes")
-updated = wrds_update("detu_epsus", "ibes")
+wrds_update_pg("act_epsus", "ibes", col_types={"acttims": "string", "anntims": "string"})
+wrds_update_pg("act_xepsus", "ibes")
+wrds_update_pg("actpsumu_epsus", "ibes")
+wrds_update_pg("actu_epsus", "ibes")
+updated = wrds_update_pg("detu_epsus", "ibes")
 if updated:
-     process_sql("CREATE INDEX ON ibes.detu_epsus (ticker, revdats)", engine=engine)
-    
-updated = wrds_update("det_xepsus", "ibes")
+     process_sql("CREATE INDEX ON ibes.detu_epsus (ticker, revdats)")
+
+updated = wrds_update_pg("det_xepsus", "ibes")
 if updated:
-    process_sql("CREATE INDEX ON ibes.det_xepsus (ticker, revdats)", 
-    engine=engine)
+    process_sql("CREATE INDEX ON ibes.det_xepsus (ticker, revdats)")
 
-wrds_update("curr", "ibes")    
-wrds_update("det_epsus", "ibes")
-wrds_update("detu_epsint", "ibes")
-wrds_update("id", "ibes")
-wrds_update("idsum", "ibes")
-wrds_update("surpsum", "ibes")
+wrds_update_pg("curr", "ibes")
+wrds_update_pg("det_epsus", "ibes")
+wrds_update_pg("detu_epsint", "ibes")
+wrds_update_pg("id", "ibes")
+wrds_update_pg("idsum", "ibes")
+wrds_update_pg("surpsum", "ibes")
 
-updated = wrds_update("surpsumu", "ibes")
+updated = wrds_update_pg("surpsumu", "ibes")
 if updated:
-    process_sql("CREATE INDEX ON ibes.surpsumu (ticker)", engine=engine)
+    process_sql("CREATE INDEX ON ibes.surpsumu (ticker)")
 
-wrds_update("actsum_epsint", "ibes")
-wrds_update("actsum_xepsint", "ibes")
-wrds_update("statsum_epsus", "ibes")
-updated = wrds_update("statsumu_epsus", "ibes")
+# wrds_update_pg("actsum_epsint", "ibes")
+# wrds_update_pg("actsum_xepsint", "ibes")
+wrds_update_pg("statsum_epsus", "ibes")
+updated = wrds_update_pg("statsumu_epsus", "ibes")
 if updated:
-    process_sql("CREATE INDEX ON ibes.statsumu_epsus (ticker, statpers)", engine=engine)
+    process_sql("CREATE INDEX ON ibes.statsumu_epsus (ticker, statpers)")
 
-wrds_update("det_guidance", "ibes")
+updated = wrds_update_pg("det_guidance", "ibes")
 if updated:
-    process_sql("CREATE INDEX ON ibes.det_guidance (anndats);", engine=engine)
+    process_sql("CREATE INDEX ON ibes.det_guidance (anndats);")
 
-    
-wrds_update("det_guidance_ext", "ibes")
-wrds_update("id_guidance", "ibes")
-wrds_update("split_guidance", "ibes")
-wrds_update("stop_epsus", "ibes")
-wrds_update("exc_epsus", "ibes")
-wrds_update("actpsum_epsus", "ibes")
-wrds_update("actpsum_epsint", "ibes")
-wrds_update("actpsum_xepsint", "ibes")
-wrds_update("statsum_epsint", "ibes")
-wrds_update("statsum_xepsint", "ibes")
+wrds_update_pg("det_guidance_ext", "ibes", use_sas=True)
+wrds_update_pg("id_guidance", "ibes", use_sas=True)
+wrds_update_pg("split_guidance", "ibes", use_sas=True)
+wrds_update_pg("stop_epsus", "ibes")
+wrds_update_pg("exc_epsus", "ibes")
+wrds_update_pg("actpsum_epsus", "ibes")
+wrds_update_pg("actpsum_epsint", "ibes")
+wrds_update_pg("actpsum_xepsint", "ibes")
+wrds_update_pg("statsum_epsint", "ibes")
+wrds_update_pg("statsum_xepsint", "ibes")
 
-engine.dispose()
-
-import subprocess
-subprocess.call("Rscript --vanilla ibes/get_iclink.R", shell=True)
+#import subprocess
+#subprocess.call("Rscript --vanilla ibes/get_iclink.R", shell=True)

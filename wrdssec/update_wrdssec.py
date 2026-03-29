@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update
+# from db2pq import wrds_update_pg
 
-wrds_update("wciklink_gvkey", "wrdssec")
-wrds_update("wciklink_names", "wrdssec")
-wrds_update("wciklink_cusip", "wrdssec", drop="tmatch")
+# wrds_update_pg("wciklink_gvkey", "wrdssec")
+# wrds_update_pg("wciklink_names", "wrdssec")
+# wrds_update_pg("wciklink_cusip", "wrdssec", drop="tmatch")

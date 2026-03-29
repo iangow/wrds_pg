@@ -1,40 +1,37 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update, make_engine, process_sql
+from db2pq import wrds_update_pg, process_sql
 
-engine = make_engine()
 
-updated = wrds_update("wrds_gvkey", "ciq", fix_missing=True)
+updated = wrds_update_pg("wrds_gvkey", "ciq")
 if updated:
-    process_sql("CREATE INDEX ON ciq.wrds_gvkey (companyid)", engine=engine)
+    process_sql("CREATE INDEX ON ciq.wrds_gvkey (companyid)")
 
-updated = wrds_update("wrds_cusip", "ciq", fix_missing=True)
+updated = wrds_update_pg("wrds_cusip", "ciq")
 if updated:
-    process_sql("CREATE INDEX ON ciq.wrds_cusip (companyid)", engine=engine)
+    process_sql("CREATE INDEX ON ciq.wrds_cusip (companyid)")
 
-updated = wrds_update("wrds_cik", "ciq", fix_missing=True)
+updated = wrds_update_pg("wrds_cik", "ciq")
 if updated:
-    process_sql("CREATE INDEX ON ciq.wrds_cik (companyid)", engine=engine)
+    process_sql("CREATE INDEX ON ciq.wrds_cik (companyid)")
 
-updated = wrds_update("ciqfininstance", "ciq")
+updated = wrds_update_pg("ciqfininstance", "ciq")
 if updated:
-    process_sql("CREATE INDEX ON ciq.ciqfininstance (financialinstanceid)", engine=engine)
-    process_sql("CREATE INDEX ON ciq.ciqfininstance (financialperiodid)", engine=engine)
-    process_sql("ANALYZE ciq.ciqfininstance", engine=engine)
+    process_sql("CREATE INDEX ON ciq.ciqfininstance (financialinstanceid)")
+    process_sql("CREATE INDEX ON ciq.ciqfininstance (financialperiodid)")
+    process_sql("ANALYZE ciq.ciqfininstance")
     
-updated = wrds_update("ciqfinperiod", "ciq")
+updated = wrds_update_pg("ciqfinperiod", "ciq")
 if updated:
-    process_sql("CREATE INDEX ON ciq.ciqfinperiod (financialperiodid)", engine=engine)
-    process_sql("CREATE INDEX ON ciq.ciqfinperiod (companyid)", engine=engine)
-    process_sql("ANALYZE ciq.ciqfinperiod", engine=engine)
+    process_sql("CREATE INDEX ON ciq.ciqfinperiod (financialperiodid)")
+    process_sql("CREATE INDEX ON ciq.ciqfinperiod (companyid)")
+    process_sql("ANALYZE ciq.ciqfinperiod")
     
-updated = wrds_update("ciqgvkeyiid", "ciq")
+updated = wrds_update_pg("ciqgvkeyiid", "ciq")
 if updated:
-    process_sql("CREATE INDEX ON ciq.ciqgvkeyiid (relatedcompanyid)", engine=engine)
-    process_sql("ANALYZE ciq.ciqgvkeyiid", engine=engine)
+    process_sql("CREATE INDEX ON ciq.ciqgvkeyiid (relatedcompanyid)")
+    process_sql("ANALYZE ciq.ciqgvkeyiid")
 
-updated = wrds_update("ciqfininstancetocollection", "ciq")
+updated = wrds_update_pg("ciqfininstancetocollection", "ciq")
 if updated:
-    process_sql("CREATE INDEX ON ciq.ciqfininstancetocollection (financialcollectionid)", engine=engine)
-    process_sql("CREATE INDEX ON ciq.ciqfininstancetocollection (financialinstanceid)", engine=engine)
-
-engine.dispose()
+    process_sql("CREATE INDEX ON ciq.ciqfininstancetocollection (financialcollectionid)")
+    process_sql("CREATE INDEX ON ciq.ciqfininstancetocollection (financialinstanceid)")

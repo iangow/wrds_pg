@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update
+from db2pq import wrds_update_pg
 
-wrds_update("seg_customer", "comp_segments_hist_daily",
-            sas_schema="compsegd")
-wrds_update("names_seg", "comp_segments_hist_daily",
-            sas_schema="compsegd")
+wrds_update_pg("seg_customer", "compsegd",)
+wrds_update_pg("names_seg", "compsegd")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from wrds2pg import wrds_update
-
-updated = wrds_update("mflink1", "mfl")
-updated = wrds_update("mflink2", "mfl")
+# rom db2pq import wrds_update_pg
+# 
+# wrds_update_pg("mflink1", "mfl")
+# wrds_update_pg("mflink2", "mfl")

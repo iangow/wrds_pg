@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 printf "\nUpdating KLD (kld) ...\n"
-kld/update_kld.py
+uv run python kld/update_kld.py
 printf "\nUpdating WRDS SEC data (wrdssec) ...\n"
-wrdssec/update_wrdssec.py
+uv run python wrdssec/update_wrdssec.py
 printf "\nUpdating RiskMetrics data (risk) ...\n"
-risk/update_risk_other.py
+uv run python risk/update_risk_other.py
 printf "\nUpdating Capital IQ key development data (ciq) ...\n"
-ciq/update_ciq_keydev.py
+uv run python ciq/update_ciq_keydev.py
 printf "\nUpdating Capital IQ transcripts data (ciq) ...\n"
-ciq/update_ciq_transcripts.py
+uv run python ciq/update_ciq_transcripts.py
 printf "\nUpdating Compustat data (compa) ...\n"
-compa/update_compa.py
+uv run python compa/update_compa.py
