@@ -57,9 +57,9 @@ This comprises 12 tables (table names listed in parentheses):
 - Legal Case (`feed13_legal_case_feed`)
 - Legal Parties (`feed14_company_legal_party_feed`)
 - Mergers and Acquisitions (`feed18_merger_acquisition`)
-- IPO (`ipo`): To be renamed `feed19_ipo`?
+- IPO (`feed19_ipo`)
 - Bankruptcy Notification (`feed21_bankruptcy_notification`)
-- Comment Letter (`commlett`): To be renamed `feed25_comment_letters`?
+- Comment Letter (`feed25_comment_letters`)
 - Comment Letter Conversations (`feed26_comment_letter_conversati`)
 - Shareholder Activism (`feed31_shareholder_activism`)
 - Form D (`feed37_form_d`)
