@@ -58,9 +58,6 @@ This comprises 12 tables (table names listed in parentheses):
  - Comment Threading (`feed40_comment_letter_threads`)
  - Transfer Agents (`feed41_transfer_agents`)
  
-In each case, the local database includes a table with the same name, but in general, we do not include *all* variables provided in the WRDS version of the table.
-A detailed discussion of the changes we make is given in the next section.
-
 ### Accounting and Oversight
 
 This comprises 9 tables (table names listed in parentheses):
@@ -74,6 +71,9 @@ This comprises 9 tables (table names listed in parentheses):
  - Audit Firm Events (`feed86_audit_firm_events`)
  - PCAOB Reports (`feed89_pcaob_report`)
  - AAER (`feed91_aaer`)
+
+In each case, the local database includes a table with the same name, but in general, we do not include *all* variables provided in the WRDS version of the table.
+A detailed discussion of the changes we make is given in the next section.
 
 ## Issues identified and fixed
 
