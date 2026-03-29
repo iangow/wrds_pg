@@ -119,8 +119,12 @@ CROSS JOIN LATERAL UNNEST(
         regexp_replace(t.question_issue_key_list, '(^\|+|\|+$)', '', 'g'),
         '\|+'
     )
-) WITH ORDINALITY AS u(question_issue_text, question_issue_key, ord);
+) WITH ORDINALITY AS u(question_issue_text, question_issue_key, ord)
+ORDER BY comment_response_key;
 ```
+
+Here `CROSS JOIN LATERAL` evaluates `UNNEST(...)` once for each row of `feed40_comment_letter_threads`.
+That lets the array-building expressions refer to columns from the current row `t`, and it returns one output row per unnested element rather than one wide row containing arrays.
 
 If you want to check whether two delimited fields behave like parallel lists, compare their lengths first:
 
@@ -142,7 +146,8 @@ SELECT
     ) AS n_key
 FROM audit.feed40_comment_letter_threads
 WHERE question_issue_text_list IS NOT NULL
-   OR question_issue_key_list IS NOT NULL;
+   OR question_issue_key_list IS NOT NULL
+ORDER BY comment_response_key;
 ```
 
 For integer identifiers:
@@ -154,7 +159,8 @@ SELECT
     array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
     array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
 FROM audit.feed25_comment_letters
-WHERE iss_sec_keys IS NOT NULL;
+WHERE iss_sec_keys IS NOT NULL
+ORDER BY cl_con_id;
 ```
 
 If you want to ignore empty strings explicitly, use:
@@ -168,7 +174,8 @@ SELECT
     array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
     array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
 FROM audit.feed25_comment_letters
-WHERE iss_sec_keys IS NOT NULL;
+WHERE iss_sec_keys IS NOT NULL
+ORDER BY cl_con_id;
 ```
 
 If you want one row per paired key/text entry, a CTE makes the transformation easier to follow:
@@ -176,7 +183,7 @@ If you want one row per paired key/text entry, a CTE makes the transformation ea
 ```{sql}
 --| connection: db
 WITH parsed AS (
-    SELECT
+    SELECT DISTINCT
         cl_con_id,
         array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
         array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
@@ -192,5 +199,16 @@ FROM parsed AS p
 CROSS JOIN LATERAL UNNEST(
     p.iss_sec_keys_arr,
     p.iss_sec_text_arr
-) WITH ORDINALITY AS u(iss_sec_key, iss_sec_text, ord);
+) WITH ORDINALITY AS u(iss_sec_key, iss_sec_text, ord)
+ORDER BY p.cl_con_id, u.ord;
 ```
+
+The same general pattern applies to several other Audit Analytics tables:
+
+| Table | Fields | Notes |
+|---|---|---|
+| `audit.feed18_merger_acquisition` | `file_date_list`, `ftp_file_fkey_list`, `form_fkey_list`, `m_a_filings_keys_list` | Filing metadata stored as delimited lists. |
+| `audit.feed25_comment_letters` | `iss_*_keys`, `iss_*_text` | Parallel issue/reference key and text fields; `iss_sec_*` is one example. |
+| `audit.feed26_comment_letter_conversati` | `list_ref_ftp_fkey`, `list_form_dates`, `list_of_taxon`, `list_of_ciks`, `list_ppl_add_to`, `list_ppl_sent_letter`, `list_ppl_copied`, `list_cl_ftp_fkeys` | Conversation-level metadata stored as list-like text. |
+| `audit.feed31_shareholder_activism` | `*_keys`, `*_text` such as `agree_keys` / `agree_text` | Category keys and labels often behave like parallel lists. |
+| `audit.feed40_comment_letter_threads` | `question_*_list`, `answer_*_list` | Threaded question/answer issue and FASB references. |

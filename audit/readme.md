@@ -146,23 +146,30 @@ CROSS JOIN LATERAL UNNEST(
         regexp_replace(t.question_issue_key_list, '(^\|+|\|+$)', '', 'g'),
         '\|+'
     )
-) WITH ORDINALITY AS u(question_issue_text, question_issue_key, ord);
+) WITH ORDINALITY AS u(question_issue_text, question_issue_key, ord)
+ORDER BY comment_response_key;
 ```
 
-| comment_response_key | ord | question_issue_text             | question_issue_key |
-|---------------------:|----:|:--------------------------------|-------------------:|
-|               121411 |   1 | SFAS 157 issues                 |                197 |
-|               121411 |   2 | SFAS 107 issues                 |                477 |
-|               121424 |   1 | SFAS 128 issues                 |                395 |
-|               151406 |   1 | Securities Act Rule 418 issues  |               1594 |
-|                55631 |   1 | SEC Release No. 33-8350         |               2526 |
-|                55636 |   1 | SFAS 141 issues                 |                305 |
-|                55636 |   2 | SFAS 141, paragraph(s) 51-57    |                312 |
-|                55624 |   1 | SFAS 141 issues                 |                305 |
-|                55624 |   2 | SFAS 141, paragraph(s) 51-57    |                312 |
-|               512089 |   1 | Regulation S-K, Item 101 issues |                763 |
+| comment_response_key | ord | question_issue_text       | question_issue_key |
+|---------------------:|----:|:--------------------------|-------------------:|
+|                    1 |   1 | SFAS 133 issues           |                215 |
+|                    3 |   1 | SFAS 133 issues           |                215 |
+|                    3 |   2 | SFAS 133, paragraph(s) 68 |                342 |
+|                    6 |   1 | IAS 37 issues             |               1029 |
+|                    7 |   1 | IAS 37 issues             |               1029 |
+|                    8 |   1 | IFRS 1 issues             |               1044 |
+|                   13 |   1 | IAS 27 issues             |               1030 |
+|                   13 |   2 | IAS 28 issues             |               1121 |
+|                   25 |   1 | SFAS 5 issues             |                259 |
+|                   43 |   1 | SFAS 166 issues           |               1795 |
 
 Displaying records 1 - 10
+
+Here `CROSS JOIN LATERAL` evaluates `UNNEST(...)` once for each row of
+`feed40_comment_letter_threads`. That lets the array-building
+expressions refer to columns from the current row `t`, and it returns
+one output row per unnested element rather than one wide row containing
+arrays.
 
 If you want to check whether two delimited fields behave like parallel
 lists, compare their lengths first:
@@ -184,21 +191,22 @@ SELECT
     ) AS n_key
 FROM audit.feed40_comment_letter_threads
 WHERE question_issue_text_list IS NOT NULL
-   OR question_issue_key_list IS NOT NULL;
+   OR question_issue_key_list IS NOT NULL
+ORDER BY comment_response_key;
 ```
 
 | comment_response_key | n_text | n_key |
 |---------------------:|-------:|------:|
-|               673433 |      1 |     1 |
-|                 9024 |      2 |     2 |
-|                 9019 |      1 |     1 |
-|                 9048 |      1 |     1 |
-|                 9035 |      2 |     2 |
-|                 9052 |      2 |     2 |
-|                 9050 |      3 |     3 |
-|                 9038 |      3 |     3 |
-|                 9039 |      2 |     2 |
-|                 9056 |      1 |     1 |
+|                    1 |      1 |     1 |
+|                    3 |      2 |     2 |
+|                    6 |      1 |     1 |
+|                    7 |      1 |     1 |
+|                    8 |      1 |     1 |
+|                   13 |      2 |     2 |
+|                   25 |      1 |     1 |
+|                   43 |      2 |     2 |
+|                   52 |      2 |     2 |
+|                   54 |      2 |     2 |
 
 Displaying records 1 - 10
 
@@ -210,21 +218,22 @@ SELECT
     array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
     array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
 FROM audit.feed25_comment_letters
-WHERE iss_sec_keys IS NOT NULL;
+WHERE iss_sec_keys IS NOT NULL
+ORDER BY cl_con_id;
 ```
 
-| cl_con_id | iss_sec_keys_arr | iss_sec_text_arr             |
-|----------:|:-----------------|:-----------------------------|
-|      5414 | {2731}           | {“SEC Release No. 34-46427”} |
-|      5414 | {2731}           | {“SEC Release No. 34-46427”} |
-|      5277 | {2526}           | {“SEC Release No. 33-8350”}  |
-|      5277 | {2526}           | {“SEC Release No. 33-8350”}  |
-|     15965 | {2732}           | {“SEC Release No. 34-47226”} |
-|     37833 | {2732}           | {“SEC Release No. 34-47226”} |
-|     50968 | {2526}           | {“SEC Release No. 33-8350”}  |
-|     50968 | {2526}           | {“SEC Release No. 33-8350”}  |
-|     48414 | {2526}           | {“SEC Release No. 33-8350”}  |
-|     48414 | {2526}           | {“SEC Release No. 33-8350”}  |
+| cl_con_id | iss_sec_keys_arr | iss_sec_text_arr |
+|---:|:---|:---|
+| 2 | {2249,2526} | {“SEC Release No. 33-8238”,“SEC Release No. 33-8350”} |
+| 2 | {2249} | {“SEC Release No. 33-8238”} |
+| 3 | {2528} | {“SEC Release No. 33-8056”} |
+| 5 | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
+| 5 | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | {2144,2650} | {“SEC Release No. 33-8809”,“SEC Release No. 33-8810”} |
+| 5 | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
+| 5 | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | {2526} | {“SEC Release No. 33-8350”} |
 
 Displaying records 1 - 10
 
@@ -238,21 +247,22 @@ SELECT
     array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
     array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
 FROM audit.feed25_comment_letters
-WHERE iss_sec_keys IS NOT NULL;
+WHERE iss_sec_keys IS NOT NULL
+ORDER BY cl_con_id;
 ```
 
 | cl_con_id | iss_sec_keys_raw | iss_sec_text_raw | iss_sec_keys_arr | iss_sec_text_arr |
 |---:|:---|:---|:---|:---|
-| 2694 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
-| 22804 | \|2693\| | \|SEC Release No. 34-16833\| | {2693} | {“SEC Release No. 34-16833”} |
-| 74550 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
-| 74550 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
-| 120806 | \|3337\| | \|SEC Release No. IC-10666\| | {3337} | {“SEC Release No. IC-10666”} |
-| 133704 | \|3337\| | \|SEC Release No. IC-10666\| | {3337} | {“SEC Release No. IC-10666”} |
-| 140596 | \|2331\| | \|SEC Release No. IC-24828\| | {2331} | {“SEC Release No. IC-24828”} |
-| 4767 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
-| 4767 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
-| 110909 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 2 | \|2249\|2526\| | \|SEC Release No. 33-8238\|SEC Release No. 33-8350\| | {2249,2526} | {“SEC Release No. 33-8238”,“SEC Release No. 33-8350”} |
+| 2 | \|2249\| | \|SEC Release No. 33-8238\| | {2249} | {“SEC Release No. 33-8238”} |
+| 3 | \|2528\| | \|SEC Release No. 33-8056\| | {2528} | {“SEC Release No. 33-8056”} |
+| 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | \|2526\|2186\|2154\| | \|SEC Release No. 33-8350\|SEC Release No. 33-8591\|SEC Release No. 33-8760\| | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
+| 5 | \|2144\|2650\| | \|SEC Release No. 33-8809\|SEC Release No. 33-8810\| | {2144,2650} | {“SEC Release No. 33-8809”,“SEC Release No. 33-8810”} |
+| 5 | \|2526\|2186\|2154\| | \|SEC Release No. 33-8350\|SEC Release No. 33-8591\|SEC Release No. 33-8760\| | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
+| 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
 
 Displaying records 1 - 10
 
@@ -261,7 +271,7 @@ transformation easier to follow:
 
 ``` sql
 WITH parsed AS (
-    SELECT
+    SELECT DISTINCT
         cl_con_id,
         array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
         array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
@@ -277,20 +287,32 @@ FROM parsed AS p
 CROSS JOIN LATERAL UNNEST(
     p.iss_sec_keys_arr,
     p.iss_sec_text_arr
-) WITH ORDINALITY AS u(iss_sec_key, iss_sec_text, ord);
+) WITH ORDINALITY AS u(iss_sec_key, iss_sec_text, ord)
+ORDER BY p.cl_con_id, u.ord;
 ```
 
-| cl_con_id | ord | iss_sec_key | iss_sec_text             |
-|----------:|----:|------------:|:-------------------------|
-|      1135 |   1 |        2534 | SEC Release No. 34-17719 |
-|      1135 |   2 |        2702 | SEC Release No. 34-26069 |
-|      1135 |   1 |        2534 | SEC Release No. 34-17719 |
-|      1135 |   2 |        2702 | SEC Release No. 34-26069 |
-|     33619 |   1 |        2186 | SEC Release No. 33-8591  |
-|     65627 |   1 |        3344 | SEC Release No. IC-22530 |
-|     65627 |   2 |        2331 | SEC Release No. IC-24828 |
-|     74497 |   1 |        3287 | SEC Release No. IC-9785  |
-|     74497 |   1 |        3287 | SEC Release No. IC-9785  |
-|     90095 |   1 |        3337 | SEC Release No. IC-10666 |
+| cl_con_id | ord | iss_sec_key | iss_sec_text            |
+|----------:|----:|------------:|:------------------------|
+|         2 |   1 |        2249 | SEC Release No. 33-8238 |
+|         2 |   1 |        2249 | SEC Release No. 33-8238 |
+|         2 |   2 |        2526 | SEC Release No. 33-8350 |
+|         3 |   1 |        2528 | SEC Release No. 33-8056 |
+|         5 |   1 |        2144 | SEC Release No. 33-8809 |
+|         5 |   1 |        2526 | SEC Release No. 33-8350 |
+|         5 |   1 |        2526 | SEC Release No. 33-8350 |
+|         5 |   2 |        2186 | SEC Release No. 33-8591 |
+|         5 |   2 |        2650 | SEC Release No. 33-8810 |
+|         5 |   3 |        2154 | SEC Release No. 33-8760 |
 
 Displaying records 1 - 10
+
+The same general pattern applies to several other Audit Analytics
+tables:
+
+| Table | Fields | Notes |
+|----|----|----|
+| `audit.feed18_merger_acquisition` | `file_date_list`, `ftp_file_fkey_list`, `form_fkey_list`, `m_a_filings_keys_list` | Filing metadata stored as delimited lists. |
+| `audit.feed25_comment_letters` | `iss_*_keys`, `iss_*_text` | Parallel issue/reference key and text fields; `iss_sec_*` is one example. |
+| `audit.feed26_comment_letter_conversati` | `list_ref_ftp_fkey`, `list_form_dates`, `list_of_taxon`, `list_of_ciks`, `list_ppl_add_to`, `list_ppl_sent_letter`, `list_ppl_copied`, `list_cl_ftp_fkeys` | Conversation-level metadata stored as list-like text. |
+| `audit.feed31_shareholder_activism` | `*_keys`, `*_text` such as `agree_keys` / `agree_text` | Category keys and labels often behave like parallel lists. |
+| `audit.feed40_comment_letter_threads` | `question_*_list`, `answer_*_list` | Threaded question/answer issue and FASB references. |
