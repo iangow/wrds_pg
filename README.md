@@ -24,31 +24,34 @@ A common workflow involves queries that take minutes (or even hours) to run.
 Having the ability to store the results of these queries somewhere is essential.
 Being able to store them in a database is clearly superior to dumping them to alternative formats and then creating an import step.
 
-**Why use WRDS's SAS data, not the PostgreSQL database, as the source?**
+**Why use WRDS PostgreSQL as the source instead of querying WRDS directly for every project?**
 
-One answer is that this workflow effectively started in around 2011, which is long before WRDS had a PostgreSQL database.
+This repository now uses the WRDS PostgreSQL service as the source, with `db2pq` materializing selected tables into a local PostgreSQL database.
 
-Another answer is that, while WRDS has a PostgreSQL database, it seems clear that SAS is their primary focus.
-SAS basically has two data types: floating-point numeric and fixed-width characters.
-The WRDS PostgreSQL database often seems to inherit data types from WRDS SAS files.
-So fields that should be `text` are instead `varchar`, even though the latter format just [adds overhead](https://stackoverflow.com/questions/4848964/postgresql-difference-between-text-and-varchar-character-varying).
-Also, fields that are integers are stored as `double precision` in the PostgreSQL database (e.g., `permno` on CRSP data sets).
+That workflow still has a few practical advantages:
 
-Another sign of the SAS data provenance of WRDS's PostgreSQL data is the retention of variables that only make sense on SAS, such as string and numerical representations of dates.
+1. **Local control over schema and indexes.**
+You can add indexes, comments, derived tables, and other local structures that are specific to your own research workflow.
+2. **Repeatable local updates.**
+`db2pq` makes it straightforward to refresh a local mirror of selected WRDS tables and then work against that local copy.
+3. **Integration with downstream workflows.**
+The same tooling can support PostgreSQL-to-PostgreSQL and PostgreSQL-to-Parquet workflows, which is convenient when WRDS data is only one part of a larger pipeline.
 
-In contrast, the `db2pq` Python library examines the SAS data sets and attempts to infer the appropriate data type for each field.
-So integers are stored as `integer` and dates are stored as `date`.
-Inferring type relies on formatting in the SAS data files, and WRDS is very inconsistent in how carefully data sets are formatted.
-As a result, some times it's necessary to manually specify data types, which are inferred by visual inspection of the data or background information (e.g., we know that PERMNOs are integers).
-
-Another advantage of using the SAS data files is that they include information about when they were last modified.
-The `db2pq` package uses this information to do updates if and only if necessary.
-This makes maintaining a local subset of WRDS much easier.
+Historically, earlier versions of this repository relied more heavily on WRDS SAS data.
+That history explains some of the structure and some of the older design choices, but it is no longer the current workflow.
 
 Finally, the `db2pq` package is *fast*.
-I don't think one could match the performance of the `db2pq` package, which uses data compression and PostgreSQL's `COPY` function to import data.
-For example, merely downloading the 530MB `vavotesresult.sas7bdat` file in the `risk` library takes 63 seconds.
-In contrast, `db2pq` takes **9 seconds**!
+It uses efficient PostgreSQL-based transfer paths and makes it practical to keep local mirrors of large WRDS tables up to date.
+For example, merely downloading the 836 MB `vavotesresult.sas7bdat` file in the `risk` library takes 17 seconds. 
+
+```bash
+igow@Ians-Mac-mini-3 ~ % time scp "${WRDS_ID}"@wrds-cloud.wharton.upenn.edu:/wrds/riskmetrics/sasdata/voting_analytics/voteresults_us/vavoteresults.sas7bdat /tmp/
+
+vavoteresults.sas7bdat                                                                                                                            100%  797MB  53.0MB/s   00:15    
+scp  /tmp/  0.71s user 2.25s system 17% cpu 17.277 total
+```
+
+In contrast, `db2pq` takes a mere 6 seconds to populate my local PostgreSQL database!
 
 ```bash
 uv run python
@@ -56,15 +59,13 @@ uv run python
 
 ```python
 >>> from db2pq import wrds_update_pg
->>> wrds_update_pg("vavoteresults", "risk")
-Updated risk.vavoteresults is available.
-Getting from WRDS.
+>>> wrds_update_pg("vavoteresults", "risk", use_sas=True, force=True)
+Forcing update based on user request.
+Beginning file import at 2026-03-29 14:14:34 UTC.
+Importing data into risk.vavoteresults.
+Completed file import at 2026-03-29 14:14:40 UTC.
 
-Beginning file import at 14:58:20.
-Importing data into risk.vavoteresults
-Completed file import at 14:58:29.
 True
->>>
 ```
 
 ## Data sets covered
