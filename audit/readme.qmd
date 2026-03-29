@@ -61,6 +61,20 @@ This comprises 12 tables (table names listed in parentheses):
 In each case, the local database includes a table with the same name, but in general, we do not include *all* variables provided in the WRDS version of the table.
 A detailed discussion of the changes we make is given in the next section.
 
+### Accounting and Oversight
+
+This comprises 9 tables (table names listed in parentheses):
+
+ - Auditor Ratification (`feed55_auditor_ratification`)
+ - Accounting Estimates Changes (`feed56_accounting_estimates_chan`)
+ - Impairments (`feed65_impairments`)
+ - Audit Quality and Risk Matrix (`feed74_aqrm`)
+ - Critical Audit Matters (`feed78_critical_audit_matters`)
+ - Cybersecurity (`feed85_cybersecurity`)
+ - Audit Firm Events (`feed86_audit_firm_events`)
+ - PCAOB Reports (`feed89_pcaob_report`)
+ - AAER (`feed91_aaer`)
+
 ## Issues identified and fixed
 
 While Audit Analytics provides comprehensive data, the tables provided by WRDS, unfortunately, are a complete mess and the data are often not well-formatted. One particular issue is that the tables are very much *not* normalized. So there is a lot of duplicated data and tables are loaded with extraneous information. Also, some textual variables are split across a number of columns, and some textual data is placed in separate tables. We identified and fixed the following three issues.

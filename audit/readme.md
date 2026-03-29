@@ -72,6 +72,20 @@ but in general, we do not include *all* variables provided in the WRDS
 version of the table. A detailed discussion of the changes we make is
 given in the next section.
 
+### Accounting and Oversight
+
+This comprises 9 tables (table names listed in parentheses):
+
+- Auditor Ratification (`feed55_auditor_ratification`)
+- Accounting Estimates Changes (`feed56_accounting_estimates_chan`)
+- Impairments (`feed65_impairments`)
+- Audit Quality and Risk Matrix (`feed74_aqrm`)
+- Critical Audit Matters (`feed78_critical_audit_matters`)
+- Cybersecurity (`feed85_cybersecurity`)
+- Audit Firm Events (`feed86_audit_firm_events`)
+- PCAOB Reports (`feed89_pcaob_report`)
+- AAER (`feed91_aaer`)
+
 ## Issues identified and fixed
 
 While Audit Analytics provides comprehensive data, the tables provided
@@ -224,16 +238,16 @@ ORDER BY cl_con_id;
 
 | cl_con_id | iss_sec_keys_arr | iss_sec_text_arr |
 |---:|:---|:---|
-| 2 | {2249,2526} | {“SEC Release No. 33-8238”,“SEC Release No. 33-8350”} |
 | 2 | {2249} | {“SEC Release No. 33-8238”} |
+| 2 | {2249,2526} | {“SEC Release No. 33-8238”,“SEC Release No. 33-8350”} |
 | 3 | {2528} | {“SEC Release No. 33-8056”} |
-| 5 | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
-| 5 | {2526} | {“SEC Release No. 33-8350”} |
 | 5 | {2144,2650} | {“SEC Release No. 33-8809”,“SEC Release No. 33-8810”} |
 | 5 | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
 | 5 | {2526} | {“SEC Release No. 33-8350”} |
 | 5 | {2526} | {“SEC Release No. 33-8350”} |
 | 5 | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
 
 Displaying records 1 - 10
 
@@ -258,11 +272,11 @@ ORDER BY cl_con_id;
 | 3 | \|2528\| | \|SEC Release No. 33-8056\| | {2528} | {“SEC Release No. 33-8056”} |
 | 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
 | 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 5 | \|2526\|2186\|2154\| | \|SEC Release No. 33-8350\|SEC Release No. 33-8591\|SEC Release No. 33-8760\| | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
 | 5 | \|2526\|2186\|2154\| | \|SEC Release No. 33-8350\|SEC Release No. 33-8591\|SEC Release No. 33-8760\| | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
 | 5 | \|2144\|2650\| | \|SEC Release No. 33-8809\|SEC Release No. 33-8810\| | {2144,2650} | {“SEC Release No. 33-8809”,“SEC Release No. 33-8810”} |
-| 5 | \|2526\|2186\|2154\| | \|SEC Release No. 33-8350\|SEC Release No. 33-8591\|SEC Release No. 33-8760\| | {2526,2186,2154} | {“SEC Release No. 33-8350”,“SEC Release No. 33-8591”,“SEC Release No. 33-8760”} |
-| 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
-| 5 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
 
 Displaying records 1 - 10
 
