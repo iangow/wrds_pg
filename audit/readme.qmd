@@ -3,6 +3,8 @@ title: "Audit Analytics"
 format: gfm
 ---
 
+<!-- Render this file to regenerate audit/readme.md. -->
+
 Data comes from the WRDS PostgreSQL `audit` schema and is imported here using `db2pq`.
 
 ## Introduction

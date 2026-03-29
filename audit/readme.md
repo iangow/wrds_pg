@@ -1,6 +1,8 @@
 # Audit Analytics
 
 
+<!-- Render this file to regenerate audit/readme.md. -->
+
 Data comes from the WRDS PostgreSQL `audit` schema and is imported here
 using `db2pq`.
 
@@ -149,16 +151,16 @@ CROSS JOIN LATERAL UNNEST(
 
 | comment_response_key | ord | question_issue_text | question_issue_key |
 |---:|---:|:---|---:|
-| 498056 | 1 | EITF 00-21 issues | 664 |
-| 498212 | 1 | Regulation S-X, Article 8 issues | 2832 |
-| 498212 | 2 | Regulation S-X, Rule 8-02 issues | 2844 |
-| 88516 | 1 | EITF 03-1 issues | 1025 |
-| 88522 | 1 | FIN 46 (R) issues | 552 |
-| 88522 | 2 | EITF 01-8 issues | 2863 |
-| 88524 | 1 | SFAS 71 issues | 479 |
-| 59425 | 1 | Regulation S-K, Item 101 issues | 763 |
-| 59425 | 2 | Regulation S-K, Item 101(c) issues | 764 |
-| 59427 | 1 | Regulation S-K, Item 303 issues | 773 |
+| 23744 | 1 | SFAS 133 issues | 215 |
+| 306243 | 1 | Regulation S-K, Item 402 issues | 791 |
+| 306243 | 2 | Regulation S-K, Item 402(b) issues | 792 |
+| 494578 | 1 | Regulation S-X, Article 4 issues | 832 |
+| 494578 | 2 | Regulation S-X, Rule 4-08 issues | 840 |
+| 494578 | 3 | Regulation S-X, Rule 4-08(h) issues | 841 |
+| 494670 | 1 | Regulation S-X, Article 4 issues | 832 |
+| 494670 | 2 | Regulation S-X, Rule 4-08 issues | 840 |
+| 494670 | 3 | Regulation S-X, Rule 4-08(h) issues | 841 |
+| 494577 | 1 | Regulation S-K, Item 10 issues | 761 |
 
 Displaying records 1 - 10
 
@@ -187,16 +189,16 @@ WHERE question_issue_text_list IS NOT NULL
 
 | comment_response_key | n_text | n_key |
 |---------------------:|-------:|------:|
-|                53810 |      2 |     2 |
-|                53811 |      2 |     2 |
-|                53813 |      1 |     1 |
-|                53815 |      1 |     1 |
-|                53819 |      1 |     1 |
-|                53821 |      2 |     2 |
-|                53822 |      2 |     2 |
-|                53827 |      2 |     2 |
-|                53159 |      1 |     1 |
-|               214975 |      2 |     2 |
+|               534247 |      1 |     1 |
+|               534253 |      1 |     1 |
+|               534257 |      1 |     1 |
+|               534259 |      1 |     1 |
+|               534265 |      2 |     2 |
+|               433636 |      3 |     3 |
+|               433635 |      1 |     1 |
+|               432473 |      3 |     3 |
+|               432474 |      2 |     2 |
+|               438360 |      1 |     1 |
 
 Displaying records 1 - 10
 
@@ -212,16 +214,16 @@ WHERE iss_sec_keys IS NOT NULL;
 
 | cl_con_id | iss_sec_keys_arr |
 |----------:|:-----------------|
-|     11143 | {2699,2701,2783} |
-|     91130 | {3337}           |
-|     95802 | {3337}           |
-|     72439 | {2525,2526}      |
-|    125767 | {2526}           |
-|    125767 | {2526}           |
-|    187602 | {2526}           |
-|    187602 | {2526}           |
-|    115753 | {2095,3271}      |
-|      2534 | {2526}           |
+|     12767 | {2249}           |
+|     46429 | {2526}           |
+|     46429 | {2526}           |
+|     91100 | {2187}           |
+|    130779 | {2187}           |
+|     98322 | {2790}           |
+|     48451 | {2534}           |
+|     48451 | {2534}           |
+|      3098 | {2587}           |
+|     49580 | {2096}           |
 
 Displaying records 1 - 10
 
@@ -238,15 +240,15 @@ WHERE iss_sec_keys IS NOT NULL;
 
 | cl_con_id | iss_sec_keys_raw | iss_sec_keys_arr |
 |----------:|:-----------------|:-----------------|
-|     11531 | \|2249\|         | {2249}           |
-|     11531 | \|2249\|         | {2249}           |
-|     82083 | \|2268\|         | {2268}           |
-|     82083 | \|2589\|         | {2589}           |
-|     82083 | \|2589\|         | {2589}           |
-|     82083 | \|2268\|         | {2268}           |
-|     32976 | \|2534\|         | {2534}           |
-|     32976 | \|2534\|         | {2534}           |
-|     60870 | \|2526\|2068\|   | {2526,2068}      |
-|     60870 | \|2526\|2068\|   | {2526,2068}      |
+|    146096 | \|2526\|         | {2526}           |
+|    146096 | \|2526\|         | {2526}           |
+|      2057 | \|2144\|2650\|   | {2144,2650}      |
+|     21277 | \|2160\|         | {2160}           |
+|     21277 | \|2160\|         | {2160}           |
+|      6281 | \|2526\|         | {2526}           |
+|      6281 | \|2526\|         | {2526}           |
+|     57198 | \|2536\|2537\|   | {2536,2537}      |
+|     28428 | \|2160\|         | {2160}           |
+|     28428 | \|2160\|         | {2160}           |
 
 Displaying records 1 - 10
