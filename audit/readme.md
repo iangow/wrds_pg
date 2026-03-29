@@ -149,18 +149,18 @@ CROSS JOIN LATERAL UNNEST(
 ) WITH ORDINALITY AS u(question_issue_text, question_issue_key, ord);
 ```
 
-| comment_response_key | ord | question_issue_text | question_issue_key |
-|---:|---:|:---|---:|
-| 23744 | 1 | SFAS 133 issues | 215 |
-| 306243 | 1 | Regulation S-K, Item 402 issues | 791 |
-| 306243 | 2 | Regulation S-K, Item 402(b) issues | 792 |
-| 494578 | 1 | Regulation S-X, Article 4 issues | 832 |
-| 494578 | 2 | Regulation S-X, Rule 4-08 issues | 840 |
-| 494578 | 3 | Regulation S-X, Rule 4-08(h) issues | 841 |
-| 494670 | 1 | Regulation S-X, Article 4 issues | 832 |
-| 494670 | 2 | Regulation S-X, Rule 4-08 issues | 840 |
-| 494670 | 3 | Regulation S-X, Rule 4-08(h) issues | 841 |
-| 494577 | 1 | Regulation S-K, Item 10 issues | 761 |
+| comment_response_key | ord | question_issue_text             | question_issue_key |
+|---------------------:|----:|:--------------------------------|-------------------:|
+|               121411 |   1 | SFAS 157 issues                 |                197 |
+|               121411 |   2 | SFAS 107 issues                 |                477 |
+|               121424 |   1 | SFAS 128 issues                 |                395 |
+|               151406 |   1 | Securities Act Rule 418 issues  |               1594 |
+|                55631 |   1 | SEC Release No. 33-8350         |               2526 |
+|                55636 |   1 | SFAS 141 issues                 |                305 |
+|                55636 |   2 | SFAS 141, paragraph(s) 51-57    |                312 |
+|                55624 |   1 | SFAS 141 issues                 |                305 |
+|                55624 |   2 | SFAS 141, paragraph(s) 51-57    |                312 |
+|               512089 |   1 | Regulation S-K, Item 101 issues |                763 |
 
 Displaying records 1 - 10
 
@@ -189,16 +189,16 @@ WHERE question_issue_text_list IS NOT NULL
 
 | comment_response_key | n_text | n_key |
 |---------------------:|-------:|------:|
-|               534247 |      1 |     1 |
-|               534253 |      1 |     1 |
-|               534257 |      1 |     1 |
-|               534259 |      1 |     1 |
-|               534265 |      2 |     2 |
-|               433636 |      3 |     3 |
-|               433635 |      1 |     1 |
-|               432473 |      3 |     3 |
-|               432474 |      2 |     2 |
-|               438360 |      1 |     1 |
+|               673433 |      1 |     1 |
+|                 9024 |      2 |     2 |
+|                 9019 |      1 |     1 |
+|                 9048 |      1 |     1 |
+|                 9035 |      2 |     2 |
+|                 9052 |      2 |     2 |
+|                 9050 |      3 |     3 |
+|                 9038 |      3 |     3 |
+|                 9039 |      2 |     2 |
+|                 9056 |      1 |     1 |
 
 Displaying records 1 - 10
 
@@ -207,23 +207,24 @@ For integer identifiers:
 ``` sql
 SELECT
     cl_con_id,
-    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr
+    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
+    array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
 FROM audit.feed25_comment_letters
 WHERE iss_sec_keys IS NOT NULL;
 ```
 
-| cl_con_id | iss_sec_keys_arr |
-|----------:|:-----------------|
-|     12767 | {2249}           |
-|     46429 | {2526}           |
-|     46429 | {2526}           |
-|     91100 | {2187}           |
-|    130779 | {2187}           |
-|     98322 | {2790}           |
-|     48451 | {2534}           |
-|     48451 | {2534}           |
-|      3098 | {2587}           |
-|     49580 | {2096}           |
+| cl_con_id | iss_sec_keys_arr | iss_sec_text_arr             |
+|----------:|:-----------------|:-----------------------------|
+|      5414 | {2731}           | {“SEC Release No. 34-46427”} |
+|      5414 | {2731}           | {“SEC Release No. 34-46427”} |
+|      5277 | {2526}           | {“SEC Release No. 33-8350”}  |
+|      5277 | {2526}           | {“SEC Release No. 33-8350”}  |
+|     15965 | {2732}           | {“SEC Release No. 34-47226”} |
+|     37833 | {2732}           | {“SEC Release No. 34-47226”} |
+|     50968 | {2526}           | {“SEC Release No. 33-8350”}  |
+|     50968 | {2526}           | {“SEC Release No. 33-8350”}  |
+|     48414 | {2526}           | {“SEC Release No. 33-8350”}  |
+|     48414 | {2526}           | {“SEC Release No. 33-8350”}  |
 
 Displaying records 1 - 10
 
@@ -233,22 +234,63 @@ If you want to ignore empty strings explicitly, use:
 SELECT
     cl_con_id,
     iss_sec_keys AS iss_sec_keys_raw,
-    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr
+    iss_sec_text AS iss_sec_text_raw,
+    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
+    array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
 FROM audit.feed25_comment_letters
 WHERE iss_sec_keys IS NOT NULL;
 ```
 
-| cl_con_id | iss_sec_keys_raw | iss_sec_keys_arr |
-|----------:|:-----------------|:-----------------|
-|    146096 | \|2526\|         | {2526}           |
-|    146096 | \|2526\|         | {2526}           |
-|      2057 | \|2144\|2650\|   | {2144,2650}      |
-|     21277 | \|2160\|         | {2160}           |
-|     21277 | \|2160\|         | {2160}           |
-|      6281 | \|2526\|         | {2526}           |
-|      6281 | \|2526\|         | {2526}           |
-|     57198 | \|2536\|2537\|   | {2536,2537}      |
-|     28428 | \|2160\|         | {2160}           |
-|     28428 | \|2160\|         | {2160}           |
+| cl_con_id | iss_sec_keys_raw | iss_sec_text_raw | iss_sec_keys_arr | iss_sec_text_arr |
+|---:|:---|:---|:---|:---|
+| 2694 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 22804 | \|2693\| | \|SEC Release No. 34-16833\| | {2693} | {“SEC Release No. 34-16833”} |
+| 74550 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 74550 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 120806 | \|3337\| | \|SEC Release No. IC-10666\| | {3337} | {“SEC Release No. IC-10666”} |
+| 133704 | \|3337\| | \|SEC Release No. IC-10666\| | {3337} | {“SEC Release No. IC-10666”} |
+| 140596 | \|2331\| | \|SEC Release No. IC-24828\| | {2331} | {“SEC Release No. IC-24828”} |
+| 4767 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 4767 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+| 110909 | \|2526\| | \|SEC Release No. 33-8350\| | {2526} | {“SEC Release No. 33-8350”} |
+
+Displaying records 1 - 10
+
+If you want one row per paired key/text entry, a CTE makes the
+transformation easier to follow:
+
+``` sql
+WITH parsed AS (
+    SELECT
+        cl_con_id,
+        array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
+        array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
+    FROM audit.feed25_comment_letters
+    WHERE iss_sec_keys IS NOT NULL
+)
+SELECT
+    p.cl_con_id,
+    u.ord,
+    u.iss_sec_key,
+    u.iss_sec_text
+FROM parsed AS p
+CROSS JOIN LATERAL UNNEST(
+    p.iss_sec_keys_arr,
+    p.iss_sec_text_arr
+) WITH ORDINALITY AS u(iss_sec_key, iss_sec_text, ord);
+```
+
+| cl_con_id | ord | iss_sec_key | iss_sec_text             |
+|----------:|----:|------------:|:-------------------------|
+|      1135 |   1 |        2534 | SEC Release No. 34-17719 |
+|      1135 |   2 |        2702 | SEC Release No. 34-26069 |
+|      1135 |   1 |        2534 | SEC Release No. 34-17719 |
+|      1135 |   2 |        2702 | SEC Release No. 34-26069 |
+|     33619 |   1 |        2186 | SEC Release No. 33-8591  |
+|     65627 |   1 |        3344 | SEC Release No. IC-22530 |
+|     65627 |   2 |        2331 | SEC Release No. IC-24828 |
+|     74497 |   1 |        3287 | SEC Release No. IC-9785  |
+|     74497 |   1 |        3287 | SEC Release No. IC-9785  |
+|     90095 |   1 |        3337 | SEC Release No. IC-10666 |
 
 Displaying records 1 - 10
