@@ -151,7 +151,8 @@ For integer identifiers:
 --| connection: db
 SELECT
     cl_con_id,
-    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr
+    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
+    array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
 FROM audit.feed25_comment_letters
 WHERE iss_sec_keys IS NOT NULL;
 ```
@@ -163,7 +164,33 @@ If you want to ignore empty strings explicitly, use:
 SELECT
     cl_con_id,
     iss_sec_keys AS iss_sec_keys_raw,
-    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr
+    iss_sec_text AS iss_sec_text_raw,
+    array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
+    array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
 FROM audit.feed25_comment_letters
 WHERE iss_sec_keys IS NOT NULL;
+```
+
+If you want one row per paired key/text entry, a CTE makes the transformation easier to follow:
+
+```{sql}
+--| connection: db
+WITH parsed AS (
+    SELECT
+        cl_con_id,
+        array_remove(string_to_array(iss_sec_keys, '|', ''), NULL)::integer[] AS iss_sec_keys_arr,
+        array_remove(string_to_array(iss_sec_text, '|', ''), NULL) AS iss_sec_text_arr
+    FROM audit.feed25_comment_letters
+    WHERE iss_sec_keys IS NOT NULL
+)
+SELECT
+    p.cl_con_id,
+    u.ord,
+    u.iss_sec_key,
+    u.iss_sec_text
+FROM parsed AS p
+CROSS JOIN LATERAL UNNEST(
+    p.iss_sec_keys_arr,
+    p.iss_sec_text_arr
+) WITH ORDINALITY AS u(iss_sec_key, iss_sec_text, ord);
 ```
