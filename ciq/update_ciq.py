@@ -23,7 +23,8 @@ if updated:
 updated = wrds_update_pg(
     "ciqfincollection",
     "ciq",
-    col_types={"financialinstanceid": "integer", "financialcollectionid": "integer"},
+    col_types={"financialinstanceid": "integer", 
+               "financialcollectionid": "integer"},
 )
 if updated:
     process_sql("CREATE INDEX ON ciq.ciqfincollection (financialinstanceid)")
