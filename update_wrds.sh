@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$script_dir"
+
+if [[ -f .env ]]; then
+  set -a
+  . ./.env
+  set +a
+fi
+
 printf "Updating Audit Analytics (audit) ...\n"
 uv run python audit/update_acc_oversight.py
 uv run python audit/update_audit_compliance.py
@@ -14,7 +25,7 @@ uv run python ff/update_ff.py
 printf "\nUpdating IBES (ibes) ...\n"
 uv run python ibes/update_ibes.py
 printf "\nUpdating ISS voting (risk) ...\n"
-risk/update.sh
+bash risk/update.sh
 # printf "\nUpdating RavenPack (rpna) ...\n"
 # uv run python rpna/update_rpna.py
 printf "\nUpdating Thomson Reuters (tfn) ...\n"
