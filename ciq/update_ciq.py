@@ -14,7 +14,7 @@ updated = wrds_update_pg("wrds_cik", "ciq")
 if updated:
     process_sql("CREATE INDEX ON ciq.wrds_cik (companyid)")
 
-updated = wrds_update_pg("ciqfininstance", "ciq")
+updated = wrds_update_pg("ciqfininstance", "ciq", use_sas=True)
 if updated:
     process_sql("CREATE INDEX ON ciq.ciqfininstance (financialinstanceid)")
     process_sql("CREATE INDEX ON ciq.ciqfininstance (financialperiodid)")
