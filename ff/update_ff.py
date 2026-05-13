@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from db2pg import wrds_update_pg, wrds_get_tables
+from db2pq import wrds_update_pg, wrds_get_tables
 
 ff_tables = wrds_get_tables("ff_all")
 
