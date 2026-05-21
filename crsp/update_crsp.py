@@ -199,7 +199,7 @@ def main() -> None:
         "msp500",
         "msp500p",
         "mcti",
-        "mcti_corr",
+        # "mcti_corr",
         "msedist",
         "mseshares",
     ]:

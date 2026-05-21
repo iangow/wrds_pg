@@ -30,7 +30,7 @@ bash risk/update.sh
 # uv run python rpna/update_rpna.py
 printf "\nUpdating Thomson Reuters (tfn) ...\n"
 # uv run python tfn/update_tfn.py
-printf "\nUpdating Compustat segment data (compsegd) ...\n"
+printf "\nUpdating Compustat segment data (compseg) ...\n"
 uv run python compsegd/update_compsegd.py
 printf "\nUpdating WRDS apps (wrdsapps) ...\n"
 uv run python wrdsapps/update_wrdsapps.py

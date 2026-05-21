@@ -26,7 +26,6 @@ updated = wrds_update("feed01_auditors", "audit",
                                    "pcaob_reg_num": "integer",
                                    "pcaob_app_num": "integer",
                                    "aud_loc_key": "integer",
-                                   "eventdate_aud_fkey": "integer",
                                    "auditor_pcaob_reg": "boolean"})
 
 # Auditor Changes
@@ -58,8 +57,7 @@ updated = wrds_update("feed03_audit_fees", "audit",
                                    "audit_gig_key": "integer",
                                    "fiscal_year": "integer",
                                    "restatement": "boolean",
-                                   "fees_pcaob_reg": "boolean",
-                                   "is_benefit_plan": "boolean"},
+                                   "fees_pcaob_reg": "boolean"},
                       tz="America/New_York")
 
 # Audit Fees with Restatements
@@ -71,20 +69,18 @@ updated = wrds_update("feed04_audit_fees_restated", "audit",
                                    "audit_gig_key": "integer",
                                    "fiscal_year": "integer",
                                    "restatement": "boolean",
-                                   "fees_pcaob_reg": "boolean",
-                                   "is_benefit_plan": "boolean"},
+                                   "fees_pcaob_reg": "boolean"},
                       tz="America/New_York")
 
 updated = wrds_update("feed06_benefit_plan_opinions", "audit",
                       drop="^(match|prior|closest)",
                       col_types={"benefit_plan_key": "integer",
-                                   "auditor_fkey": "integer",
-                                   "auditor_affil_fkey": "integer",
+                                   "auditor_key": "integer",
                                    "is_nth_opinion": "integer",
-                                   "op_aud_pcaob": "boolean",
+                                   "op_aud_pcoab": "boolean",
                                    "going_concern": "boolean",
                                    "eventdate_aud_fkey": "integer",
-                                   "fiscal_year_of_op": "integer"})
+                                   "fiscal_year_end_op": "integer"})
 
 wrds_update("feed07_current_auditor", "audit",
             col_types={"auditor_key": "integer"})
