@@ -106,6 +106,16 @@ uv sync
 
 This will install the Python dependencies declared in `pyproject.toml`, including the local editable checkout of `db2pq`.
 
+Keep `uv.lock` committed so users start with the same dependency versions.
+Security minimums are declared in `pyproject.toml`: JupyterLab has a direct minimum,
+and `[tool.uv].constraint-dependencies` sets minimums for affected transitive dependencies.
+These constraints also apply when regenerating the lockfile with `uv`.
+They cover known fixes, so future security advisories still require review.
+
+When changing these minimums, run `uv lock` and commit both files.
+To deliberately update a package beyond its currently locked version, run
+`uv lock --upgrade-package PACKAGE`, then validate the updated environment.
+
 Run scripts through `uv` so they use the project environment:
 
 ```bash
