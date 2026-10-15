@@ -8,7 +8,18 @@ dependencies = [
     "db2pq[sas]>=0.2.10",
     "ipykernel>=7.2.0",
     "ipywidgets>=8.1.8",
-    "jupyterlab>=4.5.6",
+    "jupyterlab>=4.6.4",
+]
+
+[tool.uv]
+# Security floors for transitive dependencies; these do not add new dependencies.
+constraint-dependencies = [
+    "anyio>=4.14.2",
+    "cryptography>=50.0.0",
+    "jupyter-server>=2.21.0",
+    "soupsieve>=2.9",
+    "tornado>=6.5.9",
+    "urllib3>=2.8.0",
 ]
 
 [tool.uv.sources]
