@@ -15,6 +15,7 @@ dependencies = [
 # Security floors for transitive dependencies; these do not add new dependencies.
 constraint-dependencies = [
     "anyio>=4.14.2",
+    "certifi>=2026.10.19",
     "cryptography>=50.0.0",
     "jupyter-server>=2.21.0",
     "soupsieve>=2.9",
