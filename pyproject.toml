@@ -18,6 +18,7 @@ constraint-dependencies = [
     "certifi>=2026.10.19",
     "cryptography>=50.0.0",
     "jupyter-server>=2.21.0",
+    "nbconvert>=7.17.2",
     "soupsieve>=2.9",
     "tornado>=6.5.9",
     "urllib3>=2.8.0",
