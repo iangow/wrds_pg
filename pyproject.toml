@@ -20,7 +20,7 @@ constraint-dependencies = [
     "jupyter-server>=2.21.0",
     "nbconvert>=7.17.2",
     "soupsieve>=2.9",
-    "tornado>=6.5.9",
+    "tornado>=6.6",
     "urllib3>=2.8.0",
 ]
 
